@@ -126,6 +126,20 @@ fn test_invalid_campaign_creation() {
         &1500, // before 2000
     );
     assert_eq!(res2.unwrap_err(), Ok(ContractError::InvalidDeadline));
+
+    // Empty metadata fields
+    let empty_title = String::from_str(&env, "");
+    let res3 = client.try_create_campaign(
+        &creator,
+        &empty_title,
+        &desc,
+        &category,
+        &image_url,
+        &1000i128,
+        &asset,
+        &3000,
+    );
+    assert_eq!(res3.unwrap_err(), Ok(ContractError::InvalidMetadata));
 }
 
 #[test]
@@ -229,4 +243,47 @@ fn test_campaign_cancellation() {
     // Cannot set to Funded after cancelled
     let res = client.try_set_funded(&campaign_id, &escrow);
     assert_eq!(res.unwrap_err(), Ok(ContractError::InvalidStateTransition));
+}
+
+#[test]
+fn test_unauthorized_state_transitions() {
+    let (env, admin, creator, asset, client) = setup_test();
+    client.initialize(&admin);
+
+    let escrow = Address::generate(&env);
+    let unauthorized_user = Address::generate(&env);
+    client.set_escrow(&escrow);
+
+    env.ledger().set_timestamp(1000);
+
+    let campaign_id = client.create_campaign(
+        &creator,
+        &String::from_str(&env, "Secure Campaign"),
+        &String::from_str(&env, "Testing security invariants"),
+        &String::from_str(&env, "Security"),
+        &String::from_str(&env, "https://fundcircle.org/sec.png"),
+        &5_000_0000000i128,
+        &asset,
+        &8000,
+    );
+
+    client.submit_for_review(&campaign_id);
+    client.approve_campaign(&campaign_id);
+
+    // Unauthorized user attempts to mark as Funded -> must fail with Unauthorized
+    let res = client.try_set_funded(&campaign_id, &unauthorized_user);
+    assert_eq!(res.unwrap_err(), Ok(ContractError::Unauthorized));
+
+    // Unauthorized user attempts to cancel -> must fail
+    let res2 = client.try_cancel_campaign(&campaign_id, &unauthorized_user);
+    assert_eq!(res2.unwrap_err(), Ok(ContractError::Unauthorized));
+}
+
+#[test]
+fn test_lookup_nonexistent_campaign() {
+    let (_env, admin, _, _, client) = setup_test();
+    client.initialize(&admin);
+
+    let res = client.try_get_campaign(&999);
+    assert_eq!(res.unwrap_err(), Ok(ContractError::CampaignNotFound));
 }
