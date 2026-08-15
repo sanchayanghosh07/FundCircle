@@ -9,7 +9,7 @@ interface ActivityStore {
 
 const DEFAULT_INITIAL_ACTIVITIES: ActivityItem[] = [
   {
-    id: "act_1",
+    id: "act_init_1",
     type: "campaign_created",
     campaignId: 1,
     campaignTitle: "Community Solar Lanterns",
@@ -20,7 +20,7 @@ const DEFAULT_INITIAL_ACTIVITIES: ActivityItem[] = [
     details: "Campaign drafted for rural education solar lights",
   },
   {
-    id: "act_2",
+    id: "act_init_2",
     type: "campaign_approved",
     campaignId: 1,
     campaignTitle: "Community Solar Lanterns",
@@ -30,7 +30,7 @@ const DEFAULT_INITIAL_ACTIVITIES: ActivityItem[] = [
     details: "Approved by community reviewer and active for funding",
   },
   {
-    id: "act_3",
+    id: "act_init_3",
     type: "contributed",
     campaignId: 1,
     campaignTitle: "Community Solar Lanterns",
@@ -45,8 +45,13 @@ const DEFAULT_INITIAL_ACTIVITIES: ActivityItem[] = [
 export const useActivityStore = create<ActivityStore>((set) => ({
   activities: DEFAULT_INITIAL_ACTIVITIES,
   addActivity: (item) =>
-    set((state) => ({
-      activities: [item, ...state.activities.filter((a) => a.id !== item.id)].slice(0, 100),
-    })),
+    set((state) => {
+      if (state.activities.some((a) => a.id === item.id)) {
+        return state;
+      }
+      return {
+        activities: [item, ...state.activities].slice(0, 100),
+      };
+    }),
   setActivities: (items) => set({ activities: items }),
 }));
