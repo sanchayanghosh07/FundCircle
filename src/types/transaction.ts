@@ -1,4 +1,4 @@
-export type TxStatus =
+export type TransactionStatus =
   | "idle"
   | "preparing"
   | "simulating"
@@ -9,39 +9,29 @@ export type TxStatus =
   | "failed"
   | "rejected";
 
-export type TxType =
+export type TransactionType =
   | "create_campaign"
-  | "submit_for_review"
-  | "approve_campaign"
-  | "reject_campaign"
-  | "cancel_campaign"
   | "contribute"
   | "release_funds"
   | "claim_refund"
-  | "initialize_registry"
-  | "initialize_escrow";
+  | "cancel_campaign"
+  | "approve_campaign"
+  | "reject_campaign";
 
 export interface TransactionRecord {
   id: string;
-  type: TxType;
+  type: TransactionType;
   title: string;
-  hash?: string;
+  status: TransactionStatus;
+  statusMessage?: string;
   campaignId?: number;
   campaignTitle?: string;
   amount?: string;
   assetSymbol?: string;
   from?: string;
   to?: string;
-  status: TxStatus;
-  timestamp: number;
+  hash?: string;
   explorerUrl?: string;
   errorMessage?: string;
-  technicalDetails?: string;
-}
-
-export interface TransactionLifecycleState {
-  isOpen: boolean;
-  status: TxStatus;
-  activeTx?: TransactionRecord;
-  currentStepMessage?: string;
+  timestamp: number;
 }

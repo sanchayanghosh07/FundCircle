@@ -16,9 +16,9 @@ import { useTransactionStore } from "@/stores/transactionStore";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { getExplorerTxUrl } from "@/config/stellar";
-import { TxStatus } from "@/types/transaction";
+import { TransactionStatus } from "@/types/transaction";
 
-const LIFECYCLE_STEPS: { key: TxStatus; label: string; description: string }[] = [
+const LIFECYCLE_STEPS: { key: TransactionStatus; label: string; description: string }[] = [
   { key: "preparing", label: "Prepare", description: "Building transaction envelope" },
   { key: "simulating", label: "Simulate", description: "Verifying authorization & state on Soroban" },
   { key: "awaiting_signature", label: "Sign", description: "Awaiting wallet authorization" },
@@ -27,7 +27,7 @@ const LIFECYCLE_STEPS: { key: TxStatus; label: string; description: string }[] =
 ];
 
 export function TransactionLifecycleModal() {
-  const { isOpen, activeTx, currentStepMessage, closeModal } = useTransactionStore();
+  const { isOpen, activeTx, closeModal } = useTransactionStore();
 
   if (!isOpen || !activeTx) return null;
 
@@ -123,7 +123,7 @@ export function TransactionLifecycleModal() {
             {isFailed && <AlertCircle className="h-5 w-5 text-rose-400 shrink-0" />}
             
             <p className="text-xs text-slate-300 leading-relaxed font-mono">
-              {currentStepMessage || "Executing transaction lifecycle..."}
+              {activeTx.statusMessage || "Executing transaction lifecycle..."}
             </p>
           </div>
         </div>
@@ -185,7 +185,7 @@ export function TransactionLifecycleModal() {
   );
 }
 
-function getCurrentStepIndex(status: TxStatus): number {
+function getCurrentStepIndex(status: TransactionStatus): number {
   switch (status) {
     case "preparing":
       return 0;
