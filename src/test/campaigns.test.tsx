@@ -29,7 +29,7 @@ describe("Campaign Creation & Discovery Flow", () => {
       renderWithToast(<CreateCampaignPage />);
     });
 
-    expect(screen.getByText(/Create a Micro-Funding Campaign/i)).toBeInTheDocument();
+    expect(screen.getByText(/Launch a Micro-Funding Campaign/i)).toBeInTheDocument();
     expect(screen.getByPlaceholderText(/e.g. Solar Study Lights/i)).toBeInTheDocument();
     expect(screen.getByPlaceholderText(/Describe what your community project is about/i)).toBeInTheDocument();
     expect(screen.getByText(/Connect Wallet to Create/i)).toBeInTheDocument();
@@ -45,7 +45,7 @@ describe("Campaign Creation & Discovery Flow", () => {
       fireEvent.change(titleInput, { target: { value: "Community Solar Lights" } });
     });
 
-    expect(screen.getByText("Community Solar Lights")).toBeInTheDocument();
+    expect(screen.getAllByText("Community Solar Lights").length).toBeGreaterThan(0);
   });
 
   it("shows error validation when submitting short title or description", async () => {
@@ -72,8 +72,8 @@ describe("Campaign Creation & Discovery Flow", () => {
       renderWithToast(<CampaignsDiscoveryPage />);
     });
 
-    expect(screen.getByText(/Explore Community Campaigns/i)).toBeInTheDocument();
-    expect(screen.getByPlaceholderText(/Search campaigns by title/i)).toBeInTheDocument();
+    expect(screen.getByText(/Discover Active Campaigns/i)).toBeInTheDocument();
+    expect(screen.getByPlaceholderText(/Search campaigns by keyword/i)).toBeInTheDocument();
     expect(screen.getAllByText("Education").length).toBeGreaterThan(0);
     expect(screen.getAllByText("Environment").length).toBeGreaterThan(0);
   });

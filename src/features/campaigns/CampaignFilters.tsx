@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Search, Filter } from "lucide-react";
+import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 
 const CATEGORIES = [
@@ -12,10 +12,10 @@ const CATEGORIES = [
 ];
 
 const STATUSES = [
-  { label: "All Status", value: "all" },
+  { label: "All Campaigns", value: "all" },
   { label: "Active", value: "active" },
-  { label: "In Review", value: "review" },
-  { label: "Goal Reached", value: "funded" },
+  { label: "Suspended", value: "review" },
+  { label: "Goal Met", value: "funded" },
   { label: "Completed", value: "completed" },
 ];
 
@@ -33,19 +33,19 @@ export function CampaignFilters({
   setCategory: (c: string) => void;
   status: string;
   setStatus: (s: string) => void;
-}) {
+  }) {
   return (
-    <div className="space-y-4 mb-8">
+    <div className="space-y-4 mb-10">
       <div className="flex flex-col sm:flex-row gap-3 items-center justify-between">
         {/* Search input */}
         <div className="relative w-full sm:max-w-md">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500" />
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-pencil/50" />
           <Input
             type="text"
-            placeholder="Search campaigns by title, keywords, or scope..."
+            placeholder="Search campaigns by keyword, category, creator..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="pl-10 h-11 bg-slate-900/90 border-slate-800 focus:border-teal-500"
+            className="pl-10 h-11"
           />
         </div>
 
@@ -54,7 +54,7 @@ export function CampaignFilters({
           <select
             value={status}
             onChange={(e) => setStatus(e.target.value)}
-            className="h-11 rounded-lg border border-slate-800 bg-slate-900/90 px-3.5 py-2 text-xs font-medium text-slate-200 focus:outline-none focus:ring-2 focus:ring-teal-500 w-full sm:w-auto"
+            className="h-11 wobbly-border-sm border-2 border-pencil bg-white px-4 py-2 font-body font-bold text-base text-pencil shadow-hard-sm focus:outline-none focus:ring-2 focus:ring-pen-blue/20 w-full sm:w-auto cursor-pointer"
           >
             {STATUSES.map((s) => (
               <option key={s.value} value={s.value}>
@@ -66,17 +66,17 @@ export function CampaignFilters({
       </div>
 
       {/* Category Pills */}
-      <div className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar">
+      <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
         {CATEGORIES.map((cat) => {
           const isSelected = category === cat;
           return (
             <button
               key={cat}
               onClick={() => setCategory(cat)}
-              className={`rounded-xl px-4 py-1.5 text-xs font-semibold whitespace-nowrap transition-all ${
+              className={`wobbly-border-sm border-2 border-pencil px-4 py-1 font-body font-bold text-base whitespace-nowrap transition-all ${
                 isSelected
-                  ? "bg-teal-500 text-slate-950 shadow-md shadow-teal-500/20"
-                  : "bg-slate-900/80 text-slate-400 border border-slate-800 hover:text-white hover:bg-slate-800"
+                  ? "bg-postit-yellow text-pencil shadow-hard-sm -translate-y-0.5"
+                  : "bg-white text-pencil/80 hover:bg-paper-muted hover:text-pencil"
               }`}
             >
               {cat}

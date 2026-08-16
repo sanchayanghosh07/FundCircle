@@ -4,16 +4,11 @@ import * as React from "react";
 import { useRouter } from "next/navigation";
 import {
   PlusCircle,
-  Sparkles,
   Coins,
-  Calendar,
-  Image as ImageIcon,
-  Tag,
-  FileText,
   AlertCircle,
   Wallet,
   Loader2,
-  CheckCircle2,
+  Sparkles,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -26,6 +21,8 @@ import { useToast } from "@/components/ui/toast";
 import { registryService } from "@/services/stellar/registryService";
 import { walletKit } from "@/services/wallet/stellarWalletKit";
 import { getExplorerTxUrl, CONTRACT_CONFIG } from "@/config/stellar";
+import { Tape } from "@/components/ui/hand-drawn/Tape";
+import { Thumbtack } from "@/components/ui/hand-drawn/Thumbtack";
 
 const CATEGORIES = [
   "Education",
@@ -169,14 +166,13 @@ export default function CreateCampaignPage() {
   return (
     <div className="container mx-auto px-4 sm:px-6 py-12 max-w-4xl">
       <div className="mb-8">
-        <div className="inline-flex items-center gap-1.5 rounded-full bg-teal-950/60 border border-teal-500/30 px-3 py-0.5 text-xs font-semibold text-teal-300 mb-2">
-          <PlusCircle className="h-3.5 w-3.5" />
-          <span>Launch on Stellar</span>
+        <div className="inline-flex items-center gap-1.5 wobbly-border-sm bg-postit-yellow border-2 border-pencil px-3 py-0.5 text-xs font-heading font-bold text-pencil shadow-hard-sm mb-2">
+          <span>Start a Campaign</span>
         </div>
-        <h1 className="text-3xl font-extrabold text-white tracking-tight">
-          Create a Micro-Funding Campaign
+        <h1 className="font-heading text-4xl font-bold text-pencil tracking-tight">
+          Launch a Micro-Funding Campaign
         </h1>
-        <p className="text-xs text-slate-400 mt-1">
+        <p className="font-body text-lg text-pencil-light mt-1">
           Raise funds with verifiable Soroban smart contract escrow custody and transparent milestone releases.
         </p>
       </div>
@@ -185,26 +181,28 @@ export default function CreateCampaignPage() {
         {/* Form Container */}
         <form
           onSubmit={handleSubmit}
-          className="lg:col-span-2 space-y-6 rounded-3xl border border-slate-800 bg-slate-900/80 p-6 sm:p-8 backdrop-blur-sm"
+          className="relative lg:col-span-2 space-y-6 wobbly-border-md border-2 border-pencil bg-white p-6 sm:p-8 shadow-hard"
         >
+          <Tape rotation={-1} />
+
           {error && (
-            <div className="rounded-xl bg-rose-950/40 border border-rose-900/50 p-4 flex items-center gap-3 text-xs text-rose-200">
-              <AlertCircle className="h-5 w-5 text-rose-400 shrink-0" />
+            <div className="wobbly-border-sm bg-marker-red/10 border-2 border-marker-red p-4 flex items-center gap-3 font-body font-bold text-sm text-marker-red shadow-hard-sm">
+              <AlertCircle className="h-5 w-5 text-marker-red shrink-0" />
               <span>{error}</span>
             </div>
           )}
 
           {/* Title */}
           <div className="space-y-2">
-            <label className="text-xs font-semibold text-slate-200">
-              Campaign Title <span className="text-teal-400">*</span>
+            <label className="font-heading font-bold text-sm text-pencil">
+              Campaign Title <span className="text-marker-red">*</span>
             </label>
             <Input
               type="text"
               placeholder="e.g. Solar Study Lights for Community School"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="h-11 bg-slate-950 border-slate-800"
+              className="h-12 text-base font-body font-bold"
               required
             />
           </div>
@@ -212,13 +210,13 @@ export default function CreateCampaignPage() {
           {/* Category & Goal Row */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <label className="text-xs font-semibold text-slate-200">
-                Category <span className="text-teal-400">*</span>
+              <label className="font-heading font-bold text-sm text-pencil">
+                Category <span className="text-marker-red">*</span>
               </label>
               <select
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
-                className="h-11 w-full rounded-lg border border-slate-800 bg-slate-950 px-3 text-xs text-slate-200 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                className="h-11 w-full wobbly-border-sm border-2 border-pencil bg-white px-3 font-body font-bold text-base text-pencil shadow-hard-sm focus:outline-none focus:ring-2 focus:ring-pen-blue/20 cursor-pointer"
               >
                 {CATEGORIES.map((c) => (
                   <option key={c} value={c}>
@@ -229,11 +227,11 @@ export default function CreateCampaignPage() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-xs font-semibold text-slate-200">
-                Funding Target (XLM) <span className="text-teal-400">*</span>
+              <label className="font-heading font-bold text-sm text-pencil">
+                Funding Target (XLM) <span className="text-marker-red">*</span>
               </label>
               <div className="relative">
-                <Coins className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-teal-400" />
+                <Coins className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-pencil" />
                 <Input
                   type="number"
                   min="10"
@@ -241,7 +239,7 @@ export default function CreateCampaignPage() {
                   placeholder="e.g. 5000"
                   value={targetAmountXlm}
                   onChange={(e) => setTargetAmountXlm(e.target.value)}
-                  className="pl-10 h-11 font-mono font-bold bg-slate-950 border-slate-800"
+                  className="pl-11 h-11 font-heading font-bold text-base"
                   required
                 />
               </div>
@@ -250,8 +248,8 @@ export default function CreateCampaignPage() {
 
           {/* Deadline */}
           <div className="space-y-2">
-            <label className="text-xs font-semibold text-slate-200">
-              Campaign Duration (Days) <span className="text-teal-400">*</span>
+            <label className="font-heading font-bold text-sm text-pencil">
+              Campaign Duration (Days) <span className="text-marker-red">*</span>
             </label>
             <div className="grid grid-cols-4 gap-2">
               {[7, 14, 30, 60].map((d) => (
@@ -259,10 +257,10 @@ export default function CreateCampaignPage() {
                   key={d}
                   type="button"
                   onClick={() => setDeadlineDays(d)}
-                  className={`py-2 rounded-xl text-xs font-bold transition-all ${
+                  className={`py-2 wobbly-border-sm border-2 border-pencil font-body font-bold text-base transition-all ${
                     deadlineDays === d
-                      ? "bg-teal-500 text-slate-950 ring-2 ring-teal-400 font-bold"
-                      : "bg-slate-950 border border-slate-800 text-slate-400 hover:bg-slate-800 hover:text-white"
+                      ? "bg-postit-yellow text-pencil shadow-hard-sm -translate-y-0.5 font-black"
+                      : "bg-paper text-pencil hover:bg-paper-muted"
                   }`}
                 >
                   {d} Days
@@ -273,24 +271,24 @@ export default function CreateCampaignPage() {
 
           {/* Image Selection */}
           <div className="space-y-2">
-            <label className="text-xs font-semibold text-slate-200">
-              Cover Image URL <span className="text-teal-400">*</span>
+            <label className="font-heading font-bold text-sm text-pencil">
+              Cover Image URL <span className="text-marker-red">*</span>
             </label>
             <Input
               type="url"
               placeholder="https://images.unsplash.com/..."
               value={imageUrl}
               onChange={(e) => setImageUrl(e.target.value)}
-              className="h-11 bg-slate-950 border-slate-800 text-xs font-mono"
+              className="h-11 font-body text-sm"
             />
             <div className="flex items-center gap-2 pt-1 overflow-x-auto">
-              <span className="text-[11px] text-slate-500 shrink-0">Quick presets:</span>
+              <span className="font-body text-xs font-bold text-pencil-light shrink-0">Quick presets:</span>
               {SAMPLE_IMAGES.map((img) => (
                 <button
                   key={img.label}
                   type="button"
                   onClick={() => setImageUrl(img.url)}
-                  className="text-[11px] rounded-lg bg-slate-950 border border-slate-800 px-2.5 py-1 text-slate-400 hover:text-teal-300 shrink-0"
+                  className="font-body font-bold text-xs wobbly-border-sm border-2 border-pencil bg-paper px-2.5 py-0.5 text-pencil hover:bg-postit-yellow shrink-0 shadow-hard-sm"
                 >
                   {img.label}
                 </button>
@@ -300,15 +298,15 @@ export default function CreateCampaignPage() {
 
           {/* Description */}
           <div className="space-y-2">
-            <label className="text-xs font-semibold text-slate-200">
-              Project Description & Milestones <span className="text-teal-400">*</span>
+            <label className="font-heading font-bold text-sm text-pencil">
+              Project Description & Objectives <span className="text-marker-red">*</span>
             </label>
             <Textarea
-              rows={5}
+              rows={4}
               placeholder="Describe what your community project is about, who it benefits, and how funds will be used..."
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="bg-slate-950 border-slate-800 text-xs leading-relaxed"
+              className="font-body text-base leading-snug"
               required
             />
           </div>
@@ -319,7 +317,7 @@ export default function CreateCampaignPage() {
             disabled={isSubmitting}
             variant="stellar"
             size="lg"
-            className="w-full font-bold shadow-lg shadow-teal-500/20 gap-2"
+            className="w-full font-bold shadow-hard text-xl py-3.5 gap-2"
           >
             {isSubmitting ? (
               <>
@@ -340,37 +338,41 @@ export default function CreateCampaignPage() {
           </Button>
         </form>
 
-        {/* Live Preview Card */}
+        {/* Live Polaroid Preview Card */}
         <div className="space-y-4">
-          <h3 className="text-xs font-semibold text-slate-300 uppercase tracking-wider">
-            Live Preview Card
+          <h3 className="font-heading font-bold text-sm text-pencil uppercase tracking-wider">
+            Live Preview
           </h3>
-          <div className="rounded-2xl border border-slate-800 bg-slate-900/90 overflow-hidden shadow-xl">
-            <div className="relative h-44 w-full bg-slate-950">
+          <div className="relative w-full wobbly-border-md border-2 border-pencil bg-white p-4 shadow-hard">
+            <Thumbtack color="yellow" />
+
+            <div className="relative h-44 w-full overflow-hidden wobbly-border-sm border-2 border-pencil bg-paper-muted mb-3">
               <img
                 src={imageUrl || SAMPLE_IMAGES[0].url}
                 alt="Preview"
                 className="h-full w-full object-cover"
               />
-              <div className="absolute top-3 left-3">
-                <Badge variant="active">{category}</Badge>
+              <div className="absolute top-2.5 left-2.5">
+                <span className="wobbly-border-sm border-2 border-pencil bg-white/95 px-2 py-0.5 font-heading text-xs font-bold text-pencil">
+                  {category}
+                </span>
               </div>
-              <div className="absolute top-3 right-3">
-                <Badge variant="review">In Review</Badge>
+              <div className="absolute top-2.5 right-2.5">
+                <Badge variant="active">ACTIVE</Badge>
               </div>
             </div>
 
-            <div className="p-4 space-y-3">
-              <h4 className="text-sm font-bold text-white line-clamp-1">
+            <div className="space-y-2 px-1">
+              <h4 className="font-heading text-lg font-bold text-pencil line-clamp-1">
                 {title || "Your Campaign Title"}
               </h4>
-              <p className="text-xs text-slate-400 line-clamp-2">
+              <p className="font-body text-sm text-pencil-light line-clamp-2">
                 {description || "Project description will appear here as you type."}
               </p>
 
-              <div className="pt-2 border-t border-slate-800 flex justify-between items-center text-xs">
-                <span className="text-slate-400">Target Goal:</span>
-                <span className="text-teal-300 font-bold font-mono">
+              <div className="pt-2 border-t-2 border-dashed border-pencil/30 flex justify-between items-center font-body font-bold text-sm">
+                <span className="text-pencil-light">Target Goal:</span>
+                <span className="font-heading text-base font-bold text-marker-red font-mono">
                   {targetAmountXlm || "0"} XLM
                 </span>
               </div>

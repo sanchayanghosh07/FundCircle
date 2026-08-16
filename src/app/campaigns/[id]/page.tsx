@@ -4,7 +4,6 @@ import * as React from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import {
-  Coins,
   Clock,
   Users,
   ShieldCheck,
@@ -15,7 +14,7 @@ import {
   AlertCircle,
   CheckCircle2,
   Sparkles,
-  Lock,
+  Coins,
   RotateCcw,
   Check,
   Copy,
@@ -36,6 +35,8 @@ import { useWalletStore } from "@/stores/walletStore";
 import { useTransactionStore } from "@/stores/transactionStore";
 import { useToast } from "@/components/ui/toast";
 import { Campaign, ContributionRecord } from "@/types/campaign";
+import { Tape } from "@/components/ui/hand-drawn/Tape";
+import { Thumbtack } from "@/components/ui/hand-drawn/Thumbtack";
 import {
   shortenAddress,
   formatDate,
@@ -87,23 +88,23 @@ export default function CampaignDetailsPage() {
 
   if (loading) {
     return (
-      <div className="container mx-auto px-4 py-20 text-center">
-        <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-teal-500 border-r-transparent" />
-        <p className="mt-3 text-xs text-slate-400">Loading campaign details from Stellar ledger...</p>
+      <div className="container mx-auto px-4 py-24 text-center">
+        <div className="inline-block h-10 w-10 animate-spin rounded-full border-4 border-pencil border-r-transparent" />
+        <p className="mt-4 font-body text-xl text-pencil-light font-bold">Loading campaign details from ledger...</p>
       </div>
     );
   }
 
   if (!campaign) {
     return (
-      <div className="container mx-auto px-4 py-20 text-center space-y-4 max-w-md">
-        <AlertCircle className="h-12 w-12 text-rose-500 mx-auto" />
-        <h2 className="text-xl font-bold text-white">Campaign Not Found</h2>
-        <p className="text-xs text-slate-400">
+      <div className="container mx-auto px-4 py-24 text-center space-y-4 max-w-md">
+        <AlertCircle className="h-12 w-12 text-marker-red mx-auto" />
+        <h2 className="font-heading text-3xl font-bold text-pencil">Campaign Not Found</h2>
+        <p className="font-body text-lg text-pencil-light">
           The requested campaign does not exist in the Campaign Registry.
         </p>
         <Link href="/campaigns">
-          <Button variant="outline" size="sm">
+          <Button variant="outline" size="default">
             Back to Campaigns
           </Button>
         </Link>
@@ -324,14 +325,14 @@ export default function CampaignDetailsPage() {
   };
 
   return (
-    <div className="container mx-auto px-4 sm:px-6 py-10 max-w-6xl">
-      {/* Back Button */}
+    <div className="container mx-auto px-4 sm:px-6 py-10 max-w-5xl">
+      {/* Back Button & Share */}
       <div className="mb-6 flex items-center justify-between">
         <Link
           href="/campaigns"
-          className="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-white transition-colors"
+          className="inline-flex items-center gap-1.5 font-body font-bold text-lg text-pencil hover:text-marker-red hover:underline decoration-wavy transition-colors"
         >
-          <ArrowLeft className="h-4 w-4" />
+          <ArrowLeft className="h-5 w-5" />
           Back to Explore
         </Link>
 
@@ -339,9 +340,9 @@ export default function CampaignDetailsPage() {
           onClick={handleShare}
           variant="outline"
           size="sm"
-          className="gap-1.5 text-xs border-slate-800"
+          className="gap-1.5"
         >
-          {copied ? <Check className="h-3.5 w-3.5 text-emerald-400" /> : <Share2 className="h-3.5 w-3.5" />}
+          {copied ? <Check className="h-4 w-4 text-emerald-600" /> : <Share2 className="h-4 w-4" />}
           {copied ? "Link Copied" : "Share Campaign"}
         </Button>
       </div>
@@ -349,82 +350,88 @@ export default function CampaignDetailsPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Left Column: Visuals & Narrative */}
         <div className="lg:col-span-2 space-y-6">
-          {/* Banner Image */}
-          <div className="relative h-[320px] sm:h-[420px] w-full overflow-hidden rounded-3xl border border-slate-800 bg-slate-950 shadow-2xl">
-            <img
-              src={campaign.metadata.imageUrl || "https://images.unsplash.com/photo-1559027615-cd4628902d4a?w=800&auto=format&fit=crop&q=80"}
-              alt={campaign.metadata.title}
-              className="h-full w-full object-cover"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent" />
-            
-            <div className="absolute top-4 left-4 flex items-center gap-2">
-              <span className="rounded-full bg-slate-950/80 px-3 py-1 text-xs font-semibold text-teal-300 backdrop-blur-md border border-teal-500/30">
-                {campaign.metadata.category}
-              </span>
-              <span className="rounded-full bg-slate-900/80 px-3 py-1 text-xs font-semibold text-slate-300 backdrop-blur-md border border-slate-700">
-                ID #{campaign.id}
-              </span>
-              <Badge
-                variant={
-                  campaign.status === "active"
-                    ? "active"
-                    : campaign.status === "review" || campaign.status === "draft"
-                    ? "review"
-                    : "funded"
-                }
-                className="capitalize backdrop-blur-md"
-              >
-                {campaign.status === "review" ? "Suspended" : campaign.status}
-              </Badge>
+          {/* Polaroid Hero Card */}
+          <div className="relative w-full wobbly-border-md border-2 border-pencil bg-white p-4 sm:p-5 shadow-hard">
+            <Tape rotation={-1} />
+
+            <div className="relative h-[280px] sm:h-[360px] w-full overflow-hidden wobbly-border-sm border-2 border-pencil bg-paper-muted mb-4">
+              <img
+                src={campaign.metadata.imageUrl || "https://images.unsplash.com/photo-1559027615-cd4628902d4a?w=800&auto=format&fit=crop&q=80"}
+                alt={campaign.metadata.title}
+                className="h-full w-full object-cover"
+              />
+              
+              <div className="absolute top-3 left-3 flex items-center gap-2">
+                <span className="wobbly-border-sm border-2 border-pencil bg-white/95 px-3 py-1 font-heading text-xs font-bold text-pencil shadow-hard-sm">
+                  {campaign.metadata.category}
+                </span>
+                <span className="wobbly-border-sm border-2 border-pencil bg-paper-muted px-2.5 py-1 font-heading text-xs font-bold text-pencil shadow-hard-sm">
+                  #{campaign.id}
+                </span>
+              </div>
+
+              <div className="absolute top-3 right-3">
+                <Badge
+                  variant={
+                    campaign.status === "active"
+                      ? "active"
+                      : campaign.status === "review" || campaign.status === "draft"
+                      ? "review"
+                      : "funded"
+                  }
+                  className="text-xs"
+                >
+                  {campaign.status === "review" ? "SUSPENDED" : campaign.status.toUpperCase()}
+                </Badge>
+              </div>
             </div>
 
-            <div className="absolute bottom-4 left-4 right-4">
-              <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight leading-tight">
-                {campaign.metadata.title}
-              </h1>
-            </div>
+            <h1 className="font-heading text-3xl sm:text-4xl font-bold text-pencil leading-tight">
+              {campaign.metadata.title}
+            </h1>
           </div>
 
           {/* Project Details Narrative */}
-          <div className="rounded-3xl border border-slate-800 bg-slate-900/60 p-6 sm:p-8 space-y-6">
+          <div className="relative wobbly-border-md border-2 border-pencil bg-white p-6 sm:p-8 shadow-hard space-y-6">
+            <Thumbtack color="red" />
+
             <div className="space-y-3">
-              <h3 className="text-lg font-bold text-white">About the Project</h3>
-              <p className="text-sm leading-relaxed text-slate-300 whitespace-pre-line">
+              <h3 className="font-heading text-2xl font-bold text-pencil">About the Initiative</h3>
+              <p className="font-body text-xl leading-relaxed text-pencil-light whitespace-pre-line">
                 {campaign.metadata.description}
               </p>
             </div>
 
             {/* Soroban On-Chain Metadata Table */}
-            <div className="border-t border-slate-800 pt-6 space-y-3">
-              <h4 className="text-xs font-semibold text-slate-200 uppercase tracking-wider">
+            <div className="border-t-2 border-dashed border-pencil/30 pt-6 space-y-3">
+              <h4 className="font-heading text-sm font-bold text-pencil uppercase tracking-wider">
                 Blockchain Verification & Transparency
               </h4>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-                <div className="rounded-xl bg-slate-950/60 border border-slate-800/80 p-3 flex flex-col">
-                  <span className="text-slate-500 text-[11px]">Funding Asset</span>
-                  <span className="text-slate-200 font-semibold font-mono mt-0.5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+                <div className="wobbly-border-sm bg-paper border-2 border-pencil p-3 flex flex-col shadow-hard-sm">
+                  <span className="font-heading text-xs text-pencil-muted font-bold">Funding Asset</span>
+                  <span className="font-body text-base font-bold text-pencil mt-0.5">
                     Stellar Lumens (XLM SAC)
                   </span>
                 </div>
 
-                <div className="rounded-xl bg-slate-950/60 border border-slate-800/80 p-3 flex flex-col">
-                  <span className="text-slate-500 text-[11px]">Launch Date</span>
-                  <span className="text-slate-200 font-semibold font-mono mt-0.5">
+                <div className="wobbly-border-sm bg-paper border-2 border-pencil p-3 flex flex-col shadow-hard-sm">
+                  <span className="font-heading text-xs text-pencil-muted font-bold">Launch Date</span>
+                  <span className="font-body text-base font-bold text-pencil mt-0.5">
                     {formatDate(campaign.createdAt)}
                   </span>
                 </div>
 
-                <div className="rounded-xl bg-slate-950/60 border border-slate-800/80 p-3 flex flex-col sm:col-span-2">
-                  <span className="text-slate-500 text-[11px]">Project Creator</span>
+                <div className="wobbly-border-sm bg-paper border-2 border-pencil p-3 flex flex-col sm:col-span-2 shadow-hard-sm">
+                  <span className="font-heading text-xs text-pencil-muted font-bold">Project Creator</span>
                   <a
                     href={getExplorerAccountUrl(campaign.creator)}
                     target="_blank"
                     rel="noreferrer"
-                    className="text-teal-400 hover:text-teal-300 font-mono font-medium flex items-center gap-1 mt-0.5"
+                    className="font-body font-bold text-pen-blue hover:text-marker-red hover:underline decoration-wavy flex items-center gap-1 mt-0.5 break-all"
                   >
                     {campaign.creator}
-                    <ExternalLink className="h-3 w-3" />
+                    <ExternalLink className="h-3.5 w-3.5 shrink-0" />
                   </a>
                 </div>
               </div>
@@ -434,71 +441,73 @@ export default function CampaignDetailsPage() {
 
         {/* Right Column: Funding Panel & Actions */}
         <div className="space-y-6">
-          {/* Main Funding Progress Card */}
-          <div className="rounded-3xl border border-slate-800 bg-slate-900/90 p-6 sm:p-7 shadow-xl backdrop-blur-md space-y-6">
+          {/* Post-It Style Funding Box */}
+          <div className="relative wobbly-border-md border-2 border-pencil bg-postit-yellow p-6 sm:p-7 shadow-hard-lg space-y-6">
+            <Tape rotation={2} />
+
             {/* Amount Status */}
             <div className="space-y-2">
               <div className="flex items-baseline justify-between">
                 <div className="flex flex-col">
-                  <span className="text-3xl font-black text-white font-mono tracking-tight">
-                    {campaign.totalRaisedXlm}
+                  <span className="font-heading text-4xl font-black text-pencil tracking-tight">
+                    {campaign.totalRaisedXlm} <span className="text-xl">XLM</span>
                   </span>
-                  <span className="text-xs text-slate-400 font-medium">
-                    XLM raised of <span className="text-slate-200 font-mono font-semibold">{campaign.targetAmountXlm} XLM</span> goal
+                  <span className="font-body text-base text-pencil font-bold">
+                    raised of <span className="font-heading font-bold">{campaign.targetAmountXlm} XLM</span> goal
                   </span>
                 </div>
-                <span className="text-xl font-bold text-teal-400 font-mono">
+                <span className="font-heading text-2xl font-bold text-marker-red">
                   {campaign.progressPercentage}%
                 </span>
               </div>
 
-              <Progress value={campaign.progressPercentage} max={100} className="h-3" />
+              <Progress value={campaign.progressPercentage} max={100} className="h-4 bg-white" />
             </div>
 
             {/* Metrics */}
-            <div className="grid grid-cols-2 gap-3 py-3 border-y border-slate-800/80 text-xs">
+            <div className="grid grid-cols-2 gap-3 py-3 border-y-2 border-dashed border-pencil/30 text-sm">
               <div className="flex items-center gap-2">
-                <Users className="h-4 w-4 text-teal-400" />
+                <Users className="h-5 w-5 text-pencil" />
                 <div>
-                  <p className="font-bold text-white font-mono">{campaign.contributorCount}</p>
-                  <p className="text-[11px] text-slate-400">Contributors</p>
+                  <p className="font-heading font-bold text-lg text-pencil">{campaign.contributorCount}</p>
+                  <p className="font-body text-sm text-pencil-muted font-bold">Contributors</p>
                 </div>
               </div>
 
               <div className="flex items-center gap-2">
-                <Clock className="h-4 w-4 text-teal-400" />
+                <Clock className="h-5 w-5 text-pencil" />
                 <div>
-                  <p className="font-bold text-white font-mono">{countdown.formatted}</p>
-                  <p className="text-[11px] text-slate-400">Time Left</p>
+                  <p className="font-heading font-bold text-lg text-pencil">{countdown.formatted}</p>
+                  <p className="font-body text-sm text-pencil-muted font-bold">Time Left</p>
                 </div>
               </div>
             </div>
 
             {/* User Previous Contribution Banner */}
             {userContribution && BigInt(userContribution.amount) > 0n && (
-              <div className="rounded-xl bg-teal-950/40 border border-teal-800/50 p-3 flex items-center justify-between text-xs">
-                <div className="flex items-center gap-2 text-teal-300 font-medium">
-                  <CheckCircle2 className="h-4 w-4 text-teal-400" />
-                  <span>Your Total Pledge:</span>
+              <div className="wobbly-border-sm bg-white border-2 border-pencil p-3 flex items-center justify-between shadow-hard-sm">
+                <div className="flex items-center gap-2 font-body font-bold text-pencil">
+                  <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+                  <span>Your Pledge:</span>
                 </div>
-                <span className="font-bold text-white font-mono">{userContribution.amountXlm} XLM</span>
+                <span className="font-heading font-bold text-pencil text-base">{userContribution.amountXlm} XLM</span>
               </div>
             )}
 
             {/* Suspended Alert Banner */}
             {(campaign.status === "review" || campaign.status === "draft") && (
-              <div className="rounded-2xl bg-amber-950/30 border border-amber-800/40 p-4 space-y-2">
-                <div className="flex items-center gap-2 text-amber-300 text-xs font-semibold">
+              <div className="wobbly-border-sm bg-white border-2 border-marker-red p-3.5 space-y-1.5 shadow-hard-sm">
+                <div className="flex items-center gap-2 text-marker-red font-heading font-bold text-sm">
                   <AlertCircle className="h-4 w-4 shrink-0" />
                   <span>Funding Paused / Suspended</span>
                 </div>
-                <p className="text-[11px] text-slate-300 leading-relaxed">
-                  This campaign is currently suspended by administration. Public contributions are temporarily paused.
+                <p className="font-body text-sm text-pencil leading-snug">
+                  This campaign is currently suspended by administration. Public contributions are paused.
                 </p>
               </div>
             )}
 
-            {/* Primary Action Buttons based on state */}
+            {/* Primary Action Buttons */}
             <div className="space-y-3 pt-1">
               {campaign.status === "active" ? (
                 isConnected ? (
@@ -506,17 +515,17 @@ export default function CampaignDetailsPage() {
                     onClick={() => setContributeModalOpen(true)}
                     variant="stellar"
                     size="lg"
-                    className="w-full font-bold shadow-lg shadow-teal-500/20 gap-2 text-sm"
+                    className="w-full font-bold shadow-hard text-xl py-3.5 gap-2"
                   >
-                    <Heart className="h-5 w-5 fill-current text-teal-950" />
-                    Back this Project / Contribute Now
+                    <Heart className="h-5 w-5 fill-current text-white" />
+                    Back this Project / Contribute
                   </Button>
                 ) : (
                   <Button
                     onClick={handleConnectWallet}
                     variant="stellar"
                     size="lg"
-                    className="w-full font-bold shadow-lg shadow-teal-500/20 gap-2 text-sm"
+                    className="w-full font-bold shadow-hard text-xl py-3.5 gap-2"
                   >
                     <Wallet className="h-5 w-5" />
                     Connect Wallet to Contribute
@@ -524,14 +533,14 @@ export default function CampaignDetailsPage() {
                 )
               ) : null}
 
-              {/* Admin Moderation Controls */}
-              <div className="rounded-2xl bg-slate-950/80 border border-slate-800 p-3 space-y-2">
-                <div className="flex items-center justify-between text-[11px] font-semibold text-slate-400">
-                  <span className="flex items-center gap-1 text-amber-300">
-                    <ShieldAlert className="h-3.5 w-3.5" />
+              {/* Admin Moderation Controls Box */}
+              <div className="wobbly-border-sm bg-white border-2 border-pencil p-3 space-y-2 shadow-hard-sm">
+                <div className="flex items-center justify-between text-xs font-heading font-bold text-pencil">
+                  <span className="flex items-center gap-1 text-marker-red">
+                    <ShieldAlert className="h-4 w-4" />
                     Admin Moderation
                   </span>
-                  <span className="font-mono text-[10px] text-slate-500">
+                  <span className="font-body text-xs text-pencil-muted">
                     {shortenAddress(CONTRACT_CONFIG.adminAddress)}
                   </span>
                 </div>
@@ -542,18 +551,18 @@ export default function CampaignDetailsPage() {
                     disabled={isProcessingAction}
                     variant="outline"
                     size="sm"
-                    className="w-full gap-1.5 text-xs text-amber-300 border-amber-900/40 hover:bg-amber-950/40"
+                    className="w-full gap-1.5 text-sm font-bold text-marker-red hover:bg-marker-red hover:text-white"
                   >
-                    <PauseCircle className="h-4 w-4 text-amber-400" />
+                    <PauseCircle className="h-4 w-4" />
                     Suspend Campaign
                   </Button>
                 ) : (
                   <Button
                     onClick={handleResumeCampaign}
                     disabled={isProcessingAction}
-                    variant="stellar"
+                    variant="default"
                     size="sm"
-                    className="w-full gap-1.5 text-xs font-bold"
+                    className="w-full gap-1.5 text-sm font-bold"
                   >
                     <PlayCircle className="h-4 w-4" />
                     Resume Campaign
@@ -566,9 +575,9 @@ export default function CampaignDetailsPage() {
                 <Button
                   onClick={handleReleaseFunds}
                   disabled={isProcessingAction}
-                  variant="stellar"
+                  variant="yellow"
                   size="lg"
-                  className="w-full font-bold bg-emerald-600 hover:bg-emerald-700 gap-2"
+                  className="w-full font-bold gap-2"
                 >
                   <Coins className="h-5 w-5" />
                   Disburse Raised Funds ({campaign.totalRaisedXlm} XLM)
@@ -587,7 +596,7 @@ export default function CampaignDetailsPage() {
                     className="w-full font-bold gap-2"
                   >
                     <RotateCcw className="h-5 w-5" />
-                    Claim Full Refund ({userContribution.amountXlm} XLM)
+                    Claim Refund ({userContribution.amountXlm} XLM)
                   </Button>
                 )}
 
@@ -596,19 +605,19 @@ export default function CampaignDetailsPage() {
                 <button
                   onClick={handleCancelCampaign}
                   disabled={isProcessingAction}
-                  className="w-full text-center text-xs text-rose-400 hover:underline pt-2 font-medium"
+                  className="w-full text-center font-body font-bold text-sm text-marker-red hover:underline pt-2"
                 >
                   Cancel Campaign
                 </button>
               )}
             </div>
 
-            {/* Trust Assurance */}
-            <div className="flex items-center gap-2 rounded-xl bg-slate-950 p-3 text-[11px] text-slate-400 border border-slate-800/60">
-              <ShieldCheck className="h-4 w-4 text-emerald-400 shrink-0" />
+            {/* Escrow Custody Assurance */}
+            <div className="flex items-center gap-2 wobbly-border-sm bg-white p-2.5 text-xs font-body font-bold text-pencil border-2 border-pencil shadow-hard-sm">
+              <ShieldCheck className="h-4 w-4 text-emerald-600 shrink-0" />
               <span>
-                Funds held in escrow contract{" "}
-                <span className="font-mono text-slate-300">
+                Escrow Custody:{" "}
+                <span className="font-heading text-pen-blue">
                   {shortenAddress(CONTRACT_CONFIG.escrowContractId)}
                 </span>
               </span>

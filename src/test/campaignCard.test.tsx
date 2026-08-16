@@ -35,7 +35,7 @@ describe("CampaignCard Component", () => {
     expect(screen.getByText("Solar Study Lights")).toBeInTheDocument();
     expect(screen.getByText("Education")).toBeInTheDocument();
     expect(screen.getByText("2,500")).toBeInTheDocument();
-    expect(screen.getByText("5,000")).toBeInTheDocument();
-    expect(screen.getByText("Active")).toBeInTheDocument();
+    expect(screen.getByText(/5,000/i)).toBeInTheDocument();
+    expect(screen.getByText(/ACTIVE/i)).toBeInTheDocument();
   });
 });

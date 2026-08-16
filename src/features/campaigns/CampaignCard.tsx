@@ -1,108 +1,102 @@
 import * as React from "react";
 import Link from "next/link";
-import Image from "next/image";
-import { Clock, Users, ArrowUpRight, ShieldCheck, Sparkles } from "lucide-react";
+import { Clock, ArrowUpRight, Sparkles } from "lucide-react";
 import { Campaign } from "@/types/campaign";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { shortenAddress, getCountdown } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Tape } from "@/components/ui/hand-drawn/Tape";
+import { getCountdown } from "@/lib/utils";
 
-export function CampaignCard({ campaign }: { campaign: Campaign }) {
+export function CampaignCard({ campaign, rotation = 0 }: { campaign: Campaign; rotation?: number }) {
   const countdown = getCountdown(campaign.deadline);
 
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "active":
-        return <Badge variant="active">Active</Badge>;
+        return <Badge variant="active">ACTIVE</Badge>;
       case "review":
-        return <Badge variant="review">In Review</Badge>;
+        return <Badge variant="review">SUSPENDED</Badge>;
       case "funded":
-        return <Badge variant="success">Goal Reached</Badge>;
+        return <Badge variant="funded">GOAL MET</Badge>;
       case "completed":
-        return <Badge variant="success">Completed</Badge>;
+        return <Badge variant="completed">COMPLETED</Badge>;
       case "cancelled":
-        return <Badge variant="destructive">Cancelled</Badge>;
+        return <Badge variant="destructive">CANCELLED</Badge>;
       case "refund":
-        return <Badge variant="warning">Refund Open</Badge>;
+        return <Badge variant="warning">REFUND OPEN</Badge>;
       default:
-        return <Badge variant="draft">Draft</Badge>;
+        return <Badge variant="draft">DRAFT</Badge>;
     }
   };
 
   return (
-    <div className="group flex flex-col justify-between overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/70 backdrop-blur-sm transition-all duration-300 hover:border-teal-500/40 hover:shadow-xl hover:shadow-teal-950/20 hover:-translate-y-1">
+    <div
+      style={{ transform: rotation ? `rotate(${rotation}deg)` : undefined }}
+      className="group relative flex flex-col justify-between wobbly-border-md border-2 border-pencil bg-white p-4 shadow-hard hover:shadow-hard-lg hover:rotate-1 transition-all duration-150"
+    >
+      <Tape rotation={-1.5} />
+
       <div>
-        {/* Cover Image & Category */}
-        <div className="relative h-48 w-full overflow-hidden bg-slate-950">
+        {/* Polaroid Snapshot Area */}
+        <div className="relative h-48 w-full overflow-hidden wobbly-border-sm border-2 border-pencil bg-paper-muted mb-4">
           <img
             src={campaign.metadata.imageUrl || "https://images.unsplash.com/photo-1559027615-cd4628902d4a?w=800&auto=format&fit=crop&q=80"}
             alt={campaign.metadata.title}
-            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent" />
           
-          <div className="absolute top-3 left-3 flex items-center gap-1.5">
-            <span className="rounded-full bg-slate-950/80 px-2.5 py-0.5 text-xs font-semibold text-teal-300 backdrop-blur-md border border-teal-500/30">
+          <div className="absolute top-2.5 left-2.5">
+            <span className="wobbly-border-sm border-2 border-pencil bg-white/90 px-2 py-0.5 font-heading text-xs font-bold text-pencil shadow-hard-sm">
               {campaign.metadata.category}
             </span>
           </div>
 
-          <div className="absolute top-3 right-3">
+          <div className="absolute top-2.5 right-2.5">
             {getStatusBadge(campaign.status)}
           </div>
         </div>
 
-        {/* Card Body */}
-        <div className="p-5 space-y-3.5">
-          <div className="space-y-1.5">
-            <Link
-              href={`/campaigns/${campaign.id}`}
-              className="group-hover:text-teal-300 transition-colors block"
-            >
-              <h3 className="line-clamp-1 text-base font-bold text-white tracking-tight">
-                {campaign.metadata.title}
-              </h3>
-            </Link>
-            <p className="line-clamp-2 text-xs text-slate-400 leading-relaxed">
-              {campaign.metadata.description}
-            </p>
-          </div>
+        {/* Narrative & Details */}
+        <div className="space-y-3 px-1">
+          <Link href={`/campaigns/${campaign.id}`} className="block">
+            <h3 className="line-clamp-1 font-heading text-xl font-bold text-pencil hover:text-marker-red transition-colors">
+              {campaign.metadata.title}
+            </h3>
+          </Link>
+          <p className="line-clamp-2 font-body text-base text-pencil-light leading-snug">
+            {campaign.metadata.description}
+          </p>
 
           {/* Progress Bar & Amounts */}
           <div className="space-y-2 pt-1">
             <Progress value={campaign.progressPercentage} max={100} />
 
-            <div className="flex items-center justify-between text-xs">
-              <div className="flex flex-col">
-                <span className="text-[11px] text-slate-500 font-medium">Raised</span>
-                <span className="font-bold text-white font-mono">
-                  {campaign.totalRaisedXlm} <span className="text-teal-400 font-normal">XLM</span>
-                </span>
+            <div className="flex items-baseline justify-between font-heading text-sm">
+              <div>
+                <span className="text-xl font-bold text-marker-red font-mono">{campaign.totalRaisedXlm}</span>
+                <span className="text-pencil font-bold ml-1 text-xs">XLM</span>
               </div>
-              <div className="flex flex-col items-end">
-                <span className="text-[11px] text-slate-500 font-medium">Goal</span>
-                <span className="font-bold text-slate-300 font-mono">
-                  {campaign.targetAmountXlm} <span className="text-slate-500 font-normal">XLM</span>
-                </span>
+              <div className="text-right text-xs text-pencil-muted font-bold">
+                Goal: <span className="text-pencil font-mono">{campaign.targetAmountXlm} XLM</span>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Card Footer */}
-      <div className="border-t border-slate-800/80 p-4 bg-slate-950/40 flex items-center justify-between text-xs text-slate-400">
-        <div className="flex items-center gap-1.5 font-medium">
-          <Clock className="h-3.5 w-3.5 text-teal-400" />
+      {/* Footer Details & Action */}
+      <div className="border-t-2 border-dashed border-pencil/30 mt-4 pt-3 px-1 flex items-center justify-between font-body text-base">
+        <div className="flex items-center gap-1.5 text-pencil font-bold text-sm">
+          <Clock className="h-4 w-4 text-pen-blue" />
           <span>{countdown.formatted}</span>
         </div>
 
-        <Link
-          href={`/campaigns/${campaign.id}`}
-          className="inline-flex items-center gap-1 text-teal-400 font-semibold hover:text-teal-300 transition-colors group-hover:translate-x-0.5"
-        >
-          View Details
-          <ArrowUpRight className="h-3.5 w-3.5" />
+        <Link href={`/campaigns/${campaign.id}`}>
+          <Button variant="default" size="sm" className="text-sm py-0.5 px-3 h-8">
+            View Project
+            <ArrowUpRight className="h-3.5 w-3.5 ml-1" />
+          </Button>
         </Link>
       </div>
     </div>

@@ -134,7 +134,7 @@ export function ContributeModal({
       <div className="space-y-5 pt-2">
         {/* Preset Amount Chips */}
         <div className="space-y-2">
-          <label className="text-xs font-semibold text-slate-300">
+          <label className="font-heading font-bold text-sm text-pencil">
             Select Preset Amount
           </label>
           <div className="grid grid-cols-5 gap-2">
@@ -145,10 +145,10 @@ export function ContributeModal({
                   key={val}
                   type="button"
                   onClick={() => handlePreset(val)}
-                  className={`rounded-xl py-2 text-xs font-bold transition-all ${
+                  className={`wobbly-border-sm border-2 border-pencil py-2 text-sm font-body font-bold transition-all ${
                     isSelected
-                      ? "bg-teal-500 text-slate-950 shadow-md shadow-teal-500/20 ring-2 ring-teal-400"
-                      : "bg-slate-800/80 text-slate-300 border border-slate-700 hover:bg-slate-700 hover:text-white"
+                      ? "bg-postit-yellow text-pencil shadow-hard-sm -translate-y-0.5"
+                      : "bg-white text-pencil hover:bg-paper-muted"
                   }`}
                 >
                   {val} XLM
@@ -160,17 +160,17 @@ export function ContributeModal({
 
         {/* Custom Amount Input */}
         <div className="space-y-2">
-          <div className="flex items-center justify-between text-xs">
-            <label className="font-semibold text-slate-300">Custom Amount (XLM)</label>
+          <div className="flex items-center justify-between font-body text-base">
+            <label className="font-heading font-bold text-sm text-pencil">Custom Amount (XLM)</label>
             {isConnected && (
-              <span className="text-slate-400">
-                Available: <span className="text-teal-400 font-mono font-medium">{balanceXlm} XLM</span>
+              <span className="text-pencil font-bold">
+                Available: <span className="font-heading text-pen-blue">{balanceXlm} XLM</span>
               </span>
             )}
           </div>
 
           <div className="relative">
-            <Coins className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-teal-400" />
+            <Coins className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-pencil" />
             <Input
               type="number"
               min="1"
@@ -181,9 +181,9 @@ export function ContributeModal({
                 setAmount(e.target.value);
                 setError(null);
               }}
-              className="pl-10 h-12 text-lg font-bold font-mono bg-slate-950 border-slate-800"
+              className="pl-11 h-12 text-xl font-heading font-bold"
             />
-            <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">
+            <span className="absolute right-4 top-1/2 -translate-y-1/2 font-heading font-bold text-sm text-pencil">
               XLM
             </span>
           </div>
@@ -191,19 +191,19 @@ export function ContributeModal({
 
         {/* Error message */}
         {error && (
-          <div className="rounded-lg bg-rose-950/40 border border-rose-900/50 p-3 flex items-center gap-2 text-xs text-rose-300">
+          <div className="wobbly-border-sm bg-marker-red/10 border-2 border-marker-red p-3 flex items-center gap-2 font-body font-bold text-sm text-marker-red">
             <AlertCircle className="h-4 w-4 shrink-0" />
             <span>{error}</span>
           </div>
         )}
 
         {/* Escrow Custody Assurance Note */}
-        <div className="rounded-xl bg-slate-950/60 border border-slate-800/80 p-3 text-xs text-slate-400 space-y-1">
-          <p className="font-semibold text-slate-200 flex items-center gap-1.5">
-            <Sparkles className="h-3.5 w-3.5 text-teal-400" />
+        <div className="wobbly-border-sm bg-white border-2 border-dashed border-pencil/40 p-3 font-body text-base text-pencil-light space-y-1 shadow-hard-sm">
+          <p className="font-heading font-bold text-sm text-pencil flex items-center gap-1.5">
+            <Sparkles className="h-4 w-4 text-pen-blue" />
             Soroban Escrow Protected
           </p>
-          <p className="text-[11px] leading-relaxed">
+          <p className="text-sm leading-snug">
             Funds are locked safely in the Funding Escrow smart contract. If the project does not reach its target by the deadline, you are entitled to a 100% on-chain refund.
           </p>
         </div>
@@ -214,7 +214,7 @@ export function ContributeModal({
           disabled={isSubmitting}
           variant="stellar"
           size="lg"
-          className="w-full font-bold shadow-lg shadow-teal-500/20 gap-2"
+          className="w-full font-bold shadow-hard text-xl py-3.5 gap-2"
         >
           {isSubmitting ? (
             <>
