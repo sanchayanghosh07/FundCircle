@@ -186,7 +186,7 @@ impl CampaignRegistry {
             target_amount,
             asset,
             deadline,
-            status: CampaignStatus::Draft,
+            status: CampaignStatus::Active,
             created_at: current_time,
         };
 
@@ -224,6 +224,56 @@ impl CampaignRegistry {
         Ok(count)
     }
 
+    /// Admin suspends campaign, pausing contributions
+    pub fn suspend_campaign(
+        env: Env,
+        campaign_id: u64,
+        reason: String,
+    ) -> Result<(), ContractError> {
+        let admin = Self::get_admin(env.clone()).ok_or(ContractError::NotInitialized)?;
+        admin.require_auth();
+
+        let mut campaign = Self::get_campaign(env.clone(), campaign_id)?;
+        if campaign.status != CampaignStatus::Active {
+            return Err(ContractError::InvalidStateTransition);
+        }
+
+        campaign.status = CampaignStatus::Review;
+        let campaign_key = DataKey::Campaign(campaign_id);
+        env.storage().persistent().set(&campaign_key, &campaign);
+        Self::extend_instance_ttl(&env);
+
+        env.events().publish(
+            (symbol_short!("cmp_susp"), admin, campaign_id),
+            reason,
+        );
+
+        Ok(())
+    }
+
+    /// Admin resumes a suspended or draft campaign back to Active
+    pub fn resume_campaign(env: Env, campaign_id: u64) -> Result<(), ContractError> {
+        let admin = Self::get_admin(env.clone()).ok_or(ContractError::NotInitialized)?;
+        admin.require_auth();
+
+        let mut campaign = Self::get_campaign(env.clone(), campaign_id)?;
+        if campaign.status != CampaignStatus::Review && campaign.status != CampaignStatus::Draft {
+            return Err(ContractError::InvalidStateTransition);
+        }
+
+        campaign.status = CampaignStatus::Active;
+        let campaign_key = DataKey::Campaign(campaign_id);
+        env.storage().persistent().set(&campaign_key, &campaign);
+        Self::extend_instance_ttl(&env);
+
+        env.events().publish(
+            (symbol_short!("cmp_resm"), admin, campaign_id),
+            symbol_short!("active"),
+        );
+
+        Ok(())
+    }
+
     /// Submit campaign for review by creator
     pub fn submit_for_review(env: Env, campaign_id: u64) -> Result<(), ContractError> {
         let mut campaign = Self::get_campaign(env.clone(), campaign_id)?;
@@ -248,25 +298,7 @@ impl CampaignRegistry {
 
     /// Admin approves campaign, making it Active for contributions
     pub fn approve_campaign(env: Env, campaign_id: u64) -> Result<(), ContractError> {
-        let admin = Self::get_admin(env.clone()).ok_or(ContractError::NotInitialized)?;
-        admin.require_auth();
-
-        let mut campaign = Self::get_campaign(env.clone(), campaign_id)?;
-        if campaign.status != CampaignStatus::Review && campaign.status != CampaignStatus::Draft {
-            return Err(ContractError::InvalidStateTransition);
-        }
-
-        campaign.status = CampaignStatus::Active;
-        let campaign_key = DataKey::Campaign(campaign_id);
-        env.storage().persistent().set(&campaign_key, &campaign);
-        Self::extend_instance_ttl(&env);
-
-        env.events().publish(
-            (symbol_short!("cmp_appr"), admin, campaign_id),
-            symbol_short!("active"),
-        );
-
-        Ok(())
+        Self::resume_campaign(env, campaign_id)
     }
 
     /// Admin rejects campaign with a reason string, returning it to Draft for updates

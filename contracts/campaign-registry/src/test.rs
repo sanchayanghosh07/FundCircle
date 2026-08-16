@@ -81,13 +81,43 @@ fn test_create_campaign() {
     assert_eq!(campaign.target_amount, target_amount);
     assert_eq!(campaign.asset, asset);
     assert_eq!(campaign.deadline, deadline);
-    assert_eq!(campaign.status, CampaignStatus::Draft);
+    assert_eq!(campaign.status, CampaignStatus::Active); // Active on creation
     assert_eq!(campaign.metadata.title, title);
     assert_eq!(campaign.metadata.category, category);
 
     let creator_campaigns = client.get_campaigns_by_creator(&creator);
     assert_eq!(creator_campaigns.len(), 1);
     assert_eq!(creator_campaigns.get(0).unwrap(), 1);
+}
+
+#[test]
+fn test_admin_suspend_and_resume_campaign() {
+    let (env, admin, creator, asset, client) = setup_test();
+    client.initialize(&admin);
+
+    env.ledger().set_timestamp(1000);
+
+    let campaign_id = client.create_campaign(
+        &creator,
+        &String::from_str(&env, "Test Initiative"),
+        &String::from_str(&env, "Description"),
+        &String::from_str(&env, "Education"),
+        &String::from_str(&env, "https://fundcircle.org/img.png"),
+        &5_000_0000000i128,
+        &asset,
+        &5000,
+    );
+
+    assert_eq!(client.get_campaign(&campaign_id).status, CampaignStatus::Active);
+
+    // Admin suspends campaign
+    let reason = String::from_str(&env, "Compliance review check required");
+    client.suspend_campaign(&campaign_id, &reason);
+    assert_eq!(client.get_campaign(&campaign_id).status, CampaignStatus::Review);
+
+    // Admin resumes campaign
+    client.resume_campaign(&campaign_id);
+    assert_eq!(client.get_campaign(&campaign_id).status, CampaignStatus::Active);
 }
 
 #[test]
@@ -163,56 +193,15 @@ fn test_campaign_lifecycle_happy_path() {
         &5000,
     );
 
-    // 1. Draft -> Review
-    client.submit_for_review(&campaign_id);
-    assert_eq!(client.get_campaign(&campaign_id).status, CampaignStatus::Review);
-
-    // 2. Review -> Active
-    client.approve_campaign(&campaign_id);
     assert_eq!(client.get_campaign(&campaign_id).status, CampaignStatus::Active);
 
-    // 3. Active -> Funded (called by escrow)
+    // Active -> Funded (called by escrow)
     client.set_funded(&campaign_id, &escrow);
     assert_eq!(client.get_campaign(&campaign_id).status, CampaignStatus::Funded);
 
-    // 4. Funded -> Completed (called by escrow after releasing funds)
+    // Funded -> Completed (called by escrow after releasing funds)
     client.set_completed(&campaign_id, &escrow);
     assert_eq!(client.get_campaign(&campaign_id).status, CampaignStatus::Completed);
-}
-
-#[test]
-fn test_campaign_review_rejection_and_resubmission() {
-    let (env, admin, creator, asset, client) = setup_test();
-    client.initialize(&admin);
-
-    env.ledger().set_timestamp(1000);
-
-    let campaign_id = client.create_campaign(
-        &creator,
-        &String::from_str(&env, "Needs Revision"),
-        &String::from_str(&env, "Short desc"),
-        &String::from_str(&env, "Misc"),
-        &String::from_str(&env, "https://fundcircle.org/pic.png"),
-        &2_000_0000000i128,
-        &asset,
-        &6000,
-    );
-
-    client.submit_for_review(&campaign_id);
-    assert_eq!(client.get_campaign(&campaign_id).status, CampaignStatus::Review);
-
-    // Admin rejects back to Draft
-    let reason = String::from_str(&env, "Please add more details to the project scope");
-    client.reject_campaign(&campaign_id, &reason);
-    assert_eq!(client.get_campaign(&campaign_id).status, CampaignStatus::Draft);
-
-    // Creator resubmits
-    client.submit_for_review(&campaign_id);
-    assert_eq!(client.get_campaign(&campaign_id).status, CampaignStatus::Review);
-
-    // Admin approves
-    client.approve_campaign(&campaign_id);
-    assert_eq!(client.get_campaign(&campaign_id).status, CampaignStatus::Active);
 }
 
 #[test]
@@ -236,7 +225,7 @@ fn test_campaign_cancellation() {
         &7000,
     );
 
-    // Cancel while in Draft by creator
+    // Cancel while in Active by creator
     client.cancel_campaign(&campaign_id, &creator);
     assert_eq!(client.get_campaign(&campaign_id).status, CampaignStatus::Cancelled);
 
@@ -266,9 +255,6 @@ fn test_unauthorized_state_transitions() {
         &asset,
         &8000,
     );
-
-    client.submit_for_review(&campaign_id);
-    client.approve_campaign(&campaign_id);
 
     // Unauthorized user attempts to mark as Funded -> must fail with Unauthorized
     let res = client.try_set_funded(&campaign_id, &unauthorized_user);

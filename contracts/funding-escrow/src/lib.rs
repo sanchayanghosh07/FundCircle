@@ -57,6 +57,8 @@ pub trait CampaignRegistryInterface {
     ) -> u64;
     fn submit_for_review(env: Env, campaign_id: u64);
     fn approve_campaign(env: Env, campaign_id: u64);
+    fn suspend_campaign(env: Env, campaign_id: u64, reason: String);
+    fn resume_campaign(env: Env, campaign_id: u64);
     fn reject_campaign(env: Env, campaign_id: u64, reason: String);
     fn cancel_campaign(env: Env, campaign_id: u64, caller: Address);
     fn get_campaign(env: Env, campaign_id: u64) -> Campaign;
