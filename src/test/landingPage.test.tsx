@@ -22,7 +22,7 @@ describe("Landing Page Component", () => {
     });
 
     expect(screen.getByText(/Smart Contract Escrow/i)).toBeInTheDocument();
-    expect(screen.getByText(/Micro-Transactions at Scale/i)).toBeInTheDocument();
+    expect(screen.getByText(/Micro-Pledges at Scale/i)).toBeInTheDocument();
     expect(screen.getByText(/100% Refund Guarantee/i)).toBeInTheDocument();
   });
 });
