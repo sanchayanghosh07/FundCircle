@@ -7,13 +7,7 @@ import {
   CheckCircle2,
   PauseCircle,
   PlayCircle,
-  Clock,
   ArrowUpRight,
-  ExternalLink,
-  Loader2,
-  AlertCircle,
-  Filter,
-  ShieldCheck,
   Search,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -26,6 +20,7 @@ import { registryService } from "@/services/stellar/registryService";
 import { Campaign } from "@/types/campaign";
 import { getExplorerAccountUrl, getExplorerTxUrl, CONTRACT_CONFIG } from "@/config/stellar";
 import { shortenAddress } from "@/lib/utils";
+import { Tape } from "@/components/ui/hand-drawn/Tape";
 
 export default function AdminReviewQueuePage() {
   const { isConnected, address } = useWalletStore();
@@ -107,7 +102,7 @@ export default function AdminReviewQueuePage() {
     const adminAddr = address || CONTRACT_CONFIG.adminAddress;
     const reason = prompt(
       "Enter reason for suspending campaign funding:",
-      "Compliance / community safety review."
+      "Compliance / community safety moderation check."
     );
     if (reason === null) return;
 
@@ -148,25 +143,25 @@ export default function AdminReviewQueuePage() {
   return (
     <div className="container mx-auto px-4 sm:px-6 py-12 max-w-5xl">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-6 border-b border-slate-800/80 mb-8 gap-4">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-6 border-b-2 border-dashed border-pencil/30 mb-8 gap-4">
         <div>
-          <div className="inline-flex items-center gap-1.5 rounded-full bg-amber-950/60 border border-amber-500/30 px-3 py-0.5 text-xs font-semibold text-amber-300 mb-2">
-            <ShieldAlert className="h-3.5 w-3.5" />
+          <div className="inline-flex items-center gap-1.5 wobbly-border-sm bg-postit-yellow border-2 border-pencil px-3 py-0.5 text-xs font-heading font-bold text-pencil shadow-hard-sm mb-2">
+            <ShieldAlert className="h-4 w-4 text-marker-red" />
             <span>Admin & Moderation Console</span>
           </div>
-          <h1 className="text-3xl font-extrabold text-white tracking-tight">
+          <h1 className="font-heading text-4xl font-bold text-pencil tracking-tight">
             Campaign Administration
           </h1>
-          <p className="text-xs text-slate-400 mt-1">
+          <p className="font-body text-lg text-pencil-light mt-1">
             All campaigns are Active on creation. Use your admin wallet to suspend or resume campaigns.
           </p>
         </div>
 
         <div className="flex items-center gap-2">
-          <Badge variant="outline" className="font-mono text-xs">
-            Total Campaigns: {campaigns.length}
+          <Badge variant="outline" className="text-sm">
+            Total: {campaigns.length}
           </Badge>
-          <Badge variant="active" className="font-mono text-xs">
+          <Badge variant="active" className="text-sm">
             Active: {campaigns.filter((c) => c.status === "active").length}
           </Badge>
         </div>
@@ -174,7 +169,7 @@ export default function AdminReviewQueuePage() {
 
       {/* Filter & Search Bar */}
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6">
-        <div className="flex items-center gap-1.5 overflow-x-auto w-full sm:w-auto">
+        <div className="flex items-center gap-2 overflow-x-auto w-full sm:w-auto">
           {[
             { id: "all", label: "All Campaigns" },
             { id: "active", label: "Active" },
@@ -184,10 +179,10 @@ export default function AdminReviewQueuePage() {
             <button
               key={tab.id}
               onClick={() => setFilter(tab.id)}
-              className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap ${
+              className={`wobbly-border-sm border-2 border-pencil px-3.5 py-1 text-sm font-body font-bold whitespace-nowrap transition-all ${
                 filter === tab.id
-                  ? "bg-teal-500 text-slate-950 shadow-md shadow-teal-500/20"
-                  : "bg-slate-900 border border-slate-800 text-slate-400 hover:text-white"
+                  ? "bg-postit-yellow text-pencil shadow-hard-sm -translate-y-0.5"
+                  : "bg-white text-pencil hover:bg-paper-muted"
               }`}
             >
               {tab.label}
@@ -196,13 +191,13 @@ export default function AdminReviewQueuePage() {
         </div>
 
         <div className="relative w-full sm:w-64">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-500" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-pencil/50" />
           <Input
             type="text"
             placeholder="Search campaigns..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-8 h-9 text-xs bg-slate-950 border-slate-800"
+            className="pl-9 h-10 font-body text-base"
           />
         </div>
       </div>
@@ -210,17 +205,19 @@ export default function AdminReviewQueuePage() {
       {/* Campaign List */}
       <div className="space-y-4">
         {loading ? (
-          <div className="p-12 text-center text-xs text-slate-400">Loading campaigns...</div>
+          <div className="p-12 text-center font-body text-lg text-pencil-light">Loading campaigns...</div>
         ) : filteredCampaigns.length > 0 ? (
           filteredCampaigns.map((camp) => (
             <div
               key={camp.id}
-              className="rounded-2xl border border-slate-800 bg-slate-900/70 p-6 space-y-4 backdrop-blur-sm hover:border-slate-700 transition-colors"
+              className="relative wobbly-border-md border-2 border-pencil bg-white p-5 space-y-4 shadow-hard hover:shadow-hard-lg transition-all"
             >
+              <Tape rotation={-1} />
+
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
-                    <span className="text-sm font-bold text-white">
+                    <span className="font-heading text-xl font-bold text-pencil">
                       #{camp.id} — {camp.metadata.title}
                     </span>
                     <Badge
@@ -231,15 +228,14 @@ export default function AdminReviewQueuePage() {
                           ? "review"
                           : "funded"
                       }
-                      className="capitalize"
                     >
-                      {camp.status === "review" ? "Suspended" : camp.status}
+                      {camp.status === "review" ? "SUSPENDED" : camp.status.toUpperCase()}
                     </Badge>
                   </div>
-                  <p className="text-xs text-slate-400">
-                    Category: <span className="text-slate-200">{camp.metadata.category}</span> • Raised:{" "}
-                    <span className="font-mono text-teal-300 font-bold">{camp.totalRaisedXlm} XLM</span> /{" "}
-                    <span className="font-mono text-slate-300">{camp.targetAmountXlm} XLM</span>
+                  <p className="font-body text-base text-pencil-light font-bold">
+                    Category: <span className="text-pencil">{camp.metadata.category}</span> • Raised:{" "}
+                    <span className="font-heading text-marker-red font-bold font-mono">{camp.totalRaisedXlm} XLM</span> /{" "}
+                    <span className="font-heading text-pencil font-mono">{camp.targetAmountXlm} XLM</span>
                   </p>
                 </div>
 
@@ -251,18 +247,18 @@ export default function AdminReviewQueuePage() {
                       disabled={processingId === camp.id}
                       variant="outline"
                       size="sm"
-                      className="gap-1.5 text-xs text-amber-300 border-amber-800/40 hover:bg-amber-950/40"
+                      className="gap-1.5 font-bold text-marker-red hover:bg-marker-red hover:text-white"
                     >
-                      <PauseCircle className="h-4 w-4 text-amber-400" />
+                      <PauseCircle className="h-4 w-4" />
                       Suspend Campaign
                     </Button>
                   ) : camp.status === "review" || camp.status === "draft" ? (
                     <Button
                       onClick={() => handleResume(camp)}
                       disabled={processingId === camp.id}
-                      variant="stellar"
+                      variant="default"
                       size="sm"
-                      className="gap-1.5 text-xs font-bold"
+                      className="gap-1.5 font-bold"
                     >
                       <PlayCircle className="h-4 w-4" />
                       Resume Campaign
@@ -270,25 +266,25 @@ export default function AdminReviewQueuePage() {
                   ) : null}
 
                   <Link href={`/campaigns/${camp.id}`}>
-                    <Button variant="ghost" size="sm" className="text-xs text-slate-400 hover:text-white">
+                    <Button variant="ghost" size="sm" className="text-pencil hover:text-marker-red">
                       <ArrowUpRight className="h-4 w-4" />
                     </Button>
                   </Link>
                 </div>
               </div>
 
-              <p className="text-xs text-slate-300 leading-relaxed bg-slate-950/60 p-3 rounded-xl border border-slate-800/80 line-clamp-2">
+              <p className="font-body text-base text-pencil-light leading-snug line-clamp-2">
                 {camp.metadata.description}
               </p>
 
-              <div className="pt-1 flex justify-between items-center text-xs text-slate-500">
+              <div className="pt-2 border-t-2 border-dashed border-pencil/20 flex justify-between items-center font-body text-sm text-pencil-light font-bold">
                 <span>
                   Creator:{" "}
                   <a
                     href={getExplorerAccountUrl(camp.creator)}
                     target="_blank"
                     rel="noreferrer"
-                    className="text-teal-400 hover:underline font-mono"
+                    className="text-pen-blue hover:text-marker-red hover:underline decoration-wavy"
                   >
                     {shortenAddress(camp.creator)}
                   </a>
@@ -296,7 +292,7 @@ export default function AdminReviewQueuePage() {
 
                 <Link
                   href={`/campaigns/${camp.id}`}
-                  className="inline-flex items-center gap-1 text-teal-400 hover:text-teal-300 font-semibold"
+                  className="inline-flex items-center gap-1 text-pencil hover:text-marker-red font-bold hover:underline decoration-wavy"
                 >
                   View Details Page
                   <ArrowUpRight className="h-3.5 w-3.5" />
@@ -305,10 +301,10 @@ export default function AdminReviewQueuePage() {
             </div>
           ))
         ) : (
-          <div className="rounded-2xl border border-slate-800 bg-slate-900/40 p-12 text-center space-y-3">
-            <CheckCircle2 className="h-10 w-10 text-emerald-400 mx-auto" />
-            <h4 className="text-sm font-bold text-white">No Campaigns Found</h4>
-            <p className="text-xs text-slate-400">
+          <div className="wobbly-border-md border-2 border-pencil bg-white p-12 text-center space-y-3 shadow-hard">
+            <CheckCircle2 className="h-10 w-10 text-emerald-600 mx-auto" />
+            <h4 className="font-heading text-2xl font-bold text-pencil">No Campaigns Found</h4>
+            <p className="font-body text-lg text-pencil-light">
               No campaigns match the selected filter or search query.
             </p>
           </div>
