@@ -179,14 +179,14 @@ export class CampaignRegistryService {
       targetAmountXlm: params.targetAmountXlm,
       asset: params.asset || CONTRACT_CONFIG.nativeAssetContractId,
       deadline: deadlineTimestamp,
-      status: "review", // Submits directly to review
+      status: "active", // Created campaigns are active and immediately fundable
       createdAt: Math.floor(Date.now() / 1000),
       totalRaised: "0",
       totalRaisedXlm: "0",
       contributorCount: 0,
       progressPercentage: 0,
       isExpired: false,
-      canContribute: false,
+      canContribute: true,
       canClaimRefund: false,
       canDisburse: false,
     };

@@ -147,7 +147,7 @@ export default function CreateCampaignPage() {
       toast({
         type: "success",
         title: "Campaign Created Successfully!",
-        description: `Your campaign ID #${result.campaignId} is submitted and in review.`,
+        description: `Your campaign ID #${result.campaignId} is active and open for contributions.`,
       });
 
       setTimeout(() => {
@@ -334,7 +334,7 @@ export default function CreateCampaignPage() {
             ) : (
               <>
                 <PlusCircle className="h-5 w-5" />
-                Submit Campaign for Review
+                Launch Campaign on Stellar
               </>
             )}
           </Button>

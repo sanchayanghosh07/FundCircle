@@ -21,6 +21,8 @@ const badgeVariants = cva(
         active: "border-teal-500/30 bg-teal-950/70 text-teal-300",
         review: "border-blue-500/30 bg-blue-950/70 text-blue-300",
         draft: "border-slate-600 bg-slate-800/80 text-slate-400",
+        funded: "border-emerald-500/40 bg-emerald-950/80 text-emerald-300 font-bold",
+        completed: "border-purple-500/40 bg-purple-950/80 text-purple-300 font-bold",
       },
     },
     defaultVariants: {

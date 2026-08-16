@@ -19,6 +19,7 @@ import {
   RotateCcw,
   Check,
   Copy,
+  Wallet,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -26,6 +27,8 @@ import { Progress } from "@/components/ui/progress";
 import { ContributeModal } from "@/features/contributions/ContributeModal";
 import { registryService } from "@/services/stellar/registryService";
 import { escrowService } from "@/services/stellar/escrowService";
+import { walletKit } from "@/services/wallet/stellarWalletKit";
+import { stellarRpc } from "@/services/stellar/rpc";
 import { useWalletStore } from "@/stores/walletStore";
 import { useTransactionStore } from "@/stores/transactionStore";
 import { useToast } from "@/components/ui/toast";
@@ -48,7 +51,7 @@ export default function CampaignDetailsPage() {
   const router = useRouter();
   const campaignId = Number(params?.id);
 
-  const { isConnected, address } = useWalletStore();
+  const { isConnected, address, setWallet, setBalance } = useWalletStore();
   const { openModal: openTxModal, updateStatus, recordSuccess, recordFailure } =
     useTransactionStore();
   const { toast } = useToast();
@@ -106,7 +109,7 @@ export default function CampaignDetailsPage() {
   }
 
   const countdown = getCountdown(campaign.deadline);
-  const isCreator = address?.toLowerCase() === campaign.creator.toLowerCase();
+  const isCreator = address ? address.toLowerCase() === campaign.creator.toLowerCase() : false;
 
   const handleShare = async () => {
     if (typeof window !== "undefined") {
@@ -118,6 +121,53 @@ export default function CampaignDetailsPage() {
         description: "Campaign URL copied to clipboard.",
       });
       setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
+  const handleConnectWallet = async () => {
+    try {
+      const res = await walletKit.openModal();
+      if (res) {
+        setWallet(res.address, res.walletId, res.name, "testnet");
+        const bal = await stellarRpc.getAccountBalance(res.address);
+        setBalance(bal);
+        toast({
+          type: "success",
+          title: "Wallet Connected",
+          description: `Connected ${shortenAddress(res.address)}`,
+        });
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleApproveCampaign = async () => {
+    setIsProcessingAction(true);
+    openTxModal("approve_campaign", "Activate Campaign for Public Funding", {
+      campaignId: campaign.id,
+      campaignTitle: campaign.metadata.title,
+      from: address || "G...",
+    });
+
+    try {
+      const txHash = await registryService.approveCampaign(campaign.id, address || "G...");
+      recordSuccess(txHash, getExplorerTxUrl(txHash));
+      toast({
+        type: "success",
+        title: "Campaign Activated!",
+        description: "The campaign is now Active and open for public community contributions.",
+      });
+      await loadData();
+    } catch (err: any) {
+      recordFailure(err?.message || "Failed to activate campaign.");
+      toast({
+        type: "error",
+        title: "Activation Error",
+        description: err?.message || "Failed to activate campaign.",
+      });
+    } finally {
+      setIsProcessingAction(false);
     }
   };
 
@@ -266,6 +316,20 @@ export default function CampaignDetailsPage() {
               <span className="rounded-full bg-slate-900/80 px-3 py-1 text-xs font-semibold text-slate-300 backdrop-blur-md border border-slate-700">
                 ID #{campaign.id}
               </span>
+              <Badge
+                variant={
+                  campaign.status === "active"
+                    ? "active"
+                    : campaign.status === "review"
+                    ? "review"
+                    : campaign.status === "funded" || campaign.status === "completed"
+                    ? "funded"
+                    : "outline"
+                }
+                className="capitalize backdrop-blur-md"
+              >
+                {campaign.status}
+              </Badge>
             </div>
 
             <div className="absolute bottom-4 left-4 right-4">
@@ -376,16 +440,51 @@ export default function CampaignDetailsPage() {
 
             {/* Primary Action Buttons based on state */}
             <div className="space-y-3 pt-1">
-              {campaign.status === "active" && (
-                <Button
-                  onClick={() => setContributeModalOpen(true)}
-                  variant="stellar"
-                  size="lg"
-                  className="w-full font-bold shadow-lg shadow-teal-500/20 gap-2"
-                >
-                  <Heart className="h-5 w-5 fill-current" />
-                  Contribute Now
-                </Button>
+              {campaign.status === "active" ? (
+                isConnected ? (
+                  <Button
+                    onClick={() => setContributeModalOpen(true)}
+                    variant="stellar"
+                    size="lg"
+                    className="w-full font-bold shadow-lg shadow-teal-500/20 gap-2 text-sm"
+                  >
+                    <Heart className="h-5 w-5 fill-current text-teal-950" />
+                    Back this Project / Contribute Now
+                  </Button>
+                ) : (
+                  <Button
+                    onClick={handleConnectWallet}
+                    variant="stellar"
+                    size="lg"
+                    className="w-full font-bold shadow-lg shadow-teal-500/20 gap-2 text-sm"
+                  >
+                    <Wallet className="h-5 w-5" />
+                    Connect Wallet to Contribute
+                  </Button>
+                )
+              ) : null}
+
+              {/* In Review / Draft quick activation */}
+              {(campaign.status === "review" || campaign.status === "draft") && (
+                <div className="rounded-2xl bg-amber-950/30 border border-amber-800/40 p-4 space-y-3">
+                  <div className="flex items-center gap-2 text-amber-300 text-xs font-semibold">
+                    <AlertCircle className="h-4 w-4 shrink-0" />
+                    <span>Campaign is currently {campaign.status === "review" ? "Under Review" : "Draft"}</span>
+                  </div>
+                  <p className="text-[11px] text-slate-300 leading-relaxed">
+                    Activate this campaign to open public on-chain funding for all community members.
+                  </p>
+                  <Button
+                    onClick={handleApproveCampaign}
+                    disabled={isProcessingAction}
+                    variant="stellar"
+                    size="sm"
+                    className="w-full font-bold bg-teal-500 hover:bg-teal-400 text-slate-950 gap-1.5"
+                  >
+                    <Sparkles className="h-4 w-4" />
+                    Activate Campaign Now
+                  </Button>
+                </div>
               )}
 
               {/* Creator Disbursement */}
