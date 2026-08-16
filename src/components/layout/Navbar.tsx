@@ -101,14 +101,9 @@ export function Navbar() {
           <div className="flex h-10 w-10 items-center justify-center wobbly-border border-2 border-pencil bg-postit-yellow text-pencil shadow-hard-sm group-hover:rotate-6 transition-transform">
             <span className="font-heading font-black text-xl">✦</span>
           </div>
-          <div className="flex items-baseline gap-1.5">
-            <span className="font-heading text-2xl font-bold text-pencil tracking-tight">
-              FundCircle
-            </span>
-            <Badge variant="active" className="text-[11px] py-0 px-1.5 font-heading">
-              TESTNET
-            </Badge>
-          </div>
+          <span className="font-heading text-2xl font-bold text-pencil tracking-tight">
+            FundCircle
+          </span>
         </Link>
 
         {/* Desktop Navigation */}
