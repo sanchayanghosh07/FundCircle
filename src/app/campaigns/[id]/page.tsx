@@ -19,9 +19,6 @@ import {
   Check,
   Copy,
   Wallet,
-  PauseCircle,
-  PlayCircle,
-  ShieldAlert,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -143,81 +140,6 @@ export default function CampaignDetailsPage() {
       }
     } catch (err) {
       console.error(err);
-    }
-  };
-
-  const handleSuspendCampaign = async () => {
-    const adminAddr = address || CONTRACT_CONFIG.adminAddress;
-    const reason = prompt(
-      "Enter reason for suspending campaign funding:",
-      "Compliance / community safety moderation."
-    );
-    if (reason === null) return;
-
-    setIsProcessingAction(true);
-    openTxModal("reject_campaign", `Suspend Campaign #${campaign.id}`, {
-      campaignId: campaign.id,
-      campaignTitle: campaign.metadata.title,
-      from: adminAddr,
-    });
-
-    try {
-      const txHash = await registryService.suspendCampaign(
-        campaign.id,
-        reason || "Moderation check",
-        adminAddr,
-        (status, msg) => updateStatus(status, msg)
-      );
-      recordSuccess(txHash, getExplorerTxUrl(txHash));
-      toast({
-        type: "info",
-        title: "Campaign Suspended",
-        description: "Public contributions have been paused by admin.",
-      });
-      await loadData();
-    } catch (err: any) {
-      recordFailure(err?.message || "Failed to suspend campaign.");
-      toast({
-        type: "error",
-        title: "Suspension Error",
-        description: err?.message || "Failed to suspend campaign.",
-      });
-    } finally {
-      setIsProcessingAction(false);
-    }
-  };
-
-  const handleResumeCampaign = async () => {
-    const adminAddr = address || CONTRACT_CONFIG.adminAddress;
-    setIsProcessingAction(true);
-    openTxModal("approve_campaign", `Resume Campaign #${campaign.id}`, {
-      campaignId: campaign.id,
-      campaignTitle: campaign.metadata.title,
-      from: adminAddr,
-    });
-
-    try {
-      const txHash = await registryService.resumeCampaign(
-        campaign.id,
-        adminAddr,
-        (status, msg) => updateStatus(status, msg)
-      );
-      recordSuccess(txHash, getExplorerTxUrl(txHash));
-      toast({
-        type: "success",
-        title: "Campaign Resumed & Active!",
-        description: "The campaign is now Active and open for community contributions.",
-      });
-      await loadData();
-    } catch (err: any) {
-      recordFailure(err?.message || "Failed to resume campaign.");
-      toast({
-        type: "error",
-        title: "Resume Error",
-        description: err?.message || "Failed to resume campaign.",
-      });
-    } finally {
-      setIsProcessingAction(false);
     }
   };
 
@@ -532,43 +454,6 @@ export default function CampaignDetailsPage() {
                   </Button>
                 )
               ) : null}
-
-              {/* Admin Moderation Controls Box */}
-              <div className="wobbly-border-sm bg-white border-2 border-pencil p-3 space-y-2 shadow-hard-sm">
-                <div className="flex items-center justify-between text-xs font-heading font-bold text-pencil">
-                  <span className="flex items-center gap-1 text-marker-red">
-                    <ShieldAlert className="h-4 w-4" />
-                    Admin Moderation
-                  </span>
-                  <span className="font-body text-xs text-pencil-muted">
-                    {shortenAddress(CONTRACT_CONFIG.adminAddress)}
-                  </span>
-                </div>
-
-                {campaign.status === "active" ? (
-                  <Button
-                    onClick={handleSuspendCampaign}
-                    disabled={isProcessingAction}
-                    variant="outline"
-                    size="sm"
-                    className="w-full gap-1.5 text-sm font-bold text-marker-red hover:bg-marker-red hover:text-white"
-                  >
-                    <PauseCircle className="h-4 w-4" />
-                    Suspend Campaign
-                  </Button>
-                ) : (
-                  <Button
-                    onClick={handleResumeCampaign}
-                    disabled={isProcessingAction}
-                    variant="default"
-                    size="sm"
-                    className="w-full gap-1.5 text-sm font-bold"
-                  >
-                    <PlayCircle className="h-4 w-4" />
-                    Resume Campaign
-                  </Button>
-                )}
-              </div>
 
               {/* Creator Disbursement */}
               {isCreator && (campaign.status === "funded" || campaign.canDisburse) && !campaign.isFundsReleased && (
