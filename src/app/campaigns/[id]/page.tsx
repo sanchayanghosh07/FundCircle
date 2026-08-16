@@ -20,6 +20,9 @@ import {
   Check,
   Copy,
   Wallet,
+  PauseCircle,
+  PlayCircle,
+  ShieldAlert,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -142,29 +145,75 @@ export default function CampaignDetailsPage() {
     }
   };
 
-  const handleApproveCampaign = async () => {
+  const handleSuspendCampaign = async () => {
+    const adminAddr = address || CONTRACT_CONFIG.adminAddress;
+    const reason = prompt(
+      "Enter reason for suspending campaign funding:",
+      "Compliance / community safety moderation."
+    );
+    if (reason === null) return;
+
     setIsProcessingAction(true);
-    openTxModal("approve_campaign", "Activate Campaign for Public Funding", {
+    openTxModal("reject_campaign", `Suspend Campaign #${campaign.id}`, {
       campaignId: campaign.id,
       campaignTitle: campaign.metadata.title,
-      from: address || "G...",
+      from: adminAddr,
     });
 
     try {
-      const txHash = await registryService.approveCampaign(campaign.id, address || "G...");
+      const txHash = await registryService.suspendCampaign(
+        campaign.id,
+        reason || "Moderation check",
+        adminAddr,
+        (status, msg) => updateStatus(status, msg)
+      );
       recordSuccess(txHash, getExplorerTxUrl(txHash));
       toast({
-        type: "success",
-        title: "Campaign Activated!",
-        description: "The campaign is now Active and open for public community contributions.",
+        type: "info",
+        title: "Campaign Suspended",
+        description: "Public contributions have been paused by admin.",
       });
       await loadData();
     } catch (err: any) {
-      recordFailure(err?.message || "Failed to activate campaign.");
+      recordFailure(err?.message || "Failed to suspend campaign.");
       toast({
         type: "error",
-        title: "Activation Error",
-        description: err?.message || "Failed to activate campaign.",
+        title: "Suspension Error",
+        description: err?.message || "Failed to suspend campaign.",
+      });
+    } finally {
+      setIsProcessingAction(false);
+    }
+  };
+
+  const handleResumeCampaign = async () => {
+    const adminAddr = address || CONTRACT_CONFIG.adminAddress;
+    setIsProcessingAction(true);
+    openTxModal("approve_campaign", `Resume Campaign #${campaign.id}`, {
+      campaignId: campaign.id,
+      campaignTitle: campaign.metadata.title,
+      from: adminAddr,
+    });
+
+    try {
+      const txHash = await registryService.resumeCampaign(
+        campaign.id,
+        adminAddr,
+        (status, msg) => updateStatus(status, msg)
+      );
+      recordSuccess(txHash, getExplorerTxUrl(txHash));
+      toast({
+        type: "success",
+        title: "Campaign Resumed & Active!",
+        description: "The campaign is now Active and open for community contributions.",
+      });
+      await loadData();
+    } catch (err: any) {
+      recordFailure(err?.message || "Failed to resume campaign.");
+      toast({
+        type: "error",
+        title: "Resume Error",
+        description: err?.message || "Failed to resume campaign.",
       });
     } finally {
       setIsProcessingAction(false);
@@ -320,15 +369,13 @@ export default function CampaignDetailsPage() {
                 variant={
                   campaign.status === "active"
                     ? "active"
-                    : campaign.status === "review"
+                    : campaign.status === "review" || campaign.status === "draft"
                     ? "review"
-                    : campaign.status === "funded" || campaign.status === "completed"
-                    ? "funded"
-                    : "outline"
+                    : "funded"
                 }
                 className="capitalize backdrop-blur-md"
               >
-                {campaign.status}
+                {campaign.status === "review" ? "Suspended" : campaign.status}
               </Badge>
             </div>
 
@@ -438,6 +485,19 @@ export default function CampaignDetailsPage() {
               </div>
             )}
 
+            {/* Suspended Alert Banner */}
+            {(campaign.status === "review" || campaign.status === "draft") && (
+              <div className="rounded-2xl bg-amber-950/30 border border-amber-800/40 p-4 space-y-2">
+                <div className="flex items-center gap-2 text-amber-300 text-xs font-semibold">
+                  <AlertCircle className="h-4 w-4 shrink-0" />
+                  <span>Funding Paused / Suspended</span>
+                </div>
+                <p className="text-[11px] text-slate-300 leading-relaxed">
+                  This campaign is currently suspended by administration. Public contributions are temporarily paused.
+                </p>
+              </div>
+            )}
+
             {/* Primary Action Buttons based on state */}
             <div className="space-y-3 pt-1">
               {campaign.status === "active" ? (
@@ -464,28 +524,42 @@ export default function CampaignDetailsPage() {
                 )
               ) : null}
 
-              {/* In Review / Draft quick activation */}
-              {(campaign.status === "review" || campaign.status === "draft") && (
-                <div className="rounded-2xl bg-amber-950/30 border border-amber-800/40 p-4 space-y-3">
-                  <div className="flex items-center gap-2 text-amber-300 text-xs font-semibold">
-                    <AlertCircle className="h-4 w-4 shrink-0" />
-                    <span>Campaign is currently {campaign.status === "review" ? "Under Review" : "Draft"}</span>
-                  </div>
-                  <p className="text-[11px] text-slate-300 leading-relaxed">
-                    Activate this campaign to open public on-chain funding for all community members.
-                  </p>
+              {/* Admin Moderation Controls */}
+              <div className="rounded-2xl bg-slate-950/80 border border-slate-800 p-3 space-y-2">
+                <div className="flex items-center justify-between text-[11px] font-semibold text-slate-400">
+                  <span className="flex items-center gap-1 text-amber-300">
+                    <ShieldAlert className="h-3.5 w-3.5" />
+                    Admin Moderation
+                  </span>
+                  <span className="font-mono text-[10px] text-slate-500">
+                    {shortenAddress(CONTRACT_CONFIG.adminAddress)}
+                  </span>
+                </div>
+
+                {campaign.status === "active" ? (
                   <Button
-                    onClick={handleApproveCampaign}
+                    onClick={handleSuspendCampaign}
+                    disabled={isProcessingAction}
+                    variant="outline"
+                    size="sm"
+                    className="w-full gap-1.5 text-xs text-amber-300 border-amber-900/40 hover:bg-amber-950/40"
+                  >
+                    <PauseCircle className="h-4 w-4 text-amber-400" />
+                    Suspend Campaign
+                  </Button>
+                ) : (
+                  <Button
+                    onClick={handleResumeCampaign}
                     disabled={isProcessingAction}
                     variant="stellar"
                     size="sm"
-                    className="w-full font-bold bg-teal-500 hover:bg-teal-400 text-slate-950 gap-1.5"
+                    className="w-full gap-1.5 text-xs font-bold"
                   >
-                    <Sparkles className="h-4 w-4" />
-                    Activate Campaign Now
+                    <PlayCircle className="h-4 w-4" />
+                    Resume Campaign
                   </Button>
-                </div>
-              )}
+                )}
+              </div>
 
               {/* Creator Disbursement */}
               {isCreator && (campaign.status === "funded" || campaign.canDisburse) && !campaign.isFundsReleased && (

@@ -5,7 +5,7 @@ import { walletKit } from "../wallet/stellarWalletKit";
 import { Campaign, CampaignMetadata, CampaignStatus, CreateCampaignParams, parseCampaignStatus } from "@/types/campaign";
 import { stroopsToXlm, xlmToStroops } from "@/lib/utils";
 
-// Initial sample seed campaigns for rich discovery and test scenarios
+// Initial sample seed campaigns for rich discovery and test scenarios — All Active on creation
 const INITIAL_DEMO_CAMPAIGNS: Campaign[] = [
   {
     id: 1,
@@ -44,7 +44,7 @@ const INITIAL_DEMO_CAMPAIGNS: Campaign[] = [
     targetAmountXlm: "12,000",
     asset: CONTRACT_CONFIG.nativeAssetContractId,
     deadline: Math.floor(Date.now() / 1000) + 21 * 86400,
-    status: "active",
+    status: "funded",
     createdAt: Math.floor(Date.now() / 1000) - 5 * 86400,
     totalRaised: "120000000000", // 12,000 XLM
     totalRaisedXlm: "12,000",
@@ -92,14 +92,14 @@ const INITIAL_DEMO_CAMPAIGNS: Campaign[] = [
     targetAmountXlm: "8,000",
     asset: CONTRACT_CONFIG.nativeAssetContractId,
     deadline: Math.floor(Date.now() / 1000) + 10 * 86400,
-    status: "review",
+    status: "active",
     createdAt: Math.floor(Date.now() / 1000) - 1 * 86400,
     totalRaised: "0",
     totalRaisedXlm: "0",
     contributorCount: 0,
     progressPercentage: 0,
     isExpired: false,
-    canContribute: false,
+    canContribute: true,
     canClaimRefund: false,
     canDisburse: false,
   },
@@ -179,7 +179,7 @@ export class CampaignRegistryService {
       targetAmountXlm: params.targetAmountXlm,
       asset: params.asset || CONTRACT_CONFIG.nativeAssetContractId,
       deadline: deadlineTimestamp,
-      status: "active", // Created campaigns are active and immediately fundable
+      status: "active", // All campaigns active on creation!
       createdAt: Math.floor(Date.now() / 1000),
       totalRaised: "0",
       totalRaisedXlm: "0",
@@ -195,17 +195,84 @@ export class CampaignRegistryService {
     return { campaignId: newId, txHash };
   }
 
-  public async submitForReview(campaignId: number, callerPublicKey: string): Promise<string> {
-    const txHash = "tx_sub_" + Math.random().toString(36).substring(2, 8);
+  /// Admin suspends campaign, pausing community funding
+  public async suspendCampaign(
+    campaignId: number,
+    reason: string,
+    adminPublicKey: string,
+    onStatusUpdate?: (status: any, msg?: string) => void
+  ): Promise<string> {
+    onStatusUpdate?.("preparing", "Preparing suspend_campaign admin call...");
+
+    let txHash = "";
+    try {
+      onStatusUpdate?.("simulating", "Simulating admin suspension on Soroban RPC...");
+      const args = [
+        nativeToScVal(BigInt(campaignId), { type: "u64" }),
+        nativeToScVal(reason, { type: "string" }),
+      ];
+
+      const { txXdr } = await stellarRpc.simulateAndAssembleTransaction({
+        callerPublicKey: adminPublicKey,
+        contractId: this.contractId,
+        method: "suspend_campaign",
+        args,
+      });
+
+      onStatusUpdate?.("awaiting_signature", "Please sign suspension transaction with admin wallet...");
+      const signedXdr = await walletKit.signTransaction(txXdr, { accountToSign: adminPublicKey });
+
+      onStatusUpdate?.("submitting", "Broadcasting suspension to Stellar...");
+      const result = await stellarRpc.submitTransaction(signedXdr);
+      txHash = result.hash;
+    } catch (err: any) {
+      if (typeof window !== "undefined" && process.env.NODE_ENV !== "test") {
+        throw new Error(err?.message || "Failed to suspend campaign on Stellar");
+      }
+      txHash = "tx_susp_" + Math.random().toString(36).substring(2, 8);
+    }
+
     const campaign = localCampaigns.find((c) => c.id === campaignId);
     if (campaign) {
-      campaign.status = "review";
+      campaign.status = "review"; // Suspended
+      campaign.canContribute = false;
     }
     return txHash;
   }
 
-  public async approveCampaign(campaignId: number, adminPublicKey: string): Promise<string> {
-    const txHash = "tx_appr_" + Math.random().toString(36).substring(2, 8);
+  /// Admin resumes campaign, re-enabling public funding
+  public async resumeCampaign(
+    campaignId: number,
+    adminPublicKey: string,
+    onStatusUpdate?: (status: any, msg?: string) => void
+  ): Promise<string> {
+    onStatusUpdate?.("preparing", "Preparing resume_campaign admin call...");
+
+    let txHash = "";
+    try {
+      onStatusUpdate?.("simulating", "Simulating campaign resumption on Soroban RPC...");
+      const args = [nativeToScVal(BigInt(campaignId), { type: "u64" })];
+
+      const { txXdr } = await stellarRpc.simulateAndAssembleTransaction({
+        callerPublicKey: adminPublicKey,
+        contractId: this.contractId,
+        method: "resume_campaign",
+        args,
+      });
+
+      onStatusUpdate?.("awaiting_signature", "Please sign resume transaction with admin wallet...");
+      const signedXdr = await walletKit.signTransaction(txXdr, { accountToSign: adminPublicKey });
+
+      onStatusUpdate?.("submitting", "Broadcasting resumption to Stellar...");
+      const result = await stellarRpc.submitTransaction(signedXdr);
+      txHash = result.hash;
+    } catch (err: any) {
+      if (typeof window !== "undefined" && process.env.NODE_ENV !== "test") {
+        throw new Error(err?.message || "Failed to resume campaign on Stellar");
+      }
+      txHash = "tx_resm_" + Math.random().toString(36).substring(2, 8);
+    }
+
     const campaign = localCampaigns.find((c) => c.id === campaignId);
     if (campaign) {
       campaign.status = "active";
@@ -214,14 +281,12 @@ export class CampaignRegistryService {
     return txHash;
   }
 
+  public async approveCampaign(campaignId: number, adminPublicKey: string): Promise<string> {
+    return this.resumeCampaign(campaignId, adminPublicKey);
+  }
+
   public async rejectCampaign(campaignId: number, reason: string, adminPublicKey: string): Promise<string> {
-    const txHash = "tx_rej_" + Math.random().toString(36).substring(2, 8);
-    const campaign = localCampaigns.find((c) => c.id === campaignId);
-    if (campaign) {
-      campaign.status = "draft";
-      campaign.canContribute = false;
-    }
-    return txHash;
+    return this.suspendCampaign(campaignId, reason, adminPublicKey);
   }
 
   public async cancelCampaign(campaignId: number, callerPublicKey: string): Promise<string> {
