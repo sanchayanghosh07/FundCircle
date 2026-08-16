@@ -18,9 +18,9 @@ describe("Dashboards, Analytics & Settings Suite", () => {
 
     expect(screen.getByText(/Creator Dashboard/i)).toBeInTheDocument();
     expect(screen.getByText(/Total Raised/i)).toBeInTheDocument();
-    expect(screen.getByText(/Active Projects/i)).toBeInTheDocument();
+    expect(screen.getByText(/Active Campaigns/i)).toBeInTheDocument();
     expect(screen.getByText(/Total Backers/i)).toBeInTheDocument();
-    expect(screen.getByText(/Total Projects/i)).toBeInTheDocument();
+    expect(screen.getByText(/Total Campaigns/i)).toBeInTheDocument();
   });
 
   it("renders Contributor Dashboard with pledge history and refund guarantees", async () => {
@@ -28,9 +28,9 @@ describe("Dashboards, Analytics & Settings Suite", () => {
       render(<ContributorDashboardPage />);
     });
 
-    expect(screen.getByText(/My Supported Projects/i)).toBeInTheDocument();
+    expect(screen.getByText(/My Supported Campaigns/i)).toBeInTheDocument();
     expect(screen.getByText(/Total Pledged/i)).toBeInTheDocument();
-    expect(screen.getByText(/Projects Backed/i)).toBeInTheDocument();
+    expect(screen.getByText(/Campaigns Backed/i)).toBeInTheDocument();
     expect(screen.getByText(/Refund Protection/i)).toBeInTheDocument();
   });
 

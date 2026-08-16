@@ -56,7 +56,7 @@ export default function LandingPage() {
 
           {/* Subtitle */}
           <p className="font-body text-xl sm:text-2xl text-pencil-light max-w-2xl mx-auto mb-10 leading-relaxed font-bold">
-            FundCircle connects grassroots initiatives, student projects, and local creators with community micro-contributions — guaranteed by automated on-chain Soroban escrow.
+            FundCircle connects grassroots initiatives, student campaigns, and local creators with community micro-contributions — guaranteed by automated on-chain Soroban escrow.
           </p>
 
           {/* Action CTAs with Hand-Drawn Arrow */}
@@ -156,7 +156,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Featured Projects Preview */}
+      {/* Featured Campaigns Preview */}
       <section className="py-20 border-b-2 border-dashed border-pencil/30">
         <div className="container mx-auto px-4 sm:px-6 max-w-5xl">
           <div className="flex flex-col md:flex-row items-start md:items-end justify-between mb-12 gap-4">
@@ -168,7 +168,7 @@ export default function LandingPage() {
                 Featured Community Campaigns
               </h2>
               <p className="font-body text-lg text-pencil-light font-bold mt-1">
-                Discover verified grassroots projects seeking micro-contributions.
+                Discover verified grassroots campaigns seeking micro-contributions.
               </p>
             </div>
 
@@ -251,7 +251,7 @@ export default function LandingPage() {
             <Tape rotation={-2} />
 
             <h2 className="font-heading text-3xl sm:text-5xl font-bold text-pencil tracking-tight">
-              Ready to launch your community project?
+              Ready to launch your community campaign?
             </h2>
             <p className="font-body text-xl text-pencil-light font-bold max-w-xl mx-auto leading-relaxed">
               Create a campaign in under 2 minutes. Transparent, non-custodial, and protected by Soroban smart contracts.
@@ -266,7 +266,7 @@ export default function LandingPage() {
               </Link>
               <Link href="/campaigns">
                 <Button variant="outline" size="lg" className="w-full sm:w-auto text-xl py-3 px-8 bg-white">
-                  Explore Projects
+                  Explore Campaigns
                 </Button>
               </Link>
             </div>

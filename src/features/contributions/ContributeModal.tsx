@@ -128,7 +128,7 @@ export function ContributeModal({
     <Dialog
       isOpen={isOpen}
       onClose={onClose}
-      title="Contribute to Project"
+      title="Contribute to Campaign"
       description={`Support "${campaign.metadata.title}" with Stellar lumens.`}
     >
       <div className="space-y-5 pt-2">
@@ -204,7 +204,7 @@ export function ContributeModal({
             Soroban Escrow Protected
           </p>
           <p className="text-sm leading-snug">
-            Funds are locked safely in the Funding Escrow smart contract. If the project does not reach its target by the deadline, you are entitled to a 100% on-chain refund.
+            Funds are locked safely in the Funding Escrow smart contract. If the campaign does not reach its target by the deadline, you are entitled to a 100% on-chain refund.
           </p>
         </div>
 

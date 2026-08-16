@@ -31,7 +31,7 @@ describe("Campaign Creation & Discovery Flow", () => {
 
     expect(screen.getByText(/Launch a Micro-Funding Campaign/i)).toBeInTheDocument();
     expect(screen.getByPlaceholderText(/e.g. Solar Study Lights/i)).toBeInTheDocument();
-    expect(screen.getByPlaceholderText(/Describe what your community project is about/i)).toBeInTheDocument();
+    expect(screen.getByPlaceholderText(/Describe what your community campaign is about/i)).toBeInTheDocument();
     expect(screen.getByText(/Connect Wallet to Create/i)).toBeInTheDocument();
   });
 

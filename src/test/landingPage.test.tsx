@@ -12,8 +12,8 @@ describe("Landing Page Component", () => {
       screen.getByText(/Transparent Micro-Funding/i)
     ).toBeInTheDocument();
 
-    expect(screen.getByText(/Explore Campaigns/i)).toBeInTheDocument();
-    expect(screen.getByText(/Start a Campaign/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/Explore Campaigns/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/Start a Campaign/i).length).toBeGreaterThan(0);
   });
 
   it("renders Stellar & Soroban architecture trust pillars", async () => {

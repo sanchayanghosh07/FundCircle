@@ -68,7 +68,7 @@ export default function ContributorDashboardPage() {
             <span>Contributor Portal</span>
           </div>
           <h1 className="font-heading text-4xl font-bold text-pencil tracking-tight">
-            My Supported Projects
+            My Supported Campaigns
           </h1>
           <p className="font-body text-lg text-pencil-light mt-1">
             Track your backed initiatives and claim escrow refunds for cancelled or unmet campaigns.
@@ -93,7 +93,7 @@ export default function ContributorDashboardPage() {
 
         <div className="relative wobbly-border-sm border-2 border-pencil bg-white p-5 shadow-hard space-y-1">
           <Thumbtack color="blue" />
-          <span className="font-heading text-xs font-bold text-pencil-muted uppercase">Projects Backed</span>
+          <span className="font-heading text-xs font-bold text-pencil-muted uppercase">Campaigns Backed</span>
           <p className="font-heading text-3xl font-bold text-pencil font-mono">{supportedCampaigns.length}</p>
           <span className="font-body text-xs font-bold text-pencil-light">Active initiatives</span>
         </div>
@@ -106,9 +106,9 @@ export default function ContributorDashboardPage() {
         </div>
       </div>
 
-      {/* Backed Projects List */}
+      {/* Backed Campaigns List */}
       <div className="space-y-4">
-        <h3 className="font-heading text-2xl font-bold text-pencil tracking-tight">Backed Initiatives</h3>
+        <h3 className="font-heading text-2xl font-bold text-pencil tracking-tight">Backed Campaigns</h3>
 
         {supportedCampaigns.length > 0 ? (
           <div className="space-y-3">
@@ -139,7 +139,7 @@ export default function ContributorDashboardPage() {
 
                   <Link href={`/campaigns/${campaign.id}`}>
                     <Button variant="default" size="sm">
-                      View Project
+                      View Campaign
                       <ArrowUpRight className="h-3.5 w-3.5 ml-1" />
                     </Button>
                   </Link>

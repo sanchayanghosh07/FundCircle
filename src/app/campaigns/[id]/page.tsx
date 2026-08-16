@@ -244,7 +244,7 @@ export default function CampaignDetailsPage() {
       toast({
         type: "success",
         title: "Funds Disbursed!",
-        description: `Successfully released ${campaign.totalRaisedXlm} XLM to project creator.`,
+        description: `Successfully released ${campaign.totalRaisedXlm} XLM to campaign creator.`,
       });
       loadData();
     } catch (err: any) {
@@ -391,7 +391,7 @@ export default function CampaignDetailsPage() {
             </h1>
           </div>
 
-          {/* Project Details Narrative */}
+          {/* Campaign Details Narrative */}
           <div className="relative wobbly-border-md border-2 border-pencil bg-white p-6 sm:p-8 shadow-hard space-y-6">
             <Thumbtack color="red" />
 
@@ -423,7 +423,7 @@ export default function CampaignDetailsPage() {
                 </div>
 
                 <div className="wobbly-border-sm bg-paper border-2 border-pencil p-3 flex flex-col sm:col-span-2 shadow-hard-sm">
-                  <span className="font-heading text-xs text-pencil-muted font-bold">Project Creator</span>
+                  <span className="font-heading text-xs text-pencil-muted font-bold">Campaign Creator</span>
                   <a
                     href={getExplorerAccountUrl(campaign.creator)}
                     target="_blank"
@@ -518,7 +518,7 @@ export default function CampaignDetailsPage() {
                     className="w-full font-bold shadow-hard text-xl py-3.5 gap-2"
                   >
                     <Heart className="h-5 w-5 fill-current text-white" />
-                    Back this Project / Contribute
+                    Back this Campaign / Contribute
                   </Button>
                 ) : (
                   <Button

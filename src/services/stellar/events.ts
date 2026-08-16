@@ -85,7 +85,7 @@ export class EventIngestionService {
         amountXlm: ev.value ? stroopsToXlm(ev.value) : undefined,
         timestamp,
         txHash: ev.txHash,
-        details: "Funds disbursed to project creator",
+        details: "Funds disbursed to campaign creator",
       };
     }
 

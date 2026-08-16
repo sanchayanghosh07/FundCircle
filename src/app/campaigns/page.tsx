@@ -72,7 +72,7 @@ export default function CampaignsDiscoveryPage() {
             Discover Active Campaigns
           </h1>
           <p className="font-body text-lg text-pencil-light mt-1">
-            Back community projects directly on Stellar with non-custodial Soroban escrow custody.
+            Back community campaigns directly on Stellar with non-custodial Soroban escrow custody.
           </p>
         </div>
 
@@ -131,7 +131,7 @@ export default function CampaignsDiscoveryPage() {
           <AlertCircle className="h-10 w-10 text-marker-red mx-auto" />
           <h3 className="font-heading text-2xl font-bold text-pencil">No Campaigns Found</h3>
           <p className="font-body text-lg text-pencil-light leading-relaxed">
-            No projects matched your search criteria. Try adjusting your filters or search terms.
+            No campaigns matched your search criteria. Try adjusting your filters or search terms.
           </p>
           <Button
             onClick={() => {

@@ -79,12 +79,12 @@ export default function CreatorDashboardPage() {
           <Thumbtack color="red" />
           <span className="font-heading text-xs font-bold text-pencil-muted uppercase">Total Raised</span>
           <p className="font-heading text-3xl font-bold text-pencil font-mono">{totalRaisedXlm} XLM</p>
-          <span className="font-body text-xs font-bold text-pencil-light">Across all projects</span>
+          <span className="font-body text-xs font-bold text-pencil-light">Across all campaigns</span>
         </div>
 
         <div className="relative wobbly-border-sm border-2 border-pencil bg-white p-5 shadow-hard space-y-1">
           <Thumbtack color="blue" />
-          <span className="font-heading text-xs font-bold text-pencil-muted uppercase">Active Projects</span>
+          <span className="font-heading text-xs font-bold text-pencil-muted uppercase">Active Campaigns</span>
           <p className="font-heading text-3xl font-bold text-marker-red font-mono">{activeCount}</p>
           <span className="font-body text-xs font-bold text-pencil-light">Open for pledges</span>
         </div>
@@ -98,7 +98,7 @@ export default function CreatorDashboardPage() {
 
         <div className="relative wobbly-border-sm border-2 border-pencil bg-white p-5 shadow-hard space-y-1">
           <Thumbtack color="red" />
-          <span className="font-heading text-xs font-bold text-pencil-muted uppercase">Total Projects</span>
+          <span className="font-heading text-xs font-bold text-pencil-muted uppercase">Total Campaigns</span>
           <p className="font-heading text-3xl font-bold text-pencil font-mono">{myCampaigns.length}</p>
           <span className="font-body text-xs font-bold text-pencil-light">On Soroban</span>
         </div>
@@ -146,7 +146,7 @@ export default function CreatorDashboardPage() {
 
                   <Link href={`/campaigns/${camp.id}`}>
                     <Button variant="default" size="sm">
-                      View Project
+                      View Campaign
                       <ArrowUpRight className="h-3.5 w-3.5 ml-1" />
                     </Button>
                   </Link>

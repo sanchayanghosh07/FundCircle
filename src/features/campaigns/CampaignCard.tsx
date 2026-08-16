@@ -94,7 +94,7 @@ export function CampaignCard({ campaign, rotation = 0 }: { campaign: Campaign; r
 
         <Link href={`/campaigns/${campaign.id}`}>
           <Button variant="default" size="sm" className="text-sm py-0.5 px-3 h-8">
-            View Project
+            View Campaign
             <ArrowUpRight className="h-3.5 w-3.5 ml-1" />
           </Button>
         </Link>

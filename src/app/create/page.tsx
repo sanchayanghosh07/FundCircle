@@ -91,7 +91,7 @@ export default function CreateCampaignPage() {
     }
 
     if (!description.trim() || description.length < 20) {
-      setError("Please describe your project scope and objectives (min 20 characters).");
+      setError("Please describe your campaign scope and objectives (min 20 characters).");
       return;
     }
 
@@ -299,11 +299,11 @@ export default function CreateCampaignPage() {
           {/* Description */}
           <div className="space-y-2">
             <label className="font-heading font-bold text-sm text-pencil">
-              Project Description & Objectives <span className="text-marker-red">*</span>
+              Campaign Description & Objectives <span className="text-marker-red">*</span>
             </label>
             <Textarea
               rows={4}
-              placeholder="Describe what your community project is about, who it benefits, and how funds will be used..."
+              placeholder="Describe what your community campaign is about, who it benefits, and how funds will be used..."
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               className="font-body text-base leading-snug"
@@ -367,7 +367,7 @@ export default function CreateCampaignPage() {
                 {title || "Your Campaign Title"}
               </h4>
               <p className="font-body text-sm text-pencil-light line-clamp-2">
-                {description || "Project description will appear here as you type."}
+                {description || "Campaign description will appear here as you type."}
               </p>
 
               <div className="pt-2 border-t-2 border-dashed border-pencil/30 flex justify-between items-center font-body font-bold text-sm">
