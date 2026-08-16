@@ -1,11 +1,23 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Kalam, Patrick_Hand } from "next/font/google";
 import "./globals.css";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { Providers } from "@/components/providers/Providers";
 
-const inter = Inter({ subsets: ["latin"] });
+const kalam = Kalam({
+  weight: ["400", "700"],
+  subsets: ["latin"],
+  variable: "--font-kalam",
+  display: "swap",
+});
+
+const patrickHand = Patrick_Hand({
+  weight: ["400"],
+  subsets: ["latin"],
+  variable: "--font-patrick",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "FundCircle — Community Micro-Funding on Stellar",
@@ -19,8 +31,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="dark">
-      <body className={inter.className}>
+    <html lang="en" className={`${kalam.variable} ${patrickHand.variable}`}>
+      <body className="font-body bg-[#fdfbf7] text-[#2d2d2d] antialiased">
         <Providers>
           <Navbar />
           <main className="flex-1">{children}</main>

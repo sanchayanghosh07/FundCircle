@@ -3,26 +3,21 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const badgeVariants = cva(
-  "inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
+  "inline-flex items-center wobbly-border-sm border-2 px-2.5 py-0.5 text-xs font-heading font-bold shadow-hard-sm transition-all",
   {
     variants: {
       variant: {
-        default:
-          "border-transparent bg-primary-500/20 text-primary-300 border-primary-500/40",
-        secondary:
-          "border-transparent bg-slate-800 text-slate-300 border-slate-700",
-        success:
-          "border-emerald-500/30 bg-emerald-950/60 text-emerald-300",
-        warning:
-          "border-amber-500/30 bg-amber-950/60 text-amber-300",
-        destructive:
-          "border-rose-500/30 bg-rose-950/60 text-rose-300",
-        outline: "text-slate-300 border-slate-700",
-        active: "border-teal-500/30 bg-teal-950/70 text-teal-300",
-        review: "border-blue-500/30 bg-blue-950/70 text-blue-300",
-        draft: "border-slate-600 bg-slate-800/80 text-slate-400",
-        funded: "border-emerald-500/40 bg-emerald-950/80 text-emerald-300 font-bold",
-        completed: "border-purple-500/40 bg-purple-950/80 text-purple-300 font-bold",
+        default: "border-pencil bg-white text-pencil",
+        active: "border-pencil bg-mint text-pencil",
+        review: "border-pencil bg-postit-yellow text-pencil",
+        draft: "border-pencil bg-paper-muted text-pencil",
+        funded: "border-pencil bg-mint text-pencil",
+        completed: "border-pencil bg-pen-blue text-white",
+        destructive: "border-pencil bg-marker-red text-white",
+        outline: "border-pencil bg-paper text-pencil",
+        secondary: "border-pencil bg-paper-muted text-pencil",
+        success: "border-pencil bg-mint text-pencil",
+        warning: "border-pencil bg-postit-yellow text-pencil",
       },
     },
     defaultVariants: {

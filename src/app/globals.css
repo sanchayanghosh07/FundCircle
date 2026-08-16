@@ -3,58 +3,58 @@
 @tailwind utilities;
 
 @layer base {
-  :root {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
+  body {
+    background-color: #fdfbf7;
+    background-image: radial-gradient(#e5e0d8 1.5px, transparent 1.5px);
+    background-size: 24px 24px;
+    color: #2d2d2d;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    font-family: var(--font-patrick), cursive, sans-serif;
+  }
 
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-kalam), cursive, sans-serif;
+    color: #2d2d2d;
+    font-weight: 700;
+  }
 
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-
-    --primary: 164 74% 40%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 164 74% 40%;
-
-    --radius: 0.75rem;
+  ::selection {
+    background-color: #fff9c4;
+    color: #2d2d2d;
   }
 }
 
-body {
-  @apply bg-slate-950 text-slate-100 antialiased selection:bg-teal-500 selection:text-slate-950;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
+/* Wobbly border radius utility classes */
+.wobbly-border {
+  border-radius: 255px 15px 225px 15px / 15px 225px 15px 255px;
 }
 
-/* Custom subtle scrollbars */
+.wobbly-border-md {
+  border-radius: 20px 255px 20px 255px / 255px 20px 255px 20px;
+}
+
+.wobbly-border-lg {
+  border-radius: 255px 25px 225px 25px / 25px 225px 25px 255px;
+}
+
+.wobbly-border-sm {
+  border-radius: 120px 10px 100px 10px / 10px 100px 10px 120px;
+}
+
+/* Custom pencil scrollbar */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 8px;
+  height: 8px;
 }
 ::-webkit-scrollbar-track {
-  background: #090d16;
+  background: #fdfbf7;
 }
 ::-webkit-scrollbar-thumb {
-  background: #1e293b;
-  border-radius: 9999px;
+  background: #2d2d2d;
+  border-radius: 255px 15px 225px 15px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #334155;
+  background: #ff4d4d;
 }

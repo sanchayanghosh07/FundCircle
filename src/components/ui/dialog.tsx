@@ -1,6 +1,7 @@
 import * as React from "react";
 import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Tape } from "@/components/ui/hand-drawn/Tape";
 
 interface DialogProps {
   isOpen: boolean;
@@ -38,18 +39,20 @@ export function Dialog({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div
-        className="fixed inset-0 bg-black/75 backdrop-blur-sm transition-opacity"
+        className="fixed inset-0 bg-[#2d2d2d]/60 backdrop-blur-sm transition-opacity"
         onClick={onClose}
       />
       <div
         className={cn(
-          "relative z-50 w-full max-w-lg rounded-2xl border border-slate-800 bg-slate-900 p-6 shadow-2xl transition-all duration-200",
+          "relative z-50 w-full max-w-lg wobbly-border-md border-2 border-pencil bg-paper p-6 sm:p-7 shadow-hard-lg transition-all",
           className
         )}
       >
+        <Tape rotation={-1.5} />
+
         <button
           onClick={onClose}
-          className="absolute right-4 top-4 rounded-lg p-1.5 text-slate-400 hover:bg-slate-800 hover:text-white"
+          className="absolute right-4 top-4 wobbly-border-sm border-2 border-pencil bg-white p-1 text-pencil shadow-hard-sm hover:bg-marker-red hover:text-white transition-colors"
         >
           <X className="h-5 w-5" />
           <span className="sr-only">Close</span>
@@ -57,9 +60,9 @@ export function Dialog({
 
         {title && (
           <div className="mb-4">
-            <h2 className="text-xl font-bold text-white">{title}</h2>
+            <h2 className="font-heading text-2xl font-bold text-pencil">{title}</h2>
             {description && (
-              <p className="mt-1 text-sm text-slate-400">{description}</p>
+              <p className="font-body text-base text-pencil-light font-bold mt-0.5">{description}</p>
             )}
           </div>
         )}
