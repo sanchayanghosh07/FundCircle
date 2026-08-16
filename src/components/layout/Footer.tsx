@@ -24,7 +24,7 @@ export function Footer() {
             <h4 className="text-xs font-semibold text-slate-200 uppercase tracking-wider mb-3">Platform</h4>
             <ul className="space-y-2 text-xs">
               <li><Link href="/campaigns" className="hover:text-teal-400 transition-colors">Explore Campaigns</Link></li>
-              <li><Link href="/create" className="hover:text-teal-400 transition-colors">Start a Project</Link></li>
+              <li><Link href="/create" className="hover:text-teal-400 transition-colors">Start a Campaign</Link></li>
               <li><Link href="/activity" className="hover:text-teal-400 transition-colors">Live Activity Feed</Link></li>
               <li><Link href="/analytics" className="hover:text-teal-400 transition-colors">Protocol Analytics</Link></li>
             </ul>

@@ -66,7 +66,7 @@ export default function LandingPage() {
             <Link href="/create">
               <Button variant="outline" size="lg" className="w-full sm:w-auto font-semibold gap-2 border-slate-700 hover:bg-slate-800">
                 <PlusCircle className="h-5 w-5 text-teal-400" />
-                Start a Project
+                Start a Campaign
               </Button>
             </Link>
           </div>

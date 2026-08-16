@@ -13,7 +13,7 @@ describe("Landing Page Component", () => {
     ).toBeInTheDocument();
 
     expect(screen.getByText(/Explore Campaigns/i)).toBeInTheDocument();
-    expect(screen.getByText(/Start a Project/i)).toBeInTheDocument();
+    expect(screen.getByText(/Start a Campaign/i)).toBeInTheDocument();
   });
 
   it("renders Stellar & Soroban architecture trust pillars", async () => {
