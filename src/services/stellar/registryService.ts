@@ -153,13 +153,15 @@ export class CampaignRegistryService {
       });
 
       onStatusUpdate?.("awaiting_signature", "Please sign create_campaign transaction in wallet...");
-      const signedXdr = await walletKit.signTransaction(txXdr);
+      const signedXdr = await walletKit.signTransaction(txXdr, { accountToSign: callerPublicKey });
 
       onStatusUpdate?.("submitting", "Broadcasting transaction to Stellar Testnet...");
       const result = await stellarRpc.submitTransaction(signedXdr);
       txHash = result.hash;
     } catch (err: any) {
-      console.warn("Falling back to local state sync for demo mode:", err?.message || err);
+      if (typeof window !== "undefined" && process.env.NODE_ENV !== "test") {
+        throw new Error(err?.message || "Failed to execute transaction on Stellar Testnet");
+      }
       txHash = "tx_" + Math.random().toString(36).substring(2, 10) + Date.now().toString(36);
     }
 

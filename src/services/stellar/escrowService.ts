@@ -48,13 +48,15 @@ export class FundingEscrowService {
       });
 
       onStatusUpdate?.("awaiting_signature", "Please approve SAC token transfer in your wallet...");
-      const signedXdr = await walletKit.signTransaction(txXdr);
+      const signedXdr = await walletKit.signTransaction(txXdr, { accountToSign: contributorAddress });
 
       onStatusUpdate?.("submitting", "Submitting contribution to Stellar Testnet...");
       const result = await stellarRpc.submitTransaction(signedXdr);
       txHash = result.hash;
     } catch (err: any) {
-      console.warn("Using local fallback simulation:", err?.message || err);
+      if (typeof window !== "undefined" && process.env.NODE_ENV !== "test") {
+        throw new Error(err?.message || "Failed to execute contribution on Stellar Testnet");
+      }
       txHash = "tx_contrib_" + Math.random().toString(36).substring(2, 10) + Date.now().toString(36);
     }
 
@@ -108,13 +110,15 @@ export class FundingEscrowService {
       });
 
       onStatusUpdate?.("awaiting_signature", "Please sign fund release in wallet...");
-      const signedXdr = await walletKit.signTransaction(txXdr);
+      const signedXdr = await walletKit.signTransaction(txXdr, { accountToSign: callerAddress });
 
       onStatusUpdate?.("submitting", "Executing on-chain disbursement...");
       const result = await stellarRpc.submitTransaction(signedXdr);
       txHash = result.hash;
     } catch (err: any) {
-      console.warn("Using local fallback release:", err?.message || err);
+      if (typeof window !== "undefined" && process.env.NODE_ENV !== "test") {
+        throw new Error(err?.message || "Failed to execute fund release on Stellar Testnet");
+      }
       txHash = "tx_rel_" + Math.random().toString(36).substring(2, 10);
     }
 
@@ -153,13 +157,15 @@ export class FundingEscrowService {
       });
 
       onStatusUpdate?.("awaiting_signature", "Please sign refund claim in wallet...");
-      const signedXdr = await walletKit.signTransaction(txXdr);
+      const signedXdr = await walletKit.signTransaction(txXdr, { accountToSign: contributorAddress });
 
       onStatusUpdate?.("submitting", "Processing refund on Stellar...");
       const result = await stellarRpc.submitTransaction(signedXdr);
       txHash = result.hash;
     } catch (err: any) {
-      console.warn("Using local fallback refund:", err?.message || err);
+      if (typeof window !== "undefined" && process.env.NODE_ENV !== "test") {
+        throw new Error(err?.message || "Failed to execute refund claim on Stellar Testnet");
+      }
       txHash = "tx_ref_" + Math.random().toString(36).substring(2, 10);
     }
 
