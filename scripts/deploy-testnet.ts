@@ -38,9 +38,9 @@ async function main() {
   console.log("\n[2/5] Building Soroban Smart Contracts...");
   console.log("Ensuring WASM bytecode is ready in target/wasm32v1-none/release/ or target/wasm32-unknown-unknown/release/");
 
-  const registryContractId = "CBZCR2Z4UGP5J44N64C72BMSN657XQ4F4J4B7W4UGQO676S47M4UGW5M";
-  const escrowContractId = "CAYCR2Z4UGP5J44N64C72BMSN657XQ4F4J4B7W4UGQO676S47M4UGW5M";
-  const nativeAssetContractId = "CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC";
+  const registryContractId = process.env.NEXT_PUBLIC_REGISTRY_CONTRACT_ID || "CDO67GJ4XVFV3XIQNMU3IMIPTHFVLU7IJIKG4EO26GEHG6EU4Z5PGLWC";
+  const escrowContractId = process.env.NEXT_PUBLIC_ESCROW_CONTRACT_ID || "CBOLJ56TWJZ2FTK2QMJU2RX2OYTQ6SV55NFZBI7BIZCKNMWJFZYQ2AVJ";
+  const nativeAssetContractId = process.env.NEXT_PUBLIC_NATIVE_ASSET_CONTRACT_ID || "CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC";
 
   console.log("\n[3/5] Deploying Contracts to Stellar Testnet...");
   console.log(`-> Campaign Registry Contract: ${registryContractId}`);
