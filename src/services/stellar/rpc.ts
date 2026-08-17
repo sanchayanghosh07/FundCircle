@@ -129,6 +129,39 @@ export class StellarRpcService {
     };
   }
 
+  public async callReadOnly({
+    contractId,
+    method,
+    args = [],
+    callerPublicKey = CONTRACT_CONFIG.adminAddress,
+  }: {
+    contractId: string;
+    method: string;
+    args?: xdr.ScVal[];
+    callerPublicKey?: string;
+  }): Promise<any> {
+    const account = new Account(callerPublicKey, "100");
+    const contract = new Contract(contractId);
+    const callOp = contract.call(method, ...args);
+
+    const tx = new TransactionBuilder(account, {
+      fee: "100000",
+      networkPassphrase: ACTIVE_NETWORK.networkPassphrase,
+    })
+      .addOperation(callOp)
+      .setTimeout(300)
+      .build();
+
+    const simResponse = await this.rpcServer.simulateTransaction(tx);
+    if (rpc.Api.isSimulationError(simResponse)) {
+      throw new Error(`Simulation failed: ${simResponse.error}`);
+    }
+    if (!simResponse.result) {
+      return null;
+    }
+    return scValToNative(simResponse.result.retval);
+  }
+
   public async getEvents(startLedger?: number) {
     try {
       const response = await this.rpcServer.getEvents({

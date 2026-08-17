@@ -186,6 +186,32 @@ export class FundingEscrowService {
     campaignId: number,
     contributorAddress: string
   ): Promise<ContributionRecord | null> {
+    try {
+      const record = await stellarRpc.callReadOnly({
+        contractId: this.contractId,
+        method: "get_contribution",
+        args: [
+          nativeToScVal(BigInt(campaignId), { type: "u64" }),
+          new Address(contributorAddress).toScVal(),
+        ],
+      });
+
+      if (record && record.amount !== undefined && record.amount !== null) {
+        const amountStr = record.amount.toString();
+        const timestamp = Number(record.timestamp || 0);
+        const contribRecord: ContributionRecord = {
+          amount: amountStr,
+          amountXlm: stroopsToXlm(amountStr),
+          timestamp: timestamp > 0 ? timestamp * 1000 : Date.now(),
+        };
+        if (!localContributions[campaignId]) localContributions[campaignId] = {};
+        localContributions[campaignId][contributorAddress] = contribRecord;
+        return contribRecord;
+      }
+    } catch {
+      // Fallback to local state
+    }
+
     const record = localContributions[campaignId]?.[contributorAddress];
     return record || null;
   }
@@ -193,6 +219,32 @@ export class FundingEscrowService {
   public async getUserSupportedCampaigns(
     contributorAddress: string
   ): Promise<{ campaignId: number; amountXlm: string; timestamp: number }[]> {
+    try {
+      const campIds = await stellarRpc.callReadOnly({
+        contractId: this.contractId,
+        method: "get_contributor_campaigns",
+        args: [new Address(contributorAddress).toScVal()],
+      });
+
+      if (Array.isArray(campIds) && campIds.length > 0) {
+        const onChainList: { campaignId: number; amountXlm: string; timestamp: number }[] = [];
+        for (const cid of campIds) {
+          const campaignId = Number(cid);
+          const contrib = await this.getUserContribution(campaignId, contributorAddress);
+          if (contrib && BigInt(contrib.amount) > 0n) {
+            onChainList.push({
+              campaignId,
+              amountXlm: contrib.amountXlm,
+              timestamp: contrib.timestamp,
+            });
+          }
+        }
+        if (onChainList.length > 0) return onChainList;
+      }
+    } catch {
+      // Fallback
+    }
+
     const supported: { campaignId: number; amountXlm: string; timestamp: number }[] = [];
 
     for (const [cidStr, contribs] of Object.entries(localContributions)) {
