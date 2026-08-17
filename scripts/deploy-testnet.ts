@@ -51,19 +51,8 @@ async function main() {
   console.log(`-> Initializing Escrow with Admin & Registry Contract ID`);
   console.log(`-> Setting Escrow Contract in Registry for cross-contract state transitions`);
 
-  console.log("\n[5/5] Persisting Deployed Configuration...");
-  const config = {
-    network: "testnet",
-    adminPublicKey: adminKeypair.publicKey(),
-    registryContractId,
-    escrowContractId,
-    nativeAssetContractId,
-    deploymentDate: new Date().toISOString(),
-  };
-
-  const configPath = path.resolve(__dirname, "../src/config/contracts.json");
-  fs.writeFileSync(configPath, JSON.stringify(config, null, 2));
-  console.log(`Saved deployment state to ${configPath}`);
+  console.log("\n[5/5] Persisting & Synchronizing Contract IDs Across All Project Files...");
+  require("./sync-contract-addresses.js");
 
   console.log("\n=========================================================");
   console.log("✅ FundCircle Deployment Complete on Stellar Testnet!");

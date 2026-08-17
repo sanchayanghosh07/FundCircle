@@ -84,18 +84,9 @@ stellar contract invoke \
 echo "✅ Inter-contract communication wired."
 
 echo ""
-echo "[Step 7/7] Persisting Contract IDs to Application Configuration..."
-cat << ENV_EOF > .env.local
-# FundCircle Stellar Testnet Deployed Configuration
-NEXT_PUBLIC_STELLAR_NETWORK=testnet
-NEXT_PUBLIC_STELLAR_RPC_URL=$RPC_URL
-NEXT_PUBLIC_STELLAR_NETWORK_PASSPHRASE=$NETWORK_PASSPHRASE
-NEXT_PUBLIC_REGISTRY_CONTRACT_ID=$REGISTRY_ID
-NEXT_PUBLIC_ESCROW_CONTRACT_ID=$ESCROW_ID
-NEXT_PUBLIC_NATIVE_ASSET_CONTRACT_ID=CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC
-ENV_EOF
+echo "[Step 7/7] Persisting & Synchronizing Contract IDs Across All Project Files..."
+node "$(dirname "$0")/sync-contract-addresses.js" "$REGISTRY_ID" "$ESCROW_ID" "$ADMIN_ADDR"
 
-echo "✅ Saved configuration to .env.local"
 echo ""
 echo "========================================================="
 echo " 🎉 FundCircle Protocol Deployed Successfully to Testnet!"
