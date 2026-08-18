@@ -50,6 +50,7 @@ NEXT_PUBLIC_STELLAR_NETWORK_PASSPHRASE=Test SDF Network ; September 2015
 NEXT_PUBLIC_REGISTRY_CONTRACT_ID=${registryId}
 NEXT_PUBLIC_ESCROW_CONTRACT_ID=${escrowId}
 NEXT_PUBLIC_NATIVE_ASSET_CONTRACT_ID=CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC
+NEXT_PUBLIC_ADMIN_PUBLIC_KEY=${adminAddress || "GCPUZLCKI4NONG3ZLNUWKMTBZS3CO6SXFMHR2H2PGQHMENR4HL7HNMFD"}
 `;
   fs.writeFileSync(envLocalPath, envLocalContent, "utf8");
   console.log("✅ Updated .env.local");
@@ -66,6 +67,12 @@ NEXT_PUBLIC_NATIVE_ASSET_CONTRACT_ID=CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2R
       /NEXT_PUBLIC_ESCROW_CONTRACT_ID=.*/g,
       `NEXT_PUBLIC_ESCROW_CONTRACT_ID=${escrowId}`
     );
+    if (adminAddress) {
+      envExContent = envExContent.replace(
+        /NEXT_PUBLIC_ADMIN_PUBLIC_KEY=.*/g,
+        `NEXT_PUBLIC_ADMIN_PUBLIC_KEY=${adminAddress}`
+      );
+    }
     fs.writeFileSync(envExamplePath, envExContent, "utf8");
     console.log("✅ Updated .env.example");
   }
@@ -76,6 +83,7 @@ NEXT_PUBLIC_NATIVE_ASSET_CONTRACT_ID=CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2R
     network: "testnet",
     registryContractId: registryId,
     escrowContractId: escrowId,
+    adminAddress: adminAddress || "GCPUZLCKI4NONG3ZLNUWKMTBZS3CO6SXFMHR2H2PGQHMENR4HL7HNMFD",
     nativeAssetContractId: "CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC",
     deploymentDate: new Date().toISOString(),
   };
@@ -96,8 +104,8 @@ NEXT_PUBLIC_NATIVE_ASSET_CONTRACT_ID=CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2R
     );
     if (adminAddress) {
       stellarTsContent = stellarTsContent.replace(
-        /adminAddress:\s*"[^"]*"/g,
-        `adminAddress: "${adminAddress}"`
+        /adminAddress:\s*process\.env\.NEXT_PUBLIC_ADMIN_PUBLIC_KEY\s*\|\|\s*"[^"]*"/g,
+        `adminAddress: process.env.NEXT_PUBLIC_ADMIN_PUBLIC_KEY || "${adminAddress}"`
       );
     }
     fs.writeFileSync(stellarTsPath, stellarTsContent, "utf8");

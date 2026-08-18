@@ -25,7 +25,7 @@ import { Badge } from "@/components/ui/badge";
 import { useWalletStore } from "@/stores/walletStore";
 import { walletKit } from "@/services/wallet/stellarWalletKit";
 import { shortenAddress, copyToClipboard } from "@/lib/utils";
-import { ACTIVE_NETWORK, getExplorerAccountUrl } from "@/config/stellar";
+import { ACTIVE_NETWORK, getExplorerAccountUrl, CONTRACT_CONFIG } from "@/config/stellar";
 import { stellarRpc } from "@/services/stellar/rpc";
 
 export function Navbar() {
@@ -83,6 +83,13 @@ export function Navbar() {
       setTimeout(() => setCopied(false), 2000);
     }
   };
+
+  const isAdmin = Boolean(
+    isConnected &&
+    address &&
+    CONTRACT_CONFIG.adminAddress &&
+    address.toLowerCase() === CONTRACT_CONFIG.adminAddress.toLowerCase()
+  );
 
   const navLinks = [
     { href: "/campaigns", label: "Explore" },
@@ -183,15 +190,18 @@ export function Navbar() {
                     </span>
                   </a>
 
-                  <Link
-                    href="/admin"
-                    className="w-full flex items-center justify-between px-2.5 py-1.5 text-sm font-body font-bold rounded text-marker-red hover:bg-marker-red/10 transition-colors"
-                  >
-                    <span className="flex items-center gap-2">
-                      <ShieldAlert className="h-4 w-4" />
-                      Admin Console
-                    </span>
-                  </Link>
+                  {isAdmin && (
+                    <Link
+                      href="/admin"
+                      onClick={() => setWalletDropdownOpen(false)}
+                      className="w-full flex items-center justify-between px-2.5 py-1.5 text-sm font-body font-bold rounded text-marker-red hover:bg-marker-red/10 transition-colors"
+                    >
+                      <span className="flex items-center gap-2">
+                        <ShieldAlert className="h-4 w-4" />
+                        Admin Console
+                      </span>
+                    </Link>
+                  )}
 
                   <div className="border-t-2 border-dashed border-pencil/30 mt-2 pt-2">
                     <button
@@ -292,13 +302,15 @@ export function Navbar() {
               );
             })}
 
-            <Link
-              href="/admin"
-              onClick={() => setMobileMenuOpen(false)}
-              className="block font-body font-bold text-xl py-1.5 px-2 text-marker-red hover:bg-marker-red/10 rounded"
-            >
-              Admin Console
-            </Link>
+            {isAdmin && (
+              <Link
+                href="/admin"
+                onClick={() => setMobileMenuOpen(false)}
+                className="block font-body font-bold text-xl py-1.5 px-2 text-marker-red hover:bg-marker-red/10 rounded"
+              >
+                Admin Console
+              </Link>
+            )}
           </div>
 
           <div className="pt-3 border-t-2 border-dashed border-pencil/40">

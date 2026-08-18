@@ -9,6 +9,10 @@ import {
   PlayCircle,
   ArrowUpRight,
   Search,
+  Lock,
+  Wallet,
+  LogOut,
+  ArrowLeft,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -21,9 +25,11 @@ import { Campaign } from "@/types/campaign";
 import { getExplorerAccountUrl, getExplorerTxUrl, CONTRACT_CONFIG } from "@/config/stellar";
 import { shortenAddress } from "@/lib/utils";
 import { Tape } from "@/components/ui/hand-drawn/Tape";
+import { walletKit } from "@/services/wallet/stellarWalletKit";
+import { stellarRpc } from "@/services/stellar/rpc";
 
 export default function AdminReviewQueuePage() {
-  const { isConnected, address } = useWalletStore();
+  const { isConnected, address, setWallet, setBalance, disconnect } = useWalletStore();
   const { openModal: openTxModal, updateStatus, recordSuccess, recordFailure } =
     useTransactionStore();
   const { toast } = useToast();
@@ -34,18 +40,43 @@ export default function AdminReviewQueuePage() {
   const [filter, setFilter] = React.useState<string>("all");
   const [searchQuery, setSearchQuery] = React.useState<string>("");
 
+  const isAdmin = Boolean(
+    isConnected &&
+    address &&
+    CONTRACT_CONFIG.adminAddress &&
+    address.toLowerCase() === CONTRACT_CONFIG.adminAddress.toLowerCase()
+  );
+
+  const handleConnectAdmin = async () => {
+    try {
+      const res = await walletKit.openModal();
+      if (res) {
+        setWallet(res.address, res.walletId, res.name, "testnet");
+        const bal = await stellarRpc.getAccountBalance(res.address);
+        setBalance(bal);
+      }
+    } catch (err) {
+      console.error("Wallet connection error:", err);
+    }
+  };
+
   const loadData = React.useCallback(async () => {
+    if (!isAdmin) return;
     try {
       const all = await registryService.getAllCampaigns();
       setCampaigns(all);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [isAdmin]);
 
   React.useEffect(() => {
-    loadData();
-  }, [loadData]);
+    if (isAdmin) {
+      loadData();
+    } else {
+      setLoading(false);
+    }
+  }, [isAdmin, loadData]);
 
   const filteredCampaigns = campaigns.filter((c) => {
     if (filter === "active" && c.status !== "active") return false;
@@ -140,6 +171,108 @@ export default function AdminReviewQueuePage() {
     }
   };
 
+  // 1. Gated: Not Connected
+  if (!isConnected || !address) {
+    return (
+      <div className="container mx-auto px-4 sm:px-6 py-16 max-w-xl">
+        <div className="relative w-full wobbly-border-md border-2 border-pencil bg-white p-8 sm:p-10 shadow-hard text-center space-y-6">
+          <Tape rotation={-1} />
+          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-paper border-2 border-pencil mx-auto shadow-hard-sm">
+            <Lock className="h-8 w-8 text-marker-red" />
+          </div>
+
+          <div className="space-y-2">
+            <div className="inline-flex items-center gap-1.5 wobbly-border-sm bg-postit-yellow border-2 border-pencil px-3 py-0.5 text-xs font-heading font-bold text-pencil">
+              <span>Admin Authentication Required</span>
+            </div>
+            <h2 className="font-heading text-3xl font-bold text-pencil">Admin Console Restricted</h2>
+            <p className="font-body text-base text-pencil-light leading-relaxed">
+              This console is restricted to the authorized protocol administrator. Connect your admin wallet to continue.
+            </p>
+            <div className="wobbly-border-sm bg-paper border-2 border-pencil p-3 text-xs font-mono font-bold text-pencil break-all">
+              Configured Admin: {CONTRACT_CONFIG.adminAddress}
+            </div>
+          </div>
+
+          <div className="pt-2 flex flex-col sm:flex-row gap-3 justify-center">
+            <Button
+              onClick={handleConnectAdmin}
+              variant="stellar"
+              size="lg"
+              className="w-full sm:w-auto font-bold gap-2"
+            >
+              <Wallet className="h-5 w-5" />
+              Connect Admin Wallet
+            </Button>
+            <Link href="/campaigns">
+              <Button variant="outline" size="lg" className="w-full sm:w-auto font-bold gap-1.5">
+                <ArrowLeft className="h-4 w-4" />
+                Back to Explore
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // 2. Gated: Connected but Not Admin
+  if (!isAdmin) {
+    return (
+      <div className="container mx-auto px-4 sm:px-6 py-16 max-w-xl">
+        <div className="relative w-full wobbly-border-md border-2 border-marker-red bg-white p-8 sm:p-10 shadow-hard text-center space-y-6">
+          <Tape rotation={1} />
+          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-marker-red/10 border-2 border-marker-red mx-auto shadow-hard-sm">
+            <ShieldAlert className="h-8 w-8 text-marker-red" />
+          </div>
+
+          <div className="space-y-2">
+            <div className="inline-flex items-center gap-1.5 wobbly-border-sm bg-marker-red text-white border-2 border-pencil px-3 py-0.5 text-xs font-heading font-bold">
+              <span>403 Access Denied</span>
+            </div>
+            <h2 className="font-heading text-3xl font-bold text-pencil">Unauthorized Wallet</h2>
+            <p className="font-body text-base text-pencil-light leading-relaxed">
+              Your connected account does not have administrative permissions on the Soroban Campaign Registry contract.
+            </p>
+          </div>
+
+          <div className="space-y-2 text-left text-xs font-body font-bold">
+            <div className="wobbly-border-sm bg-paper-muted border-2 border-pencil p-2.5 space-y-1">
+              <span className="text-pencil-muted">Connected Wallet:</span>
+              <p className="font-mono text-pencil break-all">{address}</p>
+            </div>
+            <div className="wobbly-border-sm bg-paper border-2 border-pencil p-2.5 space-y-1">
+              <span className="text-pencil-muted">Required Admin Authority:</span>
+              <p className="font-mono text-pen-blue break-all">{CONTRACT_CONFIG.adminAddress}</p>
+            </div>
+          </div>
+
+          <div className="pt-2 flex flex-col sm:flex-row gap-3 justify-center">
+            <Button
+              onClick={() => {
+                disconnect();
+                handleConnectAdmin();
+              }}
+              variant="destructive"
+              size="lg"
+              className="w-full sm:w-auto font-bold gap-2"
+            >
+              <LogOut className="h-4 w-4" />
+              Switch Wallet
+            </Button>
+            <Link href="/campaigns">
+              <Button variant="outline" size="lg" className="w-full sm:w-auto font-bold gap-1.5">
+                <ArrowLeft className="h-4 w-4" />
+                Back to Explore
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // 3. Authorized Admin Console
   return (
     <div className="container mx-auto px-4 sm:px-6 py-12 max-w-5xl">
       {/* Header */}
