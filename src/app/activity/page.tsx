@@ -107,7 +107,7 @@ export default function ActivityFeedPage() {
 
               <div className="space-y-0.5">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <span className="font-heading text-base font-bold text-pencil">
+                  <span className="font-heading text-base font-bold text-pencil break-words [overflow-wrap:anywhere]">
                     {item.details || item.type}
                   </span>
                   {item.amountXlm && (

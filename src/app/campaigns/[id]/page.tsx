@@ -276,7 +276,7 @@ export default function CampaignDetailsPage() {
           <div className="relative w-full wobbly-border-md border-2 border-pencil bg-white p-4 sm:p-5 shadow-hard">
             <Tape rotation={-1} />
 
-            <div className="relative h-[280px] sm:h-[360px] w-full overflow-hidden wobbly-border-sm border-2 border-pencil bg-paper-muted mb-4">
+            <div className="relative h-64 sm:h-[360px] w-full overflow-hidden wobbly-border-sm border-2 border-pencil bg-paper-muted mb-4">
               <img
                 src={campaign.metadata.imageUrl || "https://images.unsplash.com/photo-1559027615-cd4628902d4a?w=800&auto=format&fit=crop&q=80"}
                 alt={campaign.metadata.title}
@@ -308,18 +308,18 @@ export default function CampaignDetailsPage() {
               </div>
             </div>
 
-            <h1 className="font-heading text-3xl sm:text-4xl font-bold text-pencil leading-tight">
+            <h1 className="font-heading text-2xl sm:text-3xl lg:text-4xl font-bold text-pencil leading-tight break-words [overflow-wrap:anywhere]">
               {campaign.metadata.title}
             </h1>
           </div>
 
           {/* Campaign Details Narrative */}
-          <div className="relative wobbly-border-md border-2 border-pencil bg-white p-6 sm:p-8 shadow-hard space-y-6">
+          <div className="relative wobbly-border-md border-2 border-pencil bg-white p-5 sm:p-8 shadow-hard space-y-6">
             <Thumbtack color="red" />
 
             <div className="space-y-3">
               <h3 className="font-heading text-2xl font-bold text-pencil">About the Initiative</h3>
-              <p className="font-body text-xl leading-relaxed text-pencil-light whitespace-pre-line">
+              <p className="font-body text-lg sm:text-xl leading-relaxed text-pencil-light whitespace-pre-line break-words [overflow-wrap:anywhere]">
                 {campaign.metadata.description}
               </p>
             </div>
@@ -350,7 +350,7 @@ export default function CampaignDetailsPage() {
                     href={getExplorerAccountUrl(campaign.creator)}
                     target="_blank"
                     rel="noreferrer"
-                    className="font-body font-bold text-pen-blue hover:text-marker-red hover:underline decoration-wavy flex items-center gap-1 mt-0.5 break-all"
+                    className="font-body font-bold text-pen-blue hover:text-marker-red hover:underline decoration-wavy flex items-center gap-1 mt-0.5 break-all text-xs sm:text-sm"
                   >
                     {campaign.creator}
                     <ExternalLink className="h-3.5 w-3.5 shrink-0" />
@@ -364,17 +364,17 @@ export default function CampaignDetailsPage() {
         {/* Right Column: Funding Panel & Actions */}
         <div className="space-y-6">
           {/* Post-It Style Funding Box */}
-          <div className="relative wobbly-border-md border-2 border-pencil bg-postit-yellow p-6 sm:p-7 shadow-hard-lg space-y-6">
+          <div className="relative wobbly-border-md border-2 border-pencil bg-postit-yellow p-5 sm:p-7 shadow-hard-lg space-y-6">
             <Tape rotation={2} />
 
             {/* Amount Status */}
             <div className="space-y-2">
               <div className="flex items-baseline justify-between">
                 <div className="flex flex-col">
-                  <span className="font-heading text-4xl font-black text-pencil tracking-tight">
+                  <span className="font-heading text-3xl sm:text-4xl font-black text-pencil tracking-tight">
                     {campaign.totalRaisedXlm} <span className="text-xl">XLM</span>
                   </span>
-                  <span className="font-body text-base text-pencil font-bold">
+                  <span className="font-body text-sm sm:text-base text-pencil font-bold">
                     raised of <span className="font-heading font-bold">{campaign.targetAmountXlm} XLM</span> goal
                   </span>
                 </div>
@@ -440,7 +440,7 @@ export default function CampaignDetailsPage() {
                     className="w-full font-bold shadow-hard text-xl py-3.5 gap-2"
                   >
                     <Heart className="h-5 w-5 fill-current text-white" />
-                    Back this Campaign / Contribute
+                    Contribute
                   </Button>
                 ) : (
                   <Button

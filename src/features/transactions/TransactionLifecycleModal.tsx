@@ -41,14 +41,14 @@ export function TransactionLifecycleModal() {
         onClick={isPending ? undefined : closeModal}
       />
 
-      <div className="relative z-50 w-full max-w-lg wobbly-border-md border-2 border-pencil bg-paper p-6 sm:p-7 shadow-hard-lg animate-in fade-in-50 zoom-in-95 duration-100">
+      <div className="relative z-50 w-full max-w-lg max-h-[92vh] overflow-y-auto wobbly-border-md border-2 border-pencil bg-paper p-5 sm:p-7 shadow-hard-lg animate-in fade-in-50 zoom-in-95 duration-100">
         <Tape rotation={-1.5} />
 
         {/* Header */}
         <div className="flex items-start justify-between border-b-2 border-dashed border-pencil/30 pb-4 mb-5">
-          <div className="space-y-1">
-            <div className="flex items-center gap-2">
-              <h3 className="font-heading text-2xl font-bold text-pencil">
+          <div className="space-y-1 pr-2">
+            <div className="flex items-center gap-2 flex-wrap">
+              <h3 className="font-heading text-xl sm:text-2xl font-bold text-pencil break-words [overflow-wrap:anywhere]">
                 {activeTx.title}
               </h3>
               {isComplete && <Badge variant="active">CONFIRMED</Badge>}
@@ -60,7 +60,7 @@ export function TransactionLifecycleModal() {
               )}
             </div>
             {activeTx.campaignTitle && (
-              <p className="font-body text-base text-pencil-light font-bold">
+              <p className="font-body text-sm sm:text-base text-pencil-light font-bold break-words [overflow-wrap:anywhere]">
                 Target: <span className="text-pencil">{activeTx.campaignTitle}</span>
               </p>
             )}

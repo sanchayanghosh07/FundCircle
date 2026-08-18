@@ -137,7 +137,7 @@ export function ContributeModal({
           <label className="font-heading font-bold text-sm text-pencil">
             Select Preset Amount
           </label>
-          <div className="grid grid-cols-5 gap-2">
+          <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
             {PRESET_AMOUNTS.map((val) => {
               const isSelected = amount === val;
               return (

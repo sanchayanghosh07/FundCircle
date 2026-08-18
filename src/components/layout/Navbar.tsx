@@ -237,32 +237,71 @@ export function Navbar() {
 
       {/* Mobile dropdown navigation */}
       {mobileMenuOpen && (
-        <div className="md:hidden border-t-2 border-pencil bg-paper px-6 pt-4 pb-6 space-y-3 shadow-hard">
-          {navLinks.map((link) => {
-            const isActive = pathname === link.href;
-            return (
-              <Link
-                key={link.href}
-                href={link.href}
-                onClick={() => setMobileMenuOpen(false)}
-                className={`block font-body font-bold text-xl py-1 ${
-                  isActive ? "text-marker-red underline decoration-wavy" : "text-pencil"
-                }`}
-              >
-                {link.label}
-              </Link>
-            );
-          })}
+        <div className="md:hidden border-t-2 border-pencil bg-paper px-5 pt-4 pb-6 space-y-3 shadow-hard animate-in slide-in-from-top-2 duration-150">
+          {isConnected && address && (
+            <div className="wobbly-border-sm border-2 border-pencil bg-white p-3 space-y-2 mb-3 shadow-hard-sm">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="h-2.5 w-2.5 rounded-full bg-[#10b981] border border-pencil" />
+                  <span className="font-heading text-xs font-bold text-pencil">
+                    {walletName || "Freighter"}
+                  </span>
+                </div>
+                <span className="font-heading font-bold text-sm text-marker-red font-mono">
+                  {balanceXlm} XLM
+                </span>
+              </div>
+              <p className="font-body text-xs font-bold text-pencil break-all">
+                {address}
+              </p>
+              <div className="flex items-center gap-2 pt-1 border-t border-pencil/20">
+                <button
+                  onClick={handleCopy}
+                  className="flex-1 inline-flex items-center justify-center gap-1 text-xs font-body font-bold text-pencil bg-paper hover:bg-postit-yellow py-1 px-2 border border-pencil wobbly-border-sm"
+                >
+                  {copied ? <Check className="h-3.5 w-3.5 text-emerald-600" /> : <Copy className="h-3.5 w-3.5" />}
+                  {copied ? "Copied" : "Copy"}
+                </button>
+                <a
+                  href={getExplorerAccountUrl(address)}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex-1 inline-flex items-center justify-center gap-1 text-xs font-body font-bold text-pen-blue bg-paper hover:bg-postit-yellow py-1 px-2 border border-pencil wobbly-border-sm"
+                >
+                  <ExternalLink className="h-3.5 w-3.5" />
+                  Explorer
+                </a>
+              </div>
+            </div>
+          )}
 
-          <Link
-            href="/admin"
-            onClick={() => setMobileMenuOpen(false)}
-            className="block font-body font-bold text-xl py-1 text-marker-red"
-          >
-            Admin Console
-          </Link>
+          <div className="space-y-1">
+            {navLinks.map((link) => {
+              const isActive = pathname === link.href || (link.href !== "/" && pathname.startsWith(link.href));
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className={`block font-body font-bold text-xl py-1.5 px-2 rounded ${
+                    isActive ? "text-marker-red underline decoration-wavy" : "text-pencil hover:bg-paper-muted"
+                  }`}
+                >
+                  {link.label}
+                </Link>
+              );
+            })}
 
-          <div className="pt-4 border-t-2 border-dashed border-pencil/40">
+            <Link
+              href="/admin"
+              onClick={() => setMobileMenuOpen(false)}
+              className="block font-body font-bold text-xl py-1.5 px-2 text-marker-red hover:bg-marker-red/10 rounded"
+            >
+              Admin Console
+            </Link>
+          </div>
+
+          <div className="pt-3 border-t-2 border-dashed border-pencil/40">
             {isConnected ? (
               <Button
                 onClick={() => {
@@ -270,9 +309,10 @@ export function Navbar() {
                   setMobileMenuOpen(false);
                 }}
                 variant="destructive"
-                className="w-full justify-center"
+                className="w-full justify-center text-base"
               >
-                Disconnect ({shortenAddress(address)})
+                <LogOut className="h-4 w-4 mr-1.5" />
+                Disconnect Wallet
               </Button>
             ) : (
               <Button
@@ -280,10 +320,12 @@ export function Navbar() {
                   handleConnect();
                   setMobileMenuOpen(false);
                 }}
+                disabled={isConnecting}
                 variant="stellar"
-                className="w-full justify-center"
+                className="w-full justify-center text-base"
               >
-                Connect Wallet
+                <Wallet className="h-4 w-4 mr-1.5" />
+                {isConnecting ? "Connecting..." : "Connect Wallet"}
               </Button>
             )}
           </div>

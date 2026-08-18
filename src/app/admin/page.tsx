@@ -215,9 +215,9 @@ export default function AdminReviewQueuePage() {
               <Tape rotation={-1} />
 
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2">
-                    <span className="font-heading text-xl font-bold text-pencil">
+                <div className="space-y-1 min-w-0 flex-1">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="font-heading text-xl font-bold text-pencil break-words [overflow-wrap:anywhere]">
                       #{camp.id} — {camp.metadata.title}
                     </span>
                     <Badge

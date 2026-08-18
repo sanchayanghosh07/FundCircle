@@ -60,11 +60,11 @@ export function CampaignCard({ campaign, rotation = 0 }: { campaign: Campaign; r
         {/* Narrative & Details */}
         <div className="space-y-3 px-1">
           <Link href={`/campaigns/${campaign.id}`} className="block">
-            <h3 className="line-clamp-1 font-heading text-xl font-bold text-pencil hover:text-marker-red transition-colors">
+            <h3 className="line-clamp-1 font-heading text-xl font-bold text-pencil hover:text-marker-red transition-colors break-words [overflow-wrap:anywhere]">
               {campaign.metadata.title}
             </h3>
           </Link>
-          <p className="line-clamp-2 font-body text-base text-pencil-light leading-snug">
+          <p className="line-clamp-2 font-body text-base text-pencil-light leading-snug break-words [overflow-wrap:anywhere]">
             {campaign.metadata.description}
           </p>
 

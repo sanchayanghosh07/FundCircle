@@ -39,45 +39,66 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
   return (
     <ToastContext.Provider value={{ toast, removeToast }}>
       {children}
-      <div className="fixed bottom-4 right-4 z-50 flex flex-col gap-2 max-w-md w-full pointer-events-none px-4">
+      <div className="fixed bottom-4 right-4 z-50 flex flex-col gap-2 max-w-[92vw] sm:max-w-md w-full pointer-events-none px-2 sm:px-4">
         {toasts.map((t) => (
           <div
             key={t.id}
             className={cn(
-              "pointer-events-auto flex items-start gap-3 rounded-xl border p-4 shadow-xl backdrop-blur-md transition-all duration-300 animate-in slide-in-from-bottom-5",
+              "pointer-events-auto flex items-start gap-3 wobbly-border-sm border-2 p-4 shadow-hard transition-all duration-300 animate-in slide-in-from-bottom-5",
               t.type === "success" &&
-                "border-emerald-500/40 bg-emerald-950/90 text-emerald-100",
+                "border-emerald-600 bg-white text-pencil",
               t.type === "error" &&
-                "border-rose-500/40 bg-rose-950/90 text-rose-100",
+                "border-marker-red bg-[#fff5f5] text-pencil",
               t.type === "warning" &&
-                "border-amber-500/40 bg-amber-950/90 text-amber-100",
+                "border-pencil bg-postit-yellow text-pencil",
               t.type === "info" &&
-                "border-blue-500/40 bg-blue-950/90 text-blue-100"
+                "border-pen-blue bg-[#eff6ff] text-pencil"
             )}
           >
             {t.type === "success" && (
-              <CheckCircle2 className="h-5 w-5 text-emerald-400 shrink-0 mt-0.5" />
+              <div className="h-7 w-7 rounded-full bg-emerald-100 border border-emerald-600 flex items-center justify-center shrink-0 mt-0.5">
+                <CheckCircle2 className="h-4 w-4 text-emerald-700" />
+              </div>
             )}
             {t.type === "error" && (
-              <AlertCircle className="h-5 w-5 text-rose-400 shrink-0 mt-0.5" />
+              <div className="h-7 w-7 rounded-full bg-red-100 border border-marker-red flex items-center justify-center shrink-0 mt-0.5">
+                <AlertCircle className="h-4 w-4 text-marker-red" />
+              </div>
             )}
             {t.type === "warning" && (
-              <AlertCircle className="h-5 w-5 text-amber-400 shrink-0 mt-0.5" />
+              <div className="h-7 w-7 rounded-full bg-amber-100 border border-pencil flex items-center justify-center shrink-0 mt-0.5">
+                <AlertCircle className="h-4 w-4 text-pencil" />
+              </div>
             )}
             {t.type === "info" && (
-              <Info className="h-5 w-5 text-blue-400 shrink-0 mt-0.5" />
+              <div className="h-7 w-7 rounded-full bg-blue-100 border border-pen-blue flex items-center justify-center shrink-0 mt-0.5">
+                <Info className="h-4 w-4 text-pen-blue" />
+              </div>
             )}
 
-            <div className="flex-1">
-              <h4 className="text-sm font-semibold">{t.title}</h4>
+            <div className="flex-1 min-w-0">
+              <h4
+                className={cn(
+                  "font-heading font-bold text-base leading-tight break-words [overflow-wrap:anywhere]",
+                  t.type === "success" && "text-emerald-950",
+                  t.type === "error" && "text-marker-red",
+                  t.type === "warning" && "text-pencil",
+                  t.type === "info" && "text-pen-blue"
+                )}
+              >
+                {t.title}
+              </h4>
               {t.description && (
-                <p className="mt-0.5 text-xs opacity-90">{t.description}</p>
+                <p className="mt-1 font-body font-bold text-sm text-pencil break-words [overflow-wrap:anywhere] leading-snug">
+                  {t.description}
+                </p>
               )}
             </div>
 
             <button
               onClick={() => removeToast(t.id)}
-              className="rounded p-1 opacity-70 hover:opacity-100"
+              className="wobbly-border-sm border border-pencil/30 p-1 text-pencil hover:bg-black/5 transition-colors shrink-0"
+              aria-label="Close notification"
             >
               <X className="h-4 w-4" />
             </button>

@@ -117,9 +117,9 @@ export default function ContributorDashboardPage() {
                 key={campaign.id}
                 className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 wobbly-border-md border-2 border-pencil bg-white p-5 shadow-hard hover:shadow-hard-lg transition-all"
               >
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2">
-                    <span className="font-heading text-xl font-bold text-pencil">{campaign.metadata.title}</span>
+                <div className="space-y-1 min-w-0 flex-1">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="font-heading text-xl font-bold text-pencil break-words [overflow-wrap:anywhere]">{campaign.metadata.title}</span>
                     <Badge variant={campaign.status === "active" ? "active" : "secondary"}>
                       {campaign.status.toUpperCase()}
                     </Badge>

@@ -70,18 +70,18 @@ export default function TransactionCenterPage() {
                   )}
                 </div>
 
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2">
-                    <h3 className="font-heading text-xl font-bold text-pencil">{tx.title}</h3>
+                <div className="space-y-1 min-w-0 flex-1">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <h3 className="font-heading text-xl font-bold text-pencil break-words [overflow-wrap:anywhere]">{tx.title}</h3>
                     {tx.status === "confirmed" && <Badge variant="active">CONFIRMED</Badge>}
                     {tx.status === "failed" && <Badge variant="destructive">FAILED</Badge>}
                     {tx.status === "rejected" && <Badge variant="destructive">REJECTED</Badge>}
                     {tx.status === "pending" && <Badge variant="review">PENDING</Badge>}
                   </div>
 
-                  <div className="flex items-center gap-2 font-body text-sm font-bold text-pencil-light">
+                  <div className="flex items-center gap-2 font-body text-sm font-bold text-pencil-light flex-wrap">
                     {tx.campaignTitle && (
-                      <span>
+                      <span className="break-words [overflow-wrap:anywhere]">
                         Target: <span className="text-pencil">{tx.campaignTitle}</span>
                       </span>
                     )}

@@ -251,7 +251,7 @@ export default function CreateCampaignPage() {
             <label className="font-heading font-bold text-sm text-pencil">
               Campaign Duration (Days) <span className="text-marker-red">*</span>
             </label>
-            <div className="grid grid-cols-4 gap-2">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
               {[7, 14, 30, 60].map((d) => (
                 <button
                   key={d}
@@ -281,7 +281,7 @@ export default function CreateCampaignPage() {
               onChange={(e) => setImageUrl(e.target.value)}
               className="h-11 font-body text-sm"
             />
-            <div className="flex items-center gap-2 pt-1 overflow-x-auto">
+            <div className="flex items-center gap-2 pt-1 overflow-x-auto no-scrollbar pb-1">
               <span className="font-body text-xs font-bold text-pencil-light shrink-0">Quick presets:</span>
               {SAMPLE_IMAGES.map((img) => (
                 <button
@@ -363,10 +363,10 @@ export default function CreateCampaignPage() {
             </div>
 
             <div className="space-y-2 px-1">
-              <h4 className="font-heading text-lg font-bold text-pencil line-clamp-1">
+              <h4 className="font-heading text-lg font-bold text-pencil line-clamp-1 break-words [overflow-wrap:anywhere]">
                 {title || "Your Campaign Title"}
               </h4>
-              <p className="font-body text-sm text-pencil-light line-clamp-2">
+              <p className="font-body text-sm text-pencil-light line-clamp-2 break-words [overflow-wrap:anywhere]">
                 {description || "Campaign description will appear here as you type."}
               </p>
 

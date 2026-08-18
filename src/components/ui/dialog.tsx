@@ -44,7 +44,7 @@ export function Dialog({
       />
       <div
         className={cn(
-          "relative z-50 w-full max-w-lg wobbly-border-md border-2 border-pencil bg-paper p-6 sm:p-7 shadow-hard-lg transition-all",
+          "relative z-50 w-full max-w-lg max-h-[92vh] overflow-y-auto wobbly-border-md border-2 border-pencil bg-paper p-5 sm:p-7 shadow-hard-lg transition-all",
           className
         )}
       >
@@ -59,10 +59,10 @@ export function Dialog({
         </button>
 
         {title && (
-          <div className="mb-4">
-            <h2 className="font-heading text-2xl font-bold text-pencil">{title}</h2>
+          <div className="mb-4 pr-8">
+            <h2 className="font-heading text-2xl font-bold text-pencil leading-tight break-words [overflow-wrap:anywhere]">{title}</h2>
             {description && (
-              <p className="font-body text-base text-pencil-light font-bold mt-0.5">{description}</p>
+              <p className="font-body text-base text-pencil-light font-bold mt-0.5 break-words [overflow-wrap:anywhere]">{description}</p>
             )}
           </div>
         )}

@@ -72,7 +72,7 @@ export default function CampaignsDiscoveryPage() {
             Discover Active Campaigns
           </h1>
           <p className="font-body text-lg text-pencil-light mt-1">
-            Back community campaigns directly on Stellar with non-custodial Soroban escrow custody.
+            Contribute to community campaigns directly on Stellar with non-custodial Soroban escrow custody.
           </p>
         </div>
 

@@ -117,10 +117,10 @@ export default function CreatorDashboardPage() {
               >
                 <Tape rotation={-1} />
 
-                <div className="flex items-start justify-between gap-2">
-                  <div className="space-y-0.5">
+                <div className="flex items-start justify-between gap-2 min-w-0">
+                  <div className="space-y-0.5 min-w-0 flex-1">
                     <span className="font-heading text-xs font-bold text-pen-blue">{camp.metadata.category}</span>
-                    <h4 className="font-heading text-xl font-bold text-pencil line-clamp-1">
+                    <h4 className="font-heading text-xl font-bold text-pencil line-clamp-1 break-words [overflow-wrap:anywhere]">
                       {camp.metadata.title}
                     </h4>
                   </div>
