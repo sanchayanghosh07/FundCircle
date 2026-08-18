@@ -227,8 +227,8 @@ Open [http://localhost:3000](http://localhost:3000) to view the application.
 
 | Contract | Network | Address | Stellar Expert Explorer |
 | :--- | :--- | :--- | :--- |
-| **Campaign Registry** | Testnet | `CDJS5N376ZHLWV6J2GT67IHGP3KTRHI3PAWIIMYXSOKCKOYYQCJ4H26B` | [Inspect Registry Contract](https://stellar.expert/explorer/testnet/contract/CDJS5N376ZHLWV6J2GT67IHGP3KTRHI3PAWIIMYXSOKCKOYYQCJ4H26B) |
-| **Funding Escrow** | Testnet | `CCKV3SIQH4V3NVCD3DTUY4JJTNJA3VCNDMMUPWSPEJ664JN52HRZHOPO` | [Inspect Escrow Contract](https://stellar.expert/explorer/testnet/contract/CCKV3SIQH4V3NVCD3DTUY4JJTNJA3VCNDMMUPWSPEJ664JN52HRZHOPO) |
+| **Campaign Registry** | Testnet | `CDMASIPSMY4JVEU4ZRKZ7MC7TEDGAS4PNLQB6QW53XFTFFGT6PLUKREY` | [Inspect Registry Contract](https://stellar.expert/explorer/testnet/contract/CDMASIPSMY4JVEU4ZRKZ7MC7TEDGAS4PNLQB6QW53XFTFFGT6PLUKREY) |
+| **Funding Escrow** | Testnet | `CAPGJ47EAHYIK6RWHLI3LOPGJRALJF4IB4PD77EPLNCO7HHTG54C4QSG` | [Inspect Escrow Contract](https://stellar.expert/explorer/testnet/contract/CAPGJ47EAHYIK6RWHLI3LOPGJRALJF4IB4PD77EPLNCO7HHTG54C4QSG) |
 | **Native XLM SAC** | Testnet | `CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC` | [Inspect SAC Contract](https://stellar.expert/explorer/testnet/contract/CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC) |
 
 ### Sample Verified Testnet Transactions
