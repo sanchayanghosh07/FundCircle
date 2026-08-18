@@ -108,7 +108,24 @@ export default function CreatorDashboardPage() {
       <div className="space-y-4">
         <h3 className="font-heading text-2xl font-bold text-pencil tracking-tight">Your Campaigns</h3>
 
-        {myCampaigns.length > 0 ? (
+        {loading && myCampaigns.length === 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {[1, 2].map((i) => (
+              <div
+                key={i}
+                className="wobbly-border-md border-2 border-pencil/40 bg-white p-6 space-y-4 shadow-hard-sm animate-pulse"
+              >
+                <div className="flex justify-between">
+                  <div className="h-6 w-1/2 bg-paper-muted rounded" />
+                  <div className="h-6 w-16 bg-paper-muted rounded" />
+                </div>
+                <div className="h-4 w-full bg-paper-muted rounded" />
+                <div className="h-3 w-full bg-paper-muted rounded" />
+                <div className="h-8 w-28 bg-paper-muted rounded mt-2" />
+              </div>
+            ))}
+          </div>
+        ) : myCampaigns.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {myCampaigns.map((camp) => (
               <div

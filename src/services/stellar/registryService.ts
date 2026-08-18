@@ -203,10 +203,26 @@ function mapRawToCampaign(
   };
 }
 
+let campaignsCache: {
+  data: Campaign[];
+  timestamp: number;
+} | null = null;
+
+const CACHE_TTL_MS = 25_000; // 25 seconds SWR cache
+
 export class CampaignRegistryService {
   private contractId = CONTRACT_CONFIG.registryContractId;
 
-  public async getAllCampaigns(): Promise<Campaign[]> {
+  public invalidateCache(): void {
+    campaignsCache = null;
+  }
+
+  public async getAllCampaigns(forceRefresh = false): Promise<Campaign[]> {
+    // Return cache immediately if fresh and not forced
+    if (!forceRefresh && campaignsCache && Date.now() - campaignsCache.timestamp < CACHE_TTL_MS) {
+      return campaignsCache.data;
+    }
+
     try {
       const countRes = await stellarRpc.callReadOnly({
         contractId: this.contractId,
@@ -215,61 +231,63 @@ export class CampaignRegistryService {
       const count = Number(countRes || 0);
 
       if (count > 0) {
-        const fetchedCampaigns: Campaign[] = [];
-        for (let i = 1; i <= count; i++) {
-          try {
-            const campRes = await stellarRpc.callReadOnly({
-              contractId: this.contractId,
-              method: "get_campaign",
-              args: [nativeToScVal(BigInt(i), { type: "u64" })],
-            });
+        // Fetch all campaigns concurrently in parallel
+        const campaignPromises = Array.from({ length: count }, (_, idx) => {
+          const id = idx + 1;
+          return (async (): Promise<Campaign | null> => {
+            try {
+              // Concurrently query campaign registry metadata and funding escrow stats
+              const [campRes, totalRes, countContribRes, releasedRes] = await Promise.all([
+                stellarRpc.callReadOnly({
+                  contractId: this.contractId,
+                  method: "get_campaign",
+                  args: [nativeToScVal(BigInt(id), { type: "u64" })],
+                }),
+                stellarRpc
+                  .callReadOnly({
+                    contractId: CONTRACT_CONFIG.escrowContractId,
+                    method: "get_total_raised",
+                    args: [nativeToScVal(BigInt(id), { type: "u64" })],
+                  })
+                  .catch(() => null),
+                stellarRpc
+                  .callReadOnly({
+                    contractId: CONTRACT_CONFIG.escrowContractId,
+                    method: "get_contributor_count",
+                    args: [nativeToScVal(BigInt(id), { type: "u64" })],
+                  })
+                  .catch(() => null),
+                stellarRpc
+                  .callReadOnly({
+                    contractId: CONTRACT_CONFIG.escrowContractId,
+                    method: "is_funds_released",
+                    args: [nativeToScVal(BigInt(id), { type: "u64" })],
+                  })
+                  .catch(() => null),
+              ]);
 
-            if (campRes) {
-              let totalRaised = 0n;
-              let contributorCount = 0;
-              let isReleased = false;
-
-              try {
-                const totalRes = await stellarRpc.callReadOnly({
-                  contractId: CONTRACT_CONFIG.escrowContractId,
-                  method: "get_total_raised",
-                  args: [nativeToScVal(BigInt(i), { type: "u64" })],
-                });
-                if (totalRes !== null && totalRes !== undefined) {
-                  totalRaised = BigInt(totalRes.toString());
-                }
-
-                const countContribRes = await stellarRpc.callReadOnly({
-                  contractId: CONTRACT_CONFIG.escrowContractId,
-                  method: "get_contributor_count",
-                  args: [nativeToScVal(BigInt(i), { type: "u64" })],
-                });
-                if (countContribRes !== null && countContribRes !== undefined) {
-                  contributorCount = Number(countContribRes);
-                }
-
-                const releasedRes = await stellarRpc.callReadOnly({
-                  contractId: CONTRACT_CONFIG.escrowContractId,
-                  method: "is_funds_released",
-                  args: [nativeToScVal(BigInt(i), { type: "u64" })],
-                });
-                if (releasedRes !== null && releasedRes !== undefined) {
-                  isReleased = Boolean(releasedRes);
-                }
-              } catch {
-                // Escrow query fallback
+              if (campRes) {
+                const totalRaised = totalRes !== null && totalRes !== undefined ? BigInt(totalRes.toString()) : 0n;
+                const contributorCount = countContribRes !== null && countContribRes !== undefined ? Number(countContribRes) : 0;
+                const isReleased = Boolean(releasedRes);
+                return mapRawToCampaign(campRes, totalRaised, contributorCount, isReleased);
               }
-
-              const campObj = mapRawToCampaign(campRes, totalRaised, contributorCount, isReleased);
-              fetchedCampaigns.push(campObj);
+            } catch {
+              // Return local fallback if query fails
+              return localCampaigns.find((c) => c.id === id) || null;
             }
-          } catch {
-            // Individual campaign error fallback
-          }
-        }
+            return null;
+          })();
+        });
+
+        const fetchedCampaigns = (await Promise.all(campaignPromises)).filter(Boolean) as Campaign[];
 
         if (fetchedCampaigns.length > 0) {
           localCampaigns = fetchedCampaigns;
+          campaignsCache = {
+            data: fetchedCampaigns,
+            timestamp: Date.now(),
+          };
           return fetchedCampaigns;
         }
       }
@@ -280,49 +298,50 @@ export class CampaignRegistryService {
     return localCampaigns;
   }
 
-  public async getCampaignById(id: number): Promise<Campaign | null> {
+  public async getCampaignById(id: number, forceRefresh = false): Promise<Campaign | null> {
+    // Check in-memory cached campaigns first
+    if (!forceRefresh && campaignsCache) {
+      const cached = campaignsCache.data.find((c) => c.id === id);
+      if (cached && Date.now() - campaignsCache.timestamp < CACHE_TTL_MS) {
+        return cached;
+      }
+    }
+
     try {
-      const campRes = await stellarRpc.callReadOnly({
-        contractId: this.contractId,
-        method: "get_campaign",
-        args: [nativeToScVal(BigInt(id), { type: "u64" })],
-      });
-
-      if (campRes) {
-        let totalRaised = 0n;
-        let contributorCount = 0;
-        let isReleased = false;
-
-        try {
-          const totalRes = await stellarRpc.callReadOnly({
+      // Query registry and escrow concurrently
+      const [campRes, totalRes, countContribRes, releasedRes] = await Promise.all([
+        stellarRpc.callReadOnly({
+          contractId: this.contractId,
+          method: "get_campaign",
+          args: [nativeToScVal(BigInt(id), { type: "u64" })],
+        }),
+        stellarRpc
+          .callReadOnly({
             contractId: CONTRACT_CONFIG.escrowContractId,
             method: "get_total_raised",
             args: [nativeToScVal(BigInt(id), { type: "u64" })],
-          });
-          if (totalRes !== null && totalRes !== undefined) {
-            totalRaised = BigInt(totalRes.toString());
-          }
-
-          const countContribRes = await stellarRpc.callReadOnly({
+          })
+          .catch(() => null),
+        stellarRpc
+          .callReadOnly({
             contractId: CONTRACT_CONFIG.escrowContractId,
             method: "get_contributor_count",
             args: [nativeToScVal(BigInt(id), { type: "u64" })],
-          });
-          if (countContribRes !== null && countContribRes !== undefined) {
-            contributorCount = Number(countContribRes);
-          }
-
-          const releasedRes = await stellarRpc.callReadOnly({
+          })
+          .catch(() => null),
+        stellarRpc
+          .callReadOnly({
             contractId: CONTRACT_CONFIG.escrowContractId,
             method: "is_funds_released",
             args: [nativeToScVal(BigInt(id), { type: "u64" })],
-          });
-          if (releasedRes !== null && releasedRes !== undefined) {
-            isReleased = Boolean(releasedRes);
-          }
-        } catch {
-          // Escrow query fallback
-        }
+          })
+          .catch(() => null),
+      ]);
+
+      if (campRes) {
+        const totalRaised = totalRes !== null && totalRes !== undefined ? BigInt(totalRes.toString()) : 0n;
+        const contributorCount = countContribRes !== null && countContribRes !== undefined ? Number(countContribRes) : 0;
+        const isReleased = Boolean(releasedRes);
 
         const campObj = mapRawToCampaign(campRes, totalRaised, contributorCount, isReleased);
         const idx = localCampaigns.findIndex((c) => c.id === id);
@@ -331,6 +350,17 @@ export class CampaignRegistryService {
         } else {
           localCampaigns.push(campObj);
         }
+
+        // Update item in cache if cache exists
+        if (campaignsCache) {
+          const cIdx = campaignsCache.data.findIndex((c) => c.id === id);
+          if (cIdx >= 0) {
+            campaignsCache.data[cIdx] = campObj;
+          } else {
+            campaignsCache.data.push(campObj);
+          }
+        }
+
         return campObj;
       }
     } catch {

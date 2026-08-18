@@ -116,7 +116,24 @@ export default function CampaignsDiscoveryPage() {
       </div>
 
       {/* Campaign Grid */}
-      {filteredCampaigns.length > 0 ? (
+      {loading && campaigns.length === 0 ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {[1, 2, 3, 4, 5, 6].map((i) => (
+            <div
+              key={i}
+              className="wobbly-border-md border-2 border-pencil/40 bg-white p-4 shadow-hard-sm animate-pulse space-y-4"
+            >
+              <div className="h-48 w-full wobbly-border-sm bg-paper-muted border-2 border-pencil/30" />
+              <div className="space-y-2">
+                <div className="h-6 w-3/4 bg-paper-muted rounded" />
+                <div className="h-4 w-full bg-paper-muted rounded" />
+                <div className="h-4 w-2/3 bg-paper-muted rounded" />
+                <div className="h-3 w-full bg-paper-muted rounded mt-3" />
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : filteredCampaigns.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {filteredCampaigns.map((campaign, idx) => (
             <CampaignCard

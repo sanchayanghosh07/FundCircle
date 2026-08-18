@@ -227,18 +227,25 @@ export class FundingEscrowService {
       });
 
       if (Array.isArray(campIds) && campIds.length > 0) {
-        const onChainList: { campaignId: number; amountXlm: string; timestamp: number }[] = [];
-        for (const cid of campIds) {
+        const promises = campIds.map(async (cid) => {
           const campaignId = Number(cid);
           const contrib = await this.getUserContribution(campaignId, contributorAddress);
           if (contrib && BigInt(contrib.amount) > 0n) {
-            onChainList.push({
+            return {
               campaignId,
               amountXlm: contrib.amountXlm,
               timestamp: contrib.timestamp,
-            });
+            };
           }
-        }
+          return null;
+        });
+
+        const onChainList = (await Promise.all(promises)).filter(Boolean) as {
+          campaignId: number;
+          amountXlm: string;
+          timestamp: number;
+        }[];
+
         if (onChainList.length > 0) return onChainList;
       }
     } catch {

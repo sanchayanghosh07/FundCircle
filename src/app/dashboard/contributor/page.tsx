@@ -110,7 +110,22 @@ export default function ContributorDashboardPage() {
       <div className="space-y-4">
         <h3 className="font-heading text-2xl font-bold text-pencil tracking-tight">Backed Campaigns</h3>
 
-        {supportedCampaigns.length > 0 ? (
+        {loading && supportedCampaigns.length === 0 ? (
+          <div className="space-y-3">
+            {[1, 2].map((i) => (
+              <div
+                key={i}
+                className="wobbly-border-md border-2 border-pencil/40 bg-white p-5 shadow-hard-sm animate-pulse flex flex-col sm:flex-row justify-between gap-4"
+              >
+                <div className="space-y-2 flex-1">
+                  <div className="h-6 w-1/3 bg-paper-muted rounded" />
+                  <div className="h-4 w-1/4 bg-paper-muted rounded" />
+                </div>
+                <div className="h-8 w-24 bg-paper-muted rounded self-end sm:self-center" />
+              </div>
+            ))}
+          </div>
+        ) : supportedCampaigns.length > 0 ? (
           <div className="space-y-3">
             {supportedCampaigns.map(({ campaign, amountXlm }) => (
               <div
