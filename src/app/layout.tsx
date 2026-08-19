@@ -23,6 +23,11 @@ export const metadata: Metadata = {
   title: "FundCircle — Community Micro-Funding on Stellar",
   description:
     "Decentralized community micro-funding platform on Stellar. Transparent on-chain escrow custody and milestone releases powered by Soroban smart contracts.",
+  icons: {
+    icon: "/icon.svg",
+    shortcut: "/icon.svg",
+    apple: "/logo.png",
+  },
 };
 
 export default function RootLayout({

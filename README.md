@@ -1,14 +1,19 @@
-# FundCircle — Community Micro-Funding Platform on Stellar
+<div align="center">
+  <img src="public/logo.png" alt="FundCircle Logo" width="180" style="border-radius: 24px;" />
 
-[![CI Pipeline](https://github.com/sanchayanghosh07/FundCircle/actions/workflows/pr-validation.yml/badge.svg)](https://github.com/sanchayanghosh07/FundCircle/actions)
-[![Stellar Green Belt](https://img.shields.io/badge/Stellar-Green%20Belt%20(Level%204)-14b8a6?style=flat&logo=stellar)](https://stellar.org)
-[![Soroban Smart Contracts](https://img.shields.io/badge/Soroban-Rust%20SDK%20v22-blue?style=flat)](https://developers.stellar.org)
-[![Next.js 15](https://img.shields.io/badge/Next.js-15%20App%20Router-black?style=flat&logo=next.js)](https://nextjs.org)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+  # FundCircle
+  **Decentralized Community Micro-Funding on Stellar**
 
-> **Production-grade, non-custodial community micro-funding platform powered by Stellar and Soroban smart contracts.**
+  [![CI Pipeline](https://github.com/sanchayanghosh07/FundCircle/actions/workflows/pr-validation.yml/badge.svg)](https://github.com/sanchayanghosh07/FundCircle/actions)
+  [![Stellar Green Belt](https://img.shields.io/badge/Stellar-Green%20Belt%20(Level%204)-14b8a6?style=flat&logo=stellar)](https://stellar.org)
+  [![Soroban Smart Contracts](https://img.shields.io/badge/Soroban-Rust%20SDK%20v22-blue?style=flat)](https://developers.stellar.org)
+  [![Next.js 15](https://img.shields.io/badge/Next.js-15%20App%20Router-black?style=flat&logo=next.js)](https://nextjs.org)
+  [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-FundCircle enables communities, grassroots organizers, university clubs, and public initiatives to pool transparent micro-contributions with automated smart contract custody, genuine cross-contract validation, and 100% on-chain refund protection.
+  <p align="center">
+    <b>Empowering grassroots initiatives with automated Soroban smart escrow and 100% on-chain transparency.</b>
+  </p>
+</div>
 
 ---
 

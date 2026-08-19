@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="100%" height="100%">
+  <defs>
+    <filter id="sketch-shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="2" dy="3" stdDeviation="0.5" flood-color="#2d2d2d" flood-opacity="0.8" />
+    </filter>
+  </defs>
+
+  <!-- Wobbly Post-it Badge Base -->
+  <rect x="8" y="8" width="112" height="112" rx="20" ry="18" fill="#fef08a" stroke="#2d2d2d" stroke-width="4.5" filter="url(#sketch-shadow)" transform="rotate(-1.5 64 64)" />
+
+  <!-- Sketched Multi-loop Community Circle -->
+  <g stroke="#2d2d2d" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M 64,26 C 85,25 102,42 102,64 C 102,86 85,103 63,102 C 41,101 25,84 26,62 C 27,40 44,27 66,27" stroke-width="4" />
+    <path d="M 62,30 C 81,31 97,46 96,65 C 95,84 79,98 60,98 C 41,98 29,82 30,64 C 31,45 47,32 65,32" stroke-width="2.5" stroke-dasharray="85 8" />
+    <path d="M 58,34 C 75,36 91,49 90,66 C 89,83 74,94 57,93 C 40,92 34,79 35,65" stroke-width="2" />
+  </g>
+
+  <!-- Marker Red Main Star Sparkle (Top-Left) -->
+  <path d="M 40,20 Q 40,34 26,34 Q 40,34 40,48 Q 40,34 54,34 Q 40,34 40,20 Z" fill="#e11d48" stroke="#2d2d2d" stroke-width="3" stroke-linejoin="round" />
+
+  <!-- Pen Blue Star Sparkle (Top-Right) -->
+  <path d="M 86,18 Q 86,28 76,28 Q 86,28 86,38 Q 86,28 96,28 Q 86,28 86,18 Z" fill="#2563eb" stroke="#2d2d2d" stroke-width="2.8" stroke-linejoin="round" />
+
+  <!-- Post-it Yellow Accent Star (Right) -->
+  <path d="M 94,48 Q 94,56 86,56 Q 94,56 94,64 Q 94,56 102,56 Q 94,56 94,48 Z" fill="#fbbf24" stroke="#2d2d2d" stroke-width="2.5" stroke-linejoin="round" />
+
+  <!-- Small Blue Accent Star (Left) -->
+  <path d="M 28,52 Q 28,58 22,58 Q 28,58 28,64 Q 28,58 34,58 Q 28,58 28,52 Z" fill="#38bdf8" stroke="#2d2d2d" stroke-width="2.2" stroke-linejoin="round" />
+
+  <!-- Center Hand-Drawn 4-Point Stellar Star Symbol -->
+  <path d="M 64,44 Q 64,64 44,64 Q 64,64 64,84 Q 64,64 84,64 Q 64,64 64,44 Z" fill="#e11d48" stroke="#2d2d2d" stroke-width="3.5" stroke-linejoin="round" />
+
+  <!-- Inner Spark Center Dot -->
+  <circle cx="64" cy="64" r="3" fill="#ffffff" stroke="#2d2d2d" stroke-width="1.5" />
+</svg>
