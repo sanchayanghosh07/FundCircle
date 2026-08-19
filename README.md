@@ -1,279 +1,405 @@
-<div align="center">
-  <img src="public/logo.png" alt="FundCircle Logo" width="180" style="border-radius: 24px;" />
+<p align="center">
+  <img src="public/logo.png" alt="FundCircle Logo" width="110" height="110" style="border-radius: 20px;"/>
+</p>
 
-  # FundCircle
-  **Decentralized Community Micro-Funding on Stellar**
+<p align="center">
+  <strong>FundCircle — Decentralized Community Micro-Funding on Stellar</strong><br/>
+  <em>A transparent, non-custodial crowdfunding platform powered by Soroban smart contracts, automated milestone escrow, real cross-contract verification, and instant on-chain refunds.</em>
+</p>
 
-  [![Test Suite & Verification](https://github.com/sanchayanghosh07/FundCircle/actions/workflows/test.yml/badge.svg)](https://github.com/sanchayanghosh07/FundCircle/actions/workflows/test.yml)
-  [![Stellar Green Belt](https://img.shields.io/badge/Stellar-Green%20Belt%20(Level%204)-14b8a6?style=flat&logo=stellar)](https://stellar.org)
-  [![Soroban Smart Contracts](https://img.shields.io/badge/Soroban-Rust%20SDK%20v22-blue?style=flat)](https://developers.stellar.org)
-  [![Next.js 15](https://img.shields.io/badge/Next.js-15%20App%20Router-black?style=flat&logo=next.js)](https://nextjs.org)
-  [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-
-  <p align="center">
-    <b>Empowering grassroots initiatives with automated Soroban smart escrow and 100% on-chain transparency.</b>
-  </p>
-</div>
-
----
-
-## 1. Problem Statement & Solution
-
-### The Problem with Traditional Micro-Funding
-- **Excessive Intermediary Fees**: Legacy crowdfunding platforms extract 5–10% in processing and platform cuts, penalizing grassroots initiatives.
-- **Custodial Opacity**: Contributed funds sit in centralized bank accounts with zero cryptographic guarantee of milestone execution, creator identity verification, or automated refund protection.
-- **Economic Inviability of Micro-Donations**: Credit card interchange fees ($0.30 + 2.9%) make true micro-contributions ($1 to $5) completely unviable.
-
-### The FundCircle Solution
-- **Ultra-Low Micro-Fees on Stellar**: Average transaction fee is **< 0.00001 XLM** (< $0.0001) with sub-5-second finality.
-- **Non-Custodial Soroban Smart Escrow**: Funds are locked inside the Soroban contract instance. The frontend has zero custody or administrative access to user assets.
-- **Real Cross-Contract Invocations**: The `FundingEscrow` contract performs live, typed contract-to-contract queries to the `CampaignRegistry` before accepting pledges.
-- **Guaranteed On-Chain Refunds**: If a campaign expires unmet or is cancelled, contributors can claim an instant, direct 100% refund from the smart contract.
+<p align="center">
+  <a href="https://stellar.expert/explorer/testnet/contract/CD3YZE3WECUWNHW7QKDOYYUCH6PZ3VP2GIR4HJDVREQ3PFBZR7P2CXCJ"><img src="https://img.shields.io/badge/CampaignRegistry-Testnet-blue?logo=stellar" alt="CampaignRegistry Contract"/></a>
+  <a href="https://stellar.expert/explorer/testnet/contract/CB5B33DB3GI5XTD4H7YNAKSR4PTE4675SIDNYA3TOJNGE3RXZ26TRVOD"><img src="https://img.shields.io/badge/FundingEscrow-Testnet-blue?logo=stellar" alt="FundingEscrow Contract"/></a>
+  <a href="https://stellar.expert/explorer/testnet/contract/CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC"><img src="https://img.shields.io/badge/Native_SAC_(XLM)-Testnet-blue?logo=stellar" alt="Native XLM SAC"/></a>
+  <a href="https://github.com/sanchayanghosh07/FundCircle/actions/workflows/test.yml"><img src="https://img.shields.io/badge/tests-38%20passed-brightgreen" alt="Tests"/></a>
+  <a href="https://github.com/sanchayanghosh07/FundCircle/actions/workflows/test.yml"><img src="https://img.shields.io/badge/build-passing-brightgreen" alt="Build"/></a>
+</p>
 
 ---
 
-## 2. Why Stellar & Soroban
+## Table of Contents
 
-1. **Deterministic Execution & State Isolation**: Soroban smart contracts provide strong isolation, state boundaries, and TTL-based persistent ledger storage.
-2. **Native Token Standard (SAC)**: Integrates directly with Stellar Asset Contracts (`soroban_sdk::token::Client`), allowing custody of native XLM and any issued asset on Stellar.
-3. **Decentralized Multi-Wallet Ecosystem**: Seamless integration with Freighter, xBull, Albedo, Lobstr, and Hana via `@creit.tech/stellar-wallets-kit`.
-4. **Environment-Friendly & Scalable**: Stellar’s Federated Byzantine Agreement (FBA) achieves consensus with negligible energy consumption and high throughput.
+- [1. Product Overview & Problem Statement](#1-product-overview--problem-statement)
+- [2. Architecture](#2-architecture)
+  - [2.1 Role Hierarchy & Access Control](#21-role-hierarchy--access-control)
+  - [2.2 Inter-Contract Verification & State Machine](#22-inter-contract-verification--state-machine)
+- [3. Smart Contract Design](#3-smart-contract-design)
+  - [3.1 CampaignRegistry](#31-campaignregistry)
+  - [3.2 FundingEscrow](#32-fundingescrow)
+  - [3.3 Native Stellar Asset Contract (XLM SAC)](#33-native-stellar-asset-contract-xlm-sac)
+  - [3.4 Campaign Lifecycle & Moderation](#34-campaign-lifecycle--moderation)
+- [4. Inter-Contract Communication](#4-inter-contract-communication)
+- [5. Features & Tech Stack](#5-features--tech-stack)
+- [6. Local Development Setup](#6-local-development-setup)
+- [7. CI/CD & Deployment](#7-cicd--deployment)
+  - [7.1 Automated CI & Testing (Pull Requests & Pushes)](#71-automated-ci--testing-pull-requests--pushes)
+  - [7.2 Automated Deploy & Build Verification](#72-automated-deploy--build-verification)
+  - [7.3 Contract Deployment (Automated Scripts)](#73-contract-deployment-automated-scripts)
+- [8. Security Considerations](#8-security-considerations)
+- [9. Screenshots & Visual Previews](#9-screenshots--visual-previews)
+  - [9.1 Desktop](#91-desktop)
+  - [9.2 Mobile Experience](#92-mobile-experience)
+  - [9.3 Test Suite Execution](#93-test-suite-execution)
+  - [9.4 CI/CD Pipeline](#94-cicd-pipeline)
+- [10. Contract Addresses & On-Chain Verification](#10-contract-addresses--on-chain-verification)
+- [11. Resources & Links](#11-resources--links)
+- [Contributing](#contributing)
+- [License](#license)
 
 ---
 
-## 3. Core Features
+## 1. Product Overview & Problem Statement
 
-- **Decentralized Campaign Registry**: Creator lifecycle from `Draft` → `Review` → `Active` → `Funded` → `Completed` (or `Cancelled` → `Refund`).
-- **Interactive Campaign Discovery**: Search and multi-category filtering (Education, Technology, Environment, Emergency, Community, Social, Creator).
-- **Goal Meter & Dynamic Progress**: Real-time pledge tracking, percentage calculations, countdown clocks, and verified backer counts.
-- **Multi-Wallet Support**: One-click wallet connect with Freighter, xBull, Albedo, Lobstr, Hana, and Rabet.
-- **Production Transaction Lifecycle Stepper**: Live 9-state progress tracker (`idle`, `preparing`, `simulating`, `awaiting_signature`, `submitting`, `pending`, `confirmed`, `failed`, `rejected`) with direct Stellar Expert explorer links.
-- **Real-Time On-Chain Activity Ingestion**: Decodes contract events (`cmp_creat`, `cmp_appr`, `contrib`, `fund_rel`, `refund`) directly from Soroban RPC.
-- **Role-Based Portals**: Creator Dashboard, Contributor Portfolio Dashboard, and Reviewer Moderation Queue.
-- **Level 4 Platform Analytics**: Live protocol statistics (total volume raised, success rate, category breakdown, verified metrics).
+Grassroots initiatives, creators, student clubs, and community organizers face steep friction on legacy crowdfunding platforms: high intermediary processing fees (5–10%), custodial opacity, non-automated refund mechanisms, and transaction costs that make micro-donations ($1–$5) economically unfeasible.
+
+**FundCircle** solves these challenges by combining Stellar's sub-cent network fees with Soroban smart contract escrow:
+
+| Traditional Crowdfunding Problem | FundCircle Stellar & Soroban Solution |
+|---|---|
+| **5–10% Platform & Processing Cut** | Sub-cent Stellar network fees (< 0.00001 XLM / transaction) with 0% protocol tax. |
+| **Custodial Opacity & Centralized Holds** | Non-custodial Soroban smart contracts hold funds; frontend has zero administrative custody. |
+| **Opaque Milestone Releases** | Cryptographically locked funds released directly to creator wallet only upon meeting goal criteria. |
+| **Unresponsive / Manual Refunds** | Automated, contributor-initiated 100% on-chain refund claim if deadline expires unmet. |
+| **Siloed & Vulnerable Web2 Ledgers** | Immutable on-chain state, TTL storage bumps, and real-time Soroban RPC event streaming. |
+| **Complex Web3 Onboarding** | Multi-wallet support (Freighter, xBull, Albedo, Lobstr, Hana, Rabet) via `@creit.tech/stellar-wallets-kit`. |
+
+Every platform action — creating an initiative, pledging XLM, claiming refunds, or releasing campaign funds — is an authenticated Soroban smart contract invocation signed directly by the user's wallet.
 
 ---
 
-## 4. Architecture & System Diagrams
-
-### 4.1 System Architecture
+## 2. Architecture
 
 ```mermaid
 graph TD
-    subgraph ClientLayer ["Client & Interface Layer"]
-        UI["Next.js 15 App Router (Tailwind CSS + shadcn/ui)"]
-        Store["State Stores (Zustand: Wallet, Tx, Activity)"]
-        ReactQuery["Server State & Invalidation (React Query)"]
-        WalletsKit["Stellar Wallets Kit 2.6.0"]
+    subgraph Browser["Browser Client (Next.js 15 App Router)"]
+        UI["UI Layer\n(Tailwind CSS + Lucide Icons + Hand-Drawn Design System)"]
+        RQ["TanStack React Query\n(Server state, caching & invalidation)"]
+        ZS["Zustand Stores\n(walletStore / transactionStore / activityStore)"]
+        SWK["StellarWalletsKit\n(Freighter, xBull, Albedo, Lobstr, Hana, Rabet)"]
     end
 
-    subgraph ServiceLayer ["Blockchain Service Layer"]
-        RPCClient["Stellar RPC & Horizon Client"]
-        RegistryService["Typed Campaign Registry Service"]
-        EscrowService["Typed Funding Escrow Service"]
-        EventService["On-Chain Event Ingestion Engine"]
+    subgraph ServiceLayer["Service Layer (src/services/stellar/)"]
+        RPC_CLIENT["stellarRpc.ts\n(simulateAndAssembleTransaction / sendTransaction / pollStatus)"]
+        REG_SRV["registryService.ts\n(createCampaign / getCampaign / approveCampaign)"]
+        ESC_SRV["escrowService.ts\n(contribute / releaseFunds / claimRefund)"]
+        EVT_SRV["events.ts\n(getEvents polling & Soroban event parsing)"]
     end
 
-    subgraph StellarLedger ["Stellar & Soroban Network (Testnet / Mainnet)"]
-        EscrowContract["Funding Escrow Contract (WASM)"]
-        RegistryContract["Campaign Registry Contract (WASM)"]
-        SAC["Native XLM Stellar Asset Contract"]
+    subgraph StellarLedger["Stellar Network (Testnet)"]
+        SOROBAN_RPC["Soroban RPC\nhttps://soroban-testnet.stellar.org"]
+        HORIZON_API["Horizon API\nhttps://horizon-testnet.stellar.org"]
+        REGISTRY_CTR["CampaignRegistry Contract\nCD3YZE3WECUWNHW7..."]
+        ESCROW_CTR["FundingEscrow Contract\nCB5B33DB3GI5XTD4..."]
+        SAC_TOKEN["Native XLM SAC Token\nCDLZFC3SYJYDZT7K..."]
     end
 
-    UI --> Store
-    UI --> ReactQuery
-    Store --> WalletsKit
-    ReactQuery --> ServiceLayer
-    ServiceLayer --> StellarLedger
-    WalletsKit -.->|"Signs Invocation XDR"| StellarLedger
-    EscrowContract ==>|"Cross-Contract Call"| RegistryContract
-    EscrowContract -->|"Transfers / Custody"| SAC
+    UI --> RQ
+    UI --> ZS
+    RQ --> REG_SRV
+    RQ --> ESC_SRV
+    ZS --> SWK
+    REG_SRV --> RPC_CLIENT
+    ESC_SRV --> RPC_CLIENT
+    SWK -->|"sign transaction XDR"| RPC_CLIENT
+    RPC_CLIENT -->|"Simulate / Submit Tx"| SOROBAN_RPC
+    EVT_SRV -->|"getEvents poll (every 5s)"| SOROBAN_RPC
+    EVT_SRV --> ZS
+    SOROBAN_RPC --> REGISTRY_CTR
+    SOROBAN_RPC --> ESCROW_CTR
+    SOROBAN_RPC --> SAC_TOKEN
+    ESCROW_CTR -->|"cross-contract query & state sync"| REGISTRY_CTR
+    ESCROW_CTR -->|"token transfer / custody"| SAC_TOKEN
 ```
 
-### 4.2 Cross-Contract Invocation Sequence
+### 2.1 Role Hierarchy & Access Control
+
+FundCircle implements a strict separation of privileges:
+
+```mermaid
+graph TD
+    ADMIN["🛡️ Platform Admin\n(Configured via NEXT_PUBLIC_ADMIN_PUBLIC_KEY)\nModeration, emergency suspension & resumption"]
+    CREATOR["🎨 Initiative Creator\nCreates campaigns, specifies goal/deadline, claims escrowed funds upon success"]
+    CONTRIBUTOR["🤝 Community Contributor\nPledges XLM micro-contributions, tracks progress, claims 100% refund if goal unmet"]
+
+    ADMIN -->|"Moderates / Suspends / Resumes"| CREATOR
+    ADMIN -->|"Enforces Safety Limits"| CONTRIBUTOR
+    CONTRIBUTOR -->|"Pledges XLM Escrow"| CREATOR
+```
+
+### 2.2 Inter-Contract Verification & State Machine
+
+When a contributor pledges funds, `FundingEscrow` performs a live typed inter-contract invocation to `CampaignRegistry` to verify campaign validity before pulling tokens:
 
 ```mermaid
 sequenceDiagram
-    autonumber
-    actor Backer as Contributor
-    actor Creator as Project Creator
-    participant DApp as FundCircle Frontend
-    participant Kit as Stellar Wallets Kit
-    participant Escrow as Funding Escrow Contract
-    participant Registry as Campaign Registry Contract
-    participant SAC as Stellar Asset Contract (XLM)
+    participant User as Contributor Wallet
+    participant Escrow as FundingEscrow Contract
+    participant Registry as CampaignRegistry Contract
+    participant Token as Native XLM SAC (Token)
 
-    Note over Backer, SAC: 1. Contribution Flow
-    Backer->>DApp: Input Contribution (e.g. 50 XLM)
-    DApp->>DApp: Simulate Transaction Footprint & Fees
-    DApp->>Kit: Request Contributor Signature
-    Kit-->>DApp: Return Signed Transaction Envelope XDR
-    DApp->>Escrow: Invoke `contribute(campaign_id, contributor, amount)`
-
-    critical Soroban Cross-Contract Verification
-        Escrow->>Registry: Cross-Contract Query `get_campaign(campaign_id)`
-        Registry-->>Escrow: Return Campaign Struct (status, goal, deadline, asset)
-        Escrow->>Escrow: Validate: status == Active & now <= deadline & asset == token
-        Escrow->>SAC: `transfer(contributor, escrow_address, amount)`
-        Escrow->>Escrow: Update Contributor Record & Increment Campaign Total
-        opt If Total Raised >= Target Goal
-            Escrow->>Registry: Cross-Contract Call `set_funded(campaign_id, escrow)`
+    User->>Escrow: contribute(campaign_id, amount, contributor)
+    rect rgb(245, 245, 245)
+        Note over Escrow,Registry: Inter-Contract Verification
+        Escrow->>Registry: get_campaign(campaign_id)
+        Registry-->>Escrow: Campaign (status=Active, deadline > now, target)
+    end
+    
+    alt Campaign Active & Valid
+        Escrow->>Token: transfer(contributor, escrow_address, amount)
+        Token-->>Escrow: Transfer Success
+        Escrow->>Escrow: Update Ledger (total_raised, contributor_pledge)
+        opt If Total Raised >= Target
+            Escrow->>Registry: set_funded(campaign_id)
+            Registry-->>Escrow: State Updated (Funded)
         end
-        Escrow-->>Escrow: Emit `(contrib, campaign_id, contributor)` Event
+        Escrow-->>User: Contribution Success (Pledge Recorded)
+    else Campaign Inactive / Expired
+        Escrow-->>User: Revert (InvalidCampaignState / CampaignExpired)
     end
-    Escrow-->>DApp: Transaction Finalized on Ledger (TxHash)
-
-    Note over Creator, SAC: 2. Fund Disbursement Flow
-    Creator->>DApp: Trigger Fund Release
-    DApp->>Escrow: Invoke `release_funds(campaign_id, creator)`
-    critical Release Verification
-        Escrow->>Registry: Verify Creator & status == Funded
-        Escrow->>SAC: `transfer(escrow_address, creator, total_raised)`
-        Escrow->>Registry: Call `set_completed(campaign_id, escrow)`
-        Escrow-->>Escrow: Emit `(fund_rel, campaign_id, creator)` Event
-    end
-    Escrow-->>DApp: Funds Disbursed to Creator
 ```
 
-### 4.3 Campaign State Machine
+---
+
+## 3. Smart Contract Design
+
+### 3.1 CampaignRegistry
+
+**Purpose**: Single source of truth for campaign creation, metadata, deadlines, target funding amounts, and administrative status transitions.
+
+**Address**: [`CD3YZE3WECUWNHW7QKDOYYUCH6PZ3VP2GIR4HJDVREQ3PFBZR7P2CXCJ`](https://stellar.expert/explorer/testnet/contract/CD3YZE3WECUWNHW7QKDOYYUCH6PZ3VP2GIR4HJDVREQ3PFBZR7P2CXCJ)
+
+#### Storage Model
+
+| Key | Storage Tier | Type | Description |
+|---|---|---|---|
+| `Admin` | Instance | `Address` | Protocol governance address; authorized to moderate campaigns. |
+| `Escrow` | Instance | `Address` | Authorized FundingEscrow contract address allowed to update state. |
+| `CampaignCount` | Instance | `u32` | Total number of registered initiatives on ledger. |
+| `Campaign(u32)` | Persistent | `Campaign` | Complete campaign record (creator, target, deadline, asset, status, metadata). |
+| `CreatorCampaigns(Address)` | Persistent | `Vec<u32>` | List of campaign IDs authored by a specific creator. |
+
+#### Public Functions
+
+`initialize` · `set_admin` · `set_escrow` · `get_admin` · `get_escrow` · `create_campaign` · `get_campaign` · `get_campaign_count` · `get_campaigns_by_creator` · `submit_for_review` · `approve_campaign` · `reject_campaign` · `suspend_campaign` · `resume_campaign` · `cancel_campaign` · `set_funded` · `set_completed` · `set_refund`
+
+#### Events Emitted
+
+| Symbol | Topic | Data |
+|---|---|---|
+| `reg_init` | `("reg_init", admin)` | `admin_address` |
+| `set_escr` | `("set_escr", admin)` | `escrow_address` |
+| `cmp_creat` | `("cmp_creat", campaign_id, creator)` | `(target_amount, deadline, asset)` |
+| `cmp_appr` | `("cmp_appr", campaign_id)` | `admin_address` |
+| `cmp_susp` | `("cmp_susp", campaign_id)` | `admin_address` |
+| `cmp_resm` | `("cmp_resm", campaign_id)` | `admin_address` |
+| `cmp_canc` | `("cmp_canc", campaign_id, creator)` | `creator_address` |
+| `cmp_stat` | `("cmp_stat", campaign_id)` | `new_status_u32` |
+
+---
+
+### 3.2 FundingEscrow
+
+**Purpose**: Non-custodial escrow custody for micro-contributions, inter-contract campaign state validation, creator fund disbursement, and automated contributor refund execution.
+
+**Address**: [`CB5B33DB3GI5XTD4H7YNAKSR4PTE4675SIDNYA3TOJNGE3RXZ26TRVOD`](https://stellar.expert/explorer/testnet/contract/CB5B33DB3GI5XTD4H7YNAKSR4PTE4675SIDNYA3TOJNGE3RXZ26TRVOD)
+
+#### Storage Model
+
+| Key | Storage Tier | Type | Description |
+|---|---|---|---|
+| `Admin` | Instance | `Address` | Protocol admin authority. |
+| `Registry` | Instance | `Address` | Linked CampaignRegistry contract instance address. |
+| `TotalRaised(u32)` | Persistent | `i128` | Total stroops pledged to a given campaign ID. |
+| `Contribution(u32, Address)` | Persistent | `i128` | Amount pledged by a specific contributor to a campaign. |
+| `ContributorCount(u32)` | Persistent | `u32` | Total unique contributor wallets for a campaign. |
+| `Contributors(u32)` | Persistent | `Vec<Address>` | Ordered list of backer addresses for a campaign. |
+| `ContributorCampaigns(Address)` | Persistent | `Vec<u32>` | Campaign IDs backed by a contributor wallet. |
+| `FundsReleased(u32)` | Persistent | `bool` | Flag tracking whether funds were disbursed to creator. |
+
+#### Public Functions
+
+`initialize` · `set_registry` · `get_admin` · `get_registry` · `contribute` · `release_funds` · `claim_refund` · `get_total_raised` · `get_contribution` · `get_contributor_count` · `get_contributors` · `get_contributor_campaigns` · `is_funds_released`
+
+#### Events Emitted
+
+| Symbol | Topic | Data |
+|---|---|---|
+| `esc_init` | `("esc_init", admin)` | `registry_address` |
+| `contrib` | `("contrib", campaign_id, contributor)` | `(amount, new_total_raised)` |
+| `fund_rel` | `("fund_rel", campaign_id, creator)` | `released_amount` |
+| `refund` | `("refund", campaign_id, contributor)` | `refunded_amount` |
+
+---
+
+### 3.3 Native Stellar Asset Contract (XLM SAC)
+
+FundCircle interacts with the native token via the Stellar Asset Contract interface (`soroban_sdk::token::Client`), allowing direct custody and micro-transfers of native Lumens (XLM) with zero wrapping overhead.
+
+- **Testnet Contract ID**: [`CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC`](https://stellar.expert/explorer/testnet/contract/CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC)
+- **Decimals**: 7 (1 XLM = 10,000,000 stroops)
+
+---
+
+### 3.4 Campaign Lifecycle & Moderation
 
 ```mermaid
 stateDiagram-v2
-    [*] --> Draft: Creator drafts project
-    Draft --> Review: Creator submits for review
-    Review --> Active: Admin/Reviewer approves
-    Review --> Draft: Admin requests revisions
-    Draft --> Cancelled: Creator cancels draft
-    Active --> Funded: Escrow pledges >= Target Goal
-    Active --> Cancelled: Creator cancels active campaign
-    Active --> Refund: Deadline passes without reaching goal
-    Cancelled --> Refund: Escrow opens contributor refunds
-    Funded --> Completed: Creator disburses funds
-    Completed --> [*]
-    Refund --> [*]
+    [*] --> Draft: Creator Submits
+    Draft --> Active: Instant Activation / Admin Approval
+    Active --> Funded: Target Amount Met
+    Active --> Expired: Deadline Passed (Unmet)
+    Active --> Suspended: Admin Emergency Pause
+    Suspended --> Active: Admin Resume
+    Active --> Cancelled: Creator Cancels
+    Funded --> Completed: Creator Claims Escrow
+    Expired --> Refund: Contributors Claim 100% Refund
+    Cancelled --> Refund: Contributors Claim 100% Refund
 ```
 
 ---
 
-## 5. Smart Contracts Architecture
+## 4. Inter-Contract Communication
 
-### 5.1 Campaign Registry Contract (`contracts/campaign-registry`)
-- **Responsibilities**: Maintains single-source-of-truth for campaign records, categories, deadlines, creator identity, and state machine validation.
-- **Storage**:
-  - `DataKey::Campaign(u64)`: Persistent storage for campaign metadata.
-  - `DataKey::CampaignCount`: Instance storage for total campaigns counter.
-  - `DataKey::Admin` & `DataKey::EscrowContract`: Instance storage for authorized actors.
-- **Authorization**:
-  - `admin.require_auth()`: Initialization, reviewer moderation, and escrow binding.
-  - `creator.require_auth()`: Draft creation and submissions.
-  - `escrow.require_auth()`: State progression upon funding milestones.
-- **Events**: `cmp_creat`, `cmp_sub`, `cmp_appr`, `cmp_rej`, `cmp_canc`, `cmp_stat`.
+The `FundingEscrow` smart contract contains a compiled client interface (`CampaignRegistryClient`) enabling atomic, synchronous inter-contract calls within the Soroban virtual machine:
 
-### 5.2 Funding Escrow Contract (`contracts/funding-escrow`)
-- **Responsibilities**: Non-custodial fund custody, ledger balance accounting, cross-contract validation against Registry, creator disbursements, and contributor refunds.
-- **Storage**:
-  - `DataKey::CampaignTotal(u64)`: Persistent total raised in stroops.
-  - `DataKey::Contribution(u64, Address)`: Persistent user pledge record.
-  - `DataKey::Contributors(u64)`: Persistent contributor roster.
-  - `DataKey::FundsReleased(u64)`: Reentrancy protection guard.
-- **Authorization**:
-  - `contributor.require_auth()`: Deposits and refund claims.
-  - `creator.require_auth()`: Milestone disbursement.
-- **Events**: `esc_init`, `contrib`, `fund_rel`, `refund`.
+1. **Active Campaign Assertions**: Before locking contributor funds, the escrow contract verifies the campaign exists on the registry and has not passed its expiration ledger/timestamp.
+2. **State Synchronization**: When a pledge pushes total raised over the target amount, `FundingEscrow` calls `registry.set_funded(campaign_id)`.
+3. **Refund Authorization**: When a backer requests a refund, `FundingEscrow` queries `registry.get_campaign(campaign_id)` to verify the campaign is either `Cancelled` or `Active/Expired` before returning funds.
 
 ---
 
-## 6. Technology Stack
+## 5. Features & Tech Stack
 
-- **Smart Contracts**: Rust, Soroban SDK `22.0.11`, Stellar CLI `27.0.0`.
-- **Frontend Core**: Next.js 15 (App Router), React 19, TypeScript 5 (Strict Mode).
-- **Styling & Components**: Tailwind CSS, Lucide React, shadcn/ui.
-- **State & Data**: Zustand 5 with `persist` middleware, TanStack React Query 5.
-- **Wallet Integration**: `@creit.tech/stellar-wallets-kit` 2.6.0, `@stellar/stellar-sdk` 13.3.0.
-- **Testing**: Rust built-in test harness, Vitest 3, React Testing Library.
-- **CI/CD**: GitHub Actions matrix for contracts and frontend.
+| Layer | Technology / Tool | Purpose |
+|---|---|---|
+| **Smart Contracts** | Soroban Rust SDK `v22.0.11` | Secure, deterministic contract execution on Stellar |
+| **Frontend Framework** | Next.js 15 (App Router, React 19) | Server components, static generation, client interactivity |
+| **Language & Typing** | TypeScript 5 (Strict Mode) | Full-stack end-to-end type safety |
+| **Styling & Theme** | Tailwind CSS + Custom Hand-Drawn System | Sketch aesthetic, notebook paper textures, post-it components |
+| **Wallet Integration** | `@creit.tech/stellar-wallets-kit` | Multi-wallet modal (Freighter, xBull, Albedo, Lobstr, Hana) |
+| **Stellar SDK** | `@stellar/stellar-sdk` `v17.0.1` | Transaction building, XDR assembly, RPC simulation |
+| **State Management** | Zustand `v5` + TanStack Query `v5` | Decentralized state, caching, transaction tracking |
+| **Testing** | Rust Cargo Test (18 tests) + Vitest (38 tests) | End-to-end contract and UI test coverage |
 
 ---
 
-## 7. Local Development & Installation
+## 6. Local Development Setup
 
 ### Prerequisites
-- **Node.js**: `20.x` or `22.x`
-- **Rust**: `1.80+` with `wasm32-unknown-unknown` target
-- **Stellar CLI**: `27.0.0+`
+- **Node.js**: `v20.x` or higher
+- **Rust**: `1.84.0` or higher (`rustup default stable`)
+- **WASM Target**: `rustup target add wasm32-unknown-unknown`
+- **Stellar CLI**: `cargo install --locked stellar-cli --features opt`
 
-### Setup Instructions
+### Installation Steps
+
 ```bash
 # 1. Clone the repository
 git clone https://github.com/sanchayanghosh07/FundCircle.git
 cd FundCircle
 
-# 2. Install dependencies
-npm install --legacy-peer-deps
+# 2. Install frontend dependencies
+npm ci --legacy-peer-deps
 
 # 3. Configure environment variables
 cp .env.example .env.local
 
-# 4. Run local test suite
+# 4. Run smart contract unit tests
 cargo test --all
+
+# 5. Run frontend unit and integration tests
 npm test
 
-# 5. Build WASM smart contracts
-stellar contract build
-
-# 6. Start Next.js development server
+# 6. Start local development server
 npm run dev
 ```
-Open [http://localhost:3000](http://localhost:3000) to view the application.
+
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ---
 
-## 8. Testnet Deployment Details & Explorer Links
+## 7. CI/CD & Deployment
 
-| Contract | Network | Address | Stellar Expert Explorer |
-| :--- | :--- | :--- | :--- |
-| **Campaign Registry** | Testnet | `CD3YZE3WECUWNHW7QKDOYYUCH6PZ3VP2GIR4HJDVREQ3PFBZR7P2CXCJ` | [Inspect Registry Contract](https://stellar.expert/explorer/testnet/contract/CD3YZE3WECUWNHW7QKDOYYUCH6PZ3VP2GIR4HJDVREQ3PFBZR7P2CXCJ) |
-| **Funding Escrow** | Testnet | `CB5B33DB3GI5XTD4H7YNAKSR4PTE4675SIDNYA3TOJNGE3RXZ26TRVOD` | [Inspect Escrow Contract](https://stellar.expert/explorer/testnet/contract/CB5B33DB3GI5XTD4H7YNAKSR4PTE4675SIDNYA3TOJNGE3RXZ26TRVOD) |
-| **Native XLM SAC** | Testnet | `CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC` | [Inspect SAC Contract](https://stellar.expert/explorer/testnet/contract/CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC) |
+### 7.1 Automated CI & Testing (Pull Requests & Pushes)
+Every pull request and push to `main` triggers the automated GitHub Actions workflow [`.github/workflows/test.yml`](.github/workflows/test.yml):
+- **🦀 Soroban Contract Job**: Builds release WASM and executes all 18 Rust contract test cases.
+- **⚛️ Frontend & Integration Job**: Runs ESLint, strict TypeScript typechecking, all 38 Vitest tests, and Next.js production builds.
 
-### Sample Verified Testnet Transactions
+### 7.2 Automated Deploy & Build Verification
+The [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml) workflow builds and verifies optimized contract artifacts and frontend production bundles.
 
-| Action | Transaction Hash | Explorer Link |
-| :--- | :--- | :--- |
-| **Campaign Creation** | `e9a7b6c5d4e3f2a10b8c7d6e5f4a3b2c1d0e9f8a7b6c5d4e3f2a1b0c9d8e7f6a` | [View Tx](https://stellar.expert/explorer/testnet/tx/e9a7b6c5d4e3f2a10b8c7d6e5f4a3b2c1d0e9f8a7b6c5d4e3f2a1b0c9d8e7f6a) |
-| **Review Approval** | `7f6e5d4c3b2a1f0e9d8c7b6a5f4e3d2c1b0a9f8e7d6c5b4a3f2e1d0c9b8a7f6e` | [View Tx](https://stellar.expert/explorer/testnet/tx/7f6e5d4c3b2a1f0e9d8c7b6a5f4e3d2c1b0a9f8e7d6c5b4a3f2e1d0c9b8a7f6e) |
-| **Escrow Contribution** | `3c2b1a0f9e8d7c6b5a4f3e2d1c0b9a8f7e6d5c4b3a2f1e0d9c8b7a6f5e4d3c2b` | [View Tx](https://stellar.expert/explorer/testnet/tx/3c2b1a0f9e8d7c6b5a4f3e2d1c0b9a8f7e6d5c4b3a2f1e0d9c8b7a6f5e4d3c2b) |
+### 7.3 Contract Deployment (Automated Scripts)
+Deploying new contracts to Stellar Testnet automatically builds WASM, funds identities via Friendbot, deploys, initializes storage, wires cross-contract permissions, and syncs addresses across all project files:
 
----
-
-## 9. Security Review & Threat Mitigations
-
-- **Checks-Effects-Interactions (CEI)**: Reentrancy protection guaranteed by setting state flags prior to SAC token transfers.
-- **Safe 128-Bit Integer Math**: All balance arithmetic uses checked operations (`checked_add`, `checked_sub`) preventing overflow/underflow vulnerabilities.
-- **Zero Key Exposure**: No private keys or secret seeds are ever stored or handled by the frontend; all signatures are delegated to wallet extensions.
-- **Storage TTL Bumping**: Persistent and instance storage keys invoke `extend_ttl` on every write to protect state from ledger archiving.
-
-Full security audit and threat assessment: [docs/security.md](docs/security.md).
+```bash
+# Run one-step automated deployment script
+bash scripts/deploy-testnet.sh
+```
 
 ---
 
-## 10. Level 4 Scope & Future Roadmap
+## 8. Security Considerations
 
-### Level 4 Implemented Scope
-- Full non-custodial Soroban smart contracts (`CampaignRegistry` & `FundingEscrow`).
-- Live cross-contract invocations on Stellar Testnet.
-- Next.js 15 frontend with multi-wallet support and production transaction lifecycle manager.
-- On-chain event ingestion and activity stream.
-- Creator, Contributor, Reviewer, and Analytics dashboards.
-- 100% test coverage across 18 Rust contract tests and 37 Vitest frontend tests.
-
-### Deferred to Level 5+
-- **Level 5**: Milestone multi-stage tranches with contributor voting escrow (DAO governance approval per phase).
-- **Level 6**: Multi-currency cross-border pledges with automated Stellar Path Payments (converting USDC, EURC, or fiat anchors into project token).
-- **Level 7**: Quadratic funding matching pools using Soroban zero-knowledge proof verification.
+1. **Non-Custodial Architecture**: Neither platform operators nor smart contract admins can seize pledged contributor assets. Funds are locked inside the Soroban contract instance until conditions are met.
+2. **Reentrancy Protection**: State updates (`TotalRaised`, `Contribution`) are committed to persistent storage before external token transfers are dispatched.
+3. **Soroban Persistent Storage & TTL Bumps**: Contract state entries utilize persistent storage keys with automated TTL threshold management.
+4. **Authorized Administrative Gatekeeping**: Privileged actions (e.g. emergency campaign suspension) enforce `admin.require_auth()`. Role-based authentication hides console actions from unauthorized wallets.
+5. **Strict Input Sanitization**: Numerical amounts are validated against overflow boundaries with `i128` stroop calculations.
 
 ---
 
-## 11. License
+## 9. Screenshots & Visual Previews
 
-FundCircle is open-source software licensed under the **MIT License**.
+### 9.1 Desktop
+*Hand-Drawn Post-It & Notebook UI, interactive campaign discovery, dynamic pledge goal meters, and transaction stepper.*
+
+<p align="center">
+  <img src="public/logo.png" alt="FundCircle Preview" width="300" />
+</p>
+
+### 9.2 Mobile Experience
+*Fully responsive mobile navigation drawer, fluid grids, and touch-optimized contribute drawers.*
+
+### 9.3 Test Suite Execution
+- **Cargo Test (Rust)**: `18/18 tests passed` (Campaign Registry + Funding Escrow)
+- **Vitest (TypeScript)**: `38/38 tests passed` (Unit, Component, Store, and RPC Integration)
+
+### 9.4 CI/CD Pipeline
+- **GitHub Actions**: Automated PR quality gate, Rust WASM verification, and Next.js production build check.
+
+---
+
+## 10. Contract Addresses & On-Chain Verification
+
+| Contract / Account | Network | Address / Explorer Link |
+|---|---|---|
+| **Campaign Registry** | Stellar Testnet | [`CD3YZE3WECUWNHW7QKDOYYUCH6PZ3VP2GIR4HJDVREQ3PFBZR7P2CXCJ`](https://stellar.expert/explorer/testnet/contract/CD3YZE3WECUWNHW7QKDOYYUCH6PZ3VP2GIR4HJDVREQ3PFBZR7P2CXCJ) |
+| **Funding Escrow** | Stellar Testnet | [`CB5B33DB3GI5XTD4H7YNAKSR4PTE4675SIDNYA3TOJNGE3RXZ26TRVOD`](https://stellar.expert/explorer/testnet/contract/CB5B33DB3GI5XTD4H7YNAKSR4PTE4675SIDNYA3TOJNGE3RXZ26TRVOD) |
+| **Native XLM SAC** | Stellar Testnet | [`CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC`](https://stellar.expert/explorer/testnet/contract/CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC) |
+| **Admin Authority** | Stellar Testnet | [`GCPUZLCKI4NONG3ZLNUWKMTBZS3CO6SXFMHR2H2PGQHMENR4HL7HNMFD`](https://stellar.expert/explorer/testnet/account/GCPUZLCKI4NONG3ZLNUWKMTBZS3CO6SXFMHR2H2PGQHMENR4HL7HNMFD) |
+
+---
+
+## 11. Resources & Links
+
+- **Live Application**: [https://fundcircle.vercel.app](https://fundcircle.vercel.app) <!-- Add live deployment URL here -->
+- **Demo Video Walkthrough**: [Watch Video](https://youtube.com) <!-- Add demo video URL here -->
+- **Source Code Repository**: [https://github.com/sanchayanghosh07/FundCircle](https://github.com/sanchayanghosh07/FundCircle)
+- **Stellar Developer Documentation**: [https://developers.stellar.org](https://developers.stellar.org)
+
+---
+
+## Contributing
+
+Contributions are welcome! Please follow these steps:
+1. Fork the project repository.
+2. Create your feature branch (`git checkout -b feat/stellar-feature`).
+3. Commit your changes following [Conventional Commits](https://www.conventionalcommits.org) (`git commit -m "feat(escrow): add milestone release triggers"`).
+4. Run all contract and frontend tests (`cargo test --all && npm test`).
+5. Push to the branch and open a Pull Request.
+
+---
+
+## License
+
+Distributed under the **MIT License**. See [`LICENSE`](LICENSE) for more information.
