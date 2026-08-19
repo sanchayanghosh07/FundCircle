@@ -38,41 +38,50 @@ function syncContracts() {
   console.log(`Admin Address:        ${adminAddress}`);
   console.log("---------------------------------------------------------");
 
-  // 1. Update / Create .env.local
-  const envLocalPath = path.join(rootDir, ".env.local");
-  const envLocalContent = `# FundCircle Stellar Testnet Deployed Configuration
+  const envTemplate = `# ==============================================================================
+# FundCircle — Decentralized Community Micro-Funding on Stellar
+# Environment Configuration
+#
+# Note: Variables prefixed with NEXT_PUBLIC_ are bundled into client-side builds.
+# Never place secret keys or sensitive credentials in client-accessible variables!
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# 1. Stellar Network & RPC Infrastructure
+# ------------------------------------------------------------------------------
 NEXT_PUBLIC_STELLAR_NETWORK=testnet
 NEXT_PUBLIC_STELLAR_RPC_URL=https://soroban-testnet.stellar.org
 NEXT_PUBLIC_STELLAR_HORIZON_URL=https://horizon-testnet.stellar.org
 NEXT_PUBLIC_STELLAR_EXPLORER_URL=https://stellar.expert/explorer/testnet
-NEXT_PUBLIC_STELLAR_NETWORK_PASSPHRASE=Test SDF Network ; September 2015
+NEXT_PUBLIC_STELLAR_NETWORK_PASSPHRASE="Test SDF Network ; September 2015"
+
+# ------------------------------------------------------------------------------
+# 2. Deployed Soroban Smart Contracts (Testnet)
+# ------------------------------------------------------------------------------
 NEXT_PUBLIC_REGISTRY_CONTRACT_ID=${registryId}
 NEXT_PUBLIC_ESCROW_CONTRACT_ID=${escrowId}
 NEXT_PUBLIC_NATIVE_ASSET_CONTRACT_ID=CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC
+
+# ------------------------------------------------------------------------------
+# 3. Protocol Security & Admin Public Key
+# ------------------------------------------------------------------------------
 NEXT_PUBLIC_ADMIN_PUBLIC_KEY=${adminAddress}
+
+# ------------------------------------------------------------------------------
+# 4. Optional Server / Deploy Secrets (CLI & CI Only - NEVER prefix with NEXT_PUBLIC_)
+# ------------------------------------------------------------------------------
+# STELLAR_ADMIN_SECRET_KEY=S...
 `;
-  fs.writeFileSync(envLocalPath, envLocalContent, "utf8");
+
+  // 1. Update / Create .env.local
+  const envLocalPath = path.join(rootDir, ".env.local");
+  fs.writeFileSync(envLocalPath, envTemplate, "utf8");
   console.log("✅ Updated .env.local");
 
   // 2. Update .env.example
   const envExamplePath = path.join(rootDir, ".env.example");
-  if (fs.existsSync(envExamplePath)) {
-    let envExContent = fs.readFileSync(envExamplePath, "utf8");
-    envExContent = envExContent.replace(
-      /NEXT_PUBLIC_REGISTRY_CONTRACT_ID=.*/g,
-      `NEXT_PUBLIC_REGISTRY_CONTRACT_ID=${registryId}`
-    );
-    envExContent = envExContent.replace(
-      /NEXT_PUBLIC_ESCROW_CONTRACT_ID=.*/g,
-      `NEXT_PUBLIC_ESCROW_CONTRACT_ID=${escrowId}`
-    );
-    envExContent = envExContent.replace(
-      /NEXT_PUBLIC_ADMIN_PUBLIC_KEY=.*/g,
-      `NEXT_PUBLIC_ADMIN_PUBLIC_KEY=${adminAddress}`
-    );
-    fs.writeFileSync(envExamplePath, envExContent, "utf8");
-    console.log("✅ Updated .env.example");
-  }
+  fs.writeFileSync(envExamplePath, envTemplate, "utf8");
+  console.log("✅ Updated .env.example");
 
   // 3. Update src/config/contracts.json
   const contractsJsonPath = path.join(rootDir, "src", "config", "contracts.json");
