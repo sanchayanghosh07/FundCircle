@@ -95,61 +95,71 @@ export default function ActivityFeedPage() {
 
       {/* Activity List */}
       <div className="space-y-4">
-        {filtered.map((item) => (
-          <div
-            key={item.id}
-            className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 wobbly-border-md border-2 border-pencil bg-white p-4 sm:p-5 shadow-hard hover:shadow-hard-lg transition-all"
-          >
-            <div className="flex items-start sm:items-center gap-3.5">
-              <div className="flex h-11 w-11 shrink-0 items-center justify-center wobbly-border-sm border-2 border-pencil bg-paper">
-                {getEventIcon(item.type)}
-              </div>
+        {filtered.length > 0 ? (
+          filtered.map((item) => (
+            <div
+              key={item.id}
+              className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 wobbly-border-md border-2 border-pencil bg-white p-4 sm:p-5 shadow-hard hover:shadow-hard-lg transition-all"
+            >
+              <div className="flex items-start sm:items-center gap-3.5">
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center wobbly-border-sm border-2 border-pencil bg-paper">
+                  {getEventIcon(item.type)}
+                </div>
 
-              <div className="space-y-0.5">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <span className="font-heading text-base font-bold text-pencil break-words [overflow-wrap:anywhere]">
-                    {item.details || item.type}
-                  </span>
-                  {item.amountXlm && (
-                    <span className="font-heading text-sm font-bold text-marker-red font-mono">
-                      +{item.amountXlm} XLM
+                <div className="space-y-0.5">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="font-heading text-base font-bold text-pencil break-words [overflow-wrap:anywhere]">
+                      {item.details || item.type}
                     </span>
-                  )}
-                </div>
+                    {item.amountXlm && (
+                      <span className="font-heading text-sm font-bold text-marker-red font-mono">
+                        +{item.amountXlm} XLM
+                      </span>
+                    )}
+                  </div>
 
-                <div className="flex items-center gap-2 font-body text-sm font-bold text-pencil-light">
-                  <span>
-                    Actor: <span className="text-pencil font-body">{shortenAddress(item.actor)}</span>
-                  </span>
-                  <span>•</span>
-                  <span>{formatDateTime(item.timestamp)}</span>
+                  <div className="flex items-center gap-2 font-body text-sm font-bold text-pencil-light">
+                    <span>
+                      Actor: <span className="text-pencil font-body">{shortenAddress(item.actor)}</span>
+                    </span>
+                    <span>•</span>
+                    <span>{formatDateTime(item.timestamp)}</span>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <div className="flex items-center gap-3 sm:self-center self-end font-body text-base">
-              <Link
-                href={`/campaigns/${item.campaignId}`}
-                className="flex items-center gap-1 text-pencil font-bold hover:text-marker-red hover:underline decoration-wavy"
-              >
-                Campaign #{item.campaignId}
-                <ArrowUpRight className="h-4 w-4" />
-              </Link>
-
-              {item.txHash && (
-                <a
-                  href={getExplorerTxUrl(item.txHash)}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="flex items-center gap-1 font-body font-bold text-pen-blue hover:text-marker-red hover:underline decoration-wavy text-sm"
+              <div className="flex items-center gap-3 sm:self-center self-end font-body text-base">
+                <Link
+                  href={`/campaigns/${item.campaignId}`}
+                  className="flex items-center gap-1 text-pencil font-bold hover:text-marker-red hover:underline decoration-wavy"
                 >
-                  Tx: {item.txHash.slice(0, 6)}...
-                  <ExternalLink className="h-3.5 w-3.5" />
-                </a>
-              )}
+                  Campaign #{item.campaignId}
+                  <ArrowUpRight className="h-4 w-4" />
+                </Link>
+
+                {item.txHash && (
+                  <a
+                    href={getExplorerTxUrl(item.txHash)}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="flex items-center gap-1 font-body font-bold text-pen-blue hover:text-marker-red hover:underline decoration-wavy text-sm"
+                  >
+                    Tx: {item.txHash.slice(0, 6)}...
+                    <ExternalLink className="h-3.5 w-3.5" />
+                  </a>
+                )}
+              </div>
             </div>
+          ))
+        ) : (
+          <div className="wobbly-border-md border-2 border-pencil bg-white p-12 text-center space-y-3 shadow-hard">
+            <Activity className="h-10 w-10 text-pencil-muted mx-auto" />
+            <h4 className="font-heading text-2xl font-bold text-pencil">No On-Chain Activity Yet</h4>
+            <p className="font-body text-lg text-pencil-light">
+              Live events emitted by the Soroban Campaign Registry and Funding Escrow contracts will stream here in real time.
+            </p>
           </div>
-        ))}
+        )}
       </div>
     </div>
   );

@@ -95,18 +95,24 @@ export default function PlatformAnalyticsPage() {
           </h3>
 
           <div className="space-y-4">
-            {Object.entries(categoryCounts).map(([cat, count]) => {
-              const pct = Math.round((count / campaigns.length) * 100);
-              return (
-                <div key={cat} className="space-y-1.5">
-                  <div className="flex justify-between font-body font-bold text-base">
-                    <span className="text-pencil">{cat}</span>
-                    <span className="text-marker-red font-mono">{count} campaigns ({pct}%)</span>
+            {Object.keys(categoryCounts).length > 0 ? (
+              Object.entries(categoryCounts).map(([cat, count]) => {
+                const pct = Math.round((count / campaigns.length) * 100);
+                return (
+                  <div key={cat} className="space-y-1.5">
+                    <div className="flex justify-between font-body font-bold text-base">
+                      <span className="text-pencil">{cat}</span>
+                      <span className="text-marker-red font-mono">{count} campaigns ({pct}%)</span>
+                    </div>
+                    <Progress value={pct} max={100} />
                   </div>
-                  <Progress value={pct} max={100} />
-                </div>
-              );
-            })}
+                );
+              })
+            ) : (
+              <p className="font-body text-base text-pencil-light font-bold text-center py-6">
+                No campaign data recorded yet.
+              </p>
+            )}
           </div>
         </div>
 

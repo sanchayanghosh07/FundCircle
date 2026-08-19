@@ -24,17 +24,7 @@ export default function ContributorDashboardPage() {
   React.useEffect(() => {
     const load = async () => {
       if (!address) {
-        // demo sample
-        const all = await registryService.getAllCampaigns();
-        if (all.length > 0) {
-          setSupportedCampaigns([
-            {
-              campaign: all[0],
-              amountXlm: "250",
-              timestamp: Date.now() - 1000 * 60 * 35,
-            },
-          ]);
-        }
+        setSupportedCampaigns([]);
         setLoading(false);
         return;
       }

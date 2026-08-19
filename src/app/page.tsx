@@ -25,15 +25,26 @@ import { Tape } from "@/components/ui/hand-drawn/Tape";
 import { Thumbtack } from "@/components/ui/hand-drawn/Thumbtack";
 import { HandDrawnArrow } from "@/components/ui/hand-drawn/HandDrawnArrow";
 import { SquigglyLine } from "@/components/ui/hand-drawn/SquigglyLine";
+import { stroopsToXlm } from "@/lib/utils";
 
 export default function LandingPage() {
-  const [featuredCampaigns, setFeaturedCampaigns] = React.useState<Campaign[]>([]);
+  const [campaigns, setCampaigns] = React.useState<Campaign[]>([]);
+  const [loading, setLoading] = React.useState(true);
 
   React.useEffect(() => {
-    registryService.getAllCampaigns().then((campaigns) => {
-      setFeaturedCampaigns(campaigns.slice(0, 3));
+    registryService.getAllCampaigns().then((data) => {
+      setCampaigns(data);
+      setLoading(false);
     });
   }, []);
+
+  const featuredCampaigns = campaigns.filter((c) => c.status === "active").slice(0, 3);
+  const totalRaisedStroops = campaigns.reduce(
+    (acc, c) => acc + BigInt(c.totalRaised || "0"),
+    0n
+  );
+  const totalRaisedXlm = stroopsToXlm(totalRaisedStroops.toString());
+  const activeCount = campaigns.filter((c) => c.status === "active").length;
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -85,20 +96,24 @@ export default function LandingPage() {
           {/* Quick Stats Grid */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 mt-16 pt-10 border-t-2 border-dashed border-pencil/30">
             <div className="relative wobbly-border-sm border-2 border-pencil bg-white p-4 shadow-hard flex flex-col items-center">
-              <span className="font-heading text-3xl sm:text-4xl font-bold text-pencil font-mono">17,100+</span>
-              <span className="font-body text-base text-pencil-light mt-0.5 font-bold">XLM Raised</span>
+              <span className="font-heading text-3xl sm:text-4xl font-bold text-pencil font-mono">
+                {totalRaisedXlm} XLM
+              </span>
+              <span className="font-body text-base text-pencil-light mt-0.5 font-bold">Total XLM Raised</span>
             </div>
             <div className="relative wobbly-border-sm border-2 border-pencil bg-mint p-4 shadow-hard flex flex-col items-center">
+              <span className="font-heading text-3xl sm:text-4xl font-bold text-pencil font-mono">
+                {activeCount}
+              </span>
+              <span className="font-body text-base text-pencil-light mt-0.5 font-bold">Active Campaigns</span>
+            </div>
+            <div className="relative wobbly-border-sm border-2 border-pencil bg-white p-4 shadow-hard flex flex-col items-center">
               <span className="font-heading text-3xl sm:text-4xl font-bold text-pencil font-mono">100%</span>
               <span className="font-body text-base text-pencil-light mt-0.5 font-bold">Escrow Custody</span>
             </div>
-            <div className="relative wobbly-border-sm border-2 border-pencil bg-white p-4 shadow-hard flex flex-col items-center">
+            <div className="relative wobbly-border-sm border-2 border-pencil bg-postit-yellow p-4 shadow-hard flex flex-col items-center">
               <span className="font-heading text-3xl sm:text-4xl font-bold text-pencil font-mono">&lt; 5s</span>
               <span className="font-body text-base text-pencil-light mt-0.5 font-bold">Stellar Finality</span>
-            </div>
-            <div className="relative wobbly-border-sm border-2 border-pencil bg-postit-yellow p-4 shadow-hard flex flex-col items-center">
-              <span className="font-heading text-3xl sm:text-4xl font-bold text-pencil font-mono">0.00001</span>
-              <span className="font-body text-base text-pencil-light mt-0.5 font-bold">Avg Fee (XLM)</span>
             </div>
           </div>
         </div>
@@ -180,15 +195,34 @@ export default function LandingPage() {
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {featuredCampaigns.map((campaign, idx) => (
-              <CampaignCard
-                key={campaign.id}
-                campaign={campaign}
-                rotation={idx === 0 ? -1 : idx === 1 ? 1 : -1}
-              />
-            ))}
-          </div>
+          {featuredCampaigns.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {featuredCampaigns.map((campaign, idx) => (
+                <CampaignCard
+                  key={campaign.id}
+                  campaign={campaign}
+                  rotation={idx === 0 ? -1 : idx === 1 ? 1 : -1}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="relative wobbly-border-md border-2 border-pencil bg-white p-10 shadow-hard text-center max-w-xl mx-auto space-y-4">
+              <Tape rotation={-1} />
+              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-paper border-2 border-pencil mx-auto shadow-hard-sm">
+                <Compass className="h-7 w-7 text-pencil-light" />
+              </div>
+              <h3 className="font-heading text-2xl font-bold text-pencil">No Active Campaigns Yet</h3>
+              <p className="font-body text-base text-pencil-light font-bold">
+                Be the first creator to launch an on-chain community initiative on Stellar!
+              </p>
+              <Link href="/create">
+                <Button variant="stellar" size="default" className="gap-2 mt-2">
+                  <PlusCircle className="h-4 w-4" />
+                  Start the First Campaign
+                </Button>
+              </Link>
+            </div>
+          )}
         </div>
       </section>
 

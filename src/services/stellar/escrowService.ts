@@ -7,15 +7,7 @@ import { ContributionRecord } from "@/types/campaign";
 import { stroopsToXlm, xlmToStroops } from "@/lib/utils";
 
 // Map of campaignId -> (contributorAddress -> ContributionRecord)
-const localContributions: Record<number, Record<string, ContributionRecord>> = {
-  1: {
-    "GC7XQ4F4J4B7W4UGQO676S47M4UGW5MGBZCR2Z4UGP5J44N64C72BMSN": {
-      amount: "2500000000",
-      amountXlm: "250",
-      timestamp: Date.now() - 1000 * 60 * 35,
-    },
-  },
-};
+const localContributions: Record<number, Record<string, ContributionRecord>> = {};
 
 export class FundingEscrowService {
   private contractId = CONTRACT_CONFIG.escrowContractId;

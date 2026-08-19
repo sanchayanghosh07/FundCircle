@@ -27,7 +27,7 @@ export default function CreatorDashboardPage() {
       if (address) {
         setMyCampaigns(all.filter((c) => c.creator.toLowerCase() === address.toLowerCase()));
       } else {
-        setMyCampaigns(all.slice(0, 2)); // demo preview
+        setMyCampaigns([]);
       }
       setLoading(false);
     });
