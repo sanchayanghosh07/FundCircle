@@ -1,0 +1,74 @@
+name: Test Suite & Verification
+
+on:
+  push:
+    branches: [main, master, develop]
+  pull_request:
+    branches: [main, master, develop]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  smart-contract-tests:
+    name: 🦀 Soroban Smart Contracts (Rust)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Rust Stable Toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+
+      - name: Cache Rust Dependencies & Build Artifacts
+        uses: Swatinem/rust-cache@v2
+
+      - name: Run Soroban Contract Test Suite
+        run: cargo test --all --verbose
+
+      - name: Compile Soroban WASM Binaries
+        run: cargo build --target wasm32-unknown-unknown --release
+
+  frontend-tests:
+    name: ⚛️ Frontend & Integration (Next.js 15 + Vitest)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+
+      - name: Install Frontend Dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: Code Quality & Linting
+        run: npm run lint
+
+      - name: Strict TypeScript Static Typecheck
+        run: npm run typecheck
+
+      - name: Run Vitest Unit & Integration Test Suite
+        run: npm test
+
+      - name: Next.js Production Build Verification
+        run: npm run build
+        env:
+          NEXT_PUBLIC_STELLAR_NETWORK: testnet
+          NEXT_PUBLIC_STELLAR_RPC_URL: https://soroban-testnet.stellar.org
+          NEXT_PUBLIC_STELLAR_HORIZON_URL: https://horizon-testnet.stellar.org
+          NEXT_PUBLIC_STELLAR_EXPLORER_URL: https://stellar.expert/explorer/testnet
+          NEXT_PUBLIC_STELLAR_NETWORK_PASSPHRASE: "Test SDF Network ; September 2015"
+          NEXT_PUBLIC_REGISTRY_CONTRACT_ID: CD3YZE3WECUWNHW7QKDOYYUCH6PZ3VP2GIR4HJDVREQ3PFBZR7P2CXCJ
+          NEXT_PUBLIC_ESCROW_CONTRACT_ID: CB5B33DB3GI5XTD4H7YNAKSR4PTE4675SIDNYA3TOJNGE3RXZ26TRVOD
+          NEXT_PUBLIC_NATIVE_ASSET_CONTRACT_ID: CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC
+          NEXT_PUBLIC_ADMIN_PUBLIC_KEY: GCPUZLCKI4NONG3ZLNUWKMTBZS3CO6SXFMHR2H2PGQHMENR4HL7HNMFD

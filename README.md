@@ -4,7 +4,7 @@
   # FundCircle
   **Decentralized Community Micro-Funding on Stellar**
 
-  [![CI Pipeline](https://github.com/sanchayanghosh07/FundCircle/actions/workflows/pr-validation.yml/badge.svg)](https://github.com/sanchayanghosh07/FundCircle/actions)
+  [![Test Suite & Verification](https://github.com/sanchayanghosh07/FundCircle/actions/workflows/test.yml/badge.svg)](https://github.com/sanchayanghosh07/FundCircle/actions/workflows/test.yml)
   [![Stellar Green Belt](https://img.shields.io/badge/Stellar-Green%20Belt%20(Level%204)-14b8a6?style=flat&logo=stellar)](https://stellar.org)
   [![Soroban Smart Contracts](https://img.shields.io/badge/Soroban-Rust%20SDK%20v22-blue?style=flat)](https://developers.stellar.org)
   [![Next.js 15](https://img.shields.io/badge/Next.js-15%20App%20Router-black?style=flat&logo=next.js)](https://nextjs.org)
