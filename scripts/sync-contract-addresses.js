@@ -6,7 +6,8 @@
  * - .env.example
  * - src/config/contracts.json
  * - src/config/stellar.ts
- * - README.md
+ * - README.md (Badges, Mermaid Architecture, Section 3 Specs, Section 10 Verification Table)
+ * - .github/workflows/test.yml
  *
  * Usage:
  * node scripts/sync-contract-addresses.js <registryContractId> <escrowContractId> [adminAddress]
@@ -17,9 +18,9 @@ const path = require("path");
 
 function syncContracts() {
   const args = process.argv.slice(2);
-  const registryId = args[0] || process.env.NEXT_PUBLIC_REGISTRY_CONTRACT_ID;
-  const escrowId = args[1] || process.env.NEXT_PUBLIC_ESCROW_CONTRACT_ID;
-  const adminAddress = args[2] || process.env.ADMIN_ADDRESS;
+  const registryId = (args[0] || process.env.NEXT_PUBLIC_REGISTRY_CONTRACT_ID || "").trim();
+  const escrowId = (args[1] || process.env.NEXT_PUBLIC_ESCROW_CONTRACT_ID || "").trim();
+  const adminAddress = (args[2] || process.env.ADMIN_ADDRESS || process.env.NEXT_PUBLIC_ADMIN_PUBLIC_KEY || "GCPUZLCKI4NONG3ZLNUWKMTBZS3CO6SXFMHR2H2PGQHMENR4HL7HNMFD").trim();
 
   if (!registryId || !escrowId) {
     console.error("❌ Error: Missing contract IDs.");
@@ -34,9 +35,7 @@ function syncContracts() {
   console.log("=========================================================");
   console.log(`Campaign Registry ID: ${registryId}`);
   console.log(`Funding Escrow ID:    ${escrowId}`);
-  if (adminAddress) {
-    console.log(`Admin Address:        ${adminAddress}`);
-  }
+  console.log(`Admin Address:        ${adminAddress}`);
   console.log("---------------------------------------------------------");
 
   // 1. Update / Create .env.local
@@ -50,7 +49,7 @@ NEXT_PUBLIC_STELLAR_NETWORK_PASSPHRASE=Test SDF Network ; September 2015
 NEXT_PUBLIC_REGISTRY_CONTRACT_ID=${registryId}
 NEXT_PUBLIC_ESCROW_CONTRACT_ID=${escrowId}
 NEXT_PUBLIC_NATIVE_ASSET_CONTRACT_ID=CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC
-NEXT_PUBLIC_ADMIN_PUBLIC_KEY=${adminAddress || "GCPUZLCKI4NONG3ZLNUWKMTBZS3CO6SXFMHR2H2PGQHMENR4HL7HNMFD"}
+NEXT_PUBLIC_ADMIN_PUBLIC_KEY=${adminAddress}
 `;
   fs.writeFileSync(envLocalPath, envLocalContent, "utf8");
   console.log("✅ Updated .env.local");
@@ -67,12 +66,10 @@ NEXT_PUBLIC_ADMIN_PUBLIC_KEY=${adminAddress || "GCPUZLCKI4NONG3ZLNUWKMTBZS3CO6SX
       /NEXT_PUBLIC_ESCROW_CONTRACT_ID=.*/g,
       `NEXT_PUBLIC_ESCROW_CONTRACT_ID=${escrowId}`
     );
-    if (adminAddress) {
-      envExContent = envExContent.replace(
-        /NEXT_PUBLIC_ADMIN_PUBLIC_KEY=.*/g,
-        `NEXT_PUBLIC_ADMIN_PUBLIC_KEY=${adminAddress}`
-      );
-    }
+    envExContent = envExContent.replace(
+      /NEXT_PUBLIC_ADMIN_PUBLIC_KEY=.*/g,
+      `NEXT_PUBLIC_ADMIN_PUBLIC_KEY=${adminAddress}`
+    );
     fs.writeFileSync(envExamplePath, envExContent, "utf8");
     console.log("✅ Updated .env.example");
   }
@@ -83,7 +80,7 @@ NEXT_PUBLIC_ADMIN_PUBLIC_KEY=${adminAddress || "GCPUZLCKI4NONG3ZLNUWKMTBZS3CO6SX
     network: "testnet",
     registryContractId: registryId,
     escrowContractId: escrowId,
-    adminAddress: adminAddress || "GCPUZLCKI4NONG3ZLNUWKMTBZS3CO6SXFMHR2H2PGQHMENR4HL7HNMFD",
+    adminAddress: adminAddress,
     nativeAssetContractId: "CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC",
     deploymentDate: new Date().toISOString(),
   };
@@ -102,12 +99,10 @@ NEXT_PUBLIC_ADMIN_PUBLIC_KEY=${adminAddress || "GCPUZLCKI4NONG3ZLNUWKMTBZS3CO6SX
       /escrowContractId:\s*process\.env\.NEXT_PUBLIC_ESCROW_CONTRACT_ID\s*\|\|\s*"[^"]*"/g,
       `escrowContractId: process.env.NEXT_PUBLIC_ESCROW_CONTRACT_ID || "${escrowId}"`
     );
-    if (adminAddress) {
-      stellarTsContent = stellarTsContent.replace(
-        /adminAddress:\s*process\.env\.NEXT_PUBLIC_ADMIN_PUBLIC_KEY\s*\|\|\s*"[^"]*"/g,
-        `adminAddress: process.env.NEXT_PUBLIC_ADMIN_PUBLIC_KEY || "${adminAddress}"`
-      );
-    }
+    stellarTsContent = stellarTsContent.replace(
+      /adminAddress:\s*process\.env\.NEXT_PUBLIC_ADMIN_PUBLIC_KEY\s*\|\|\s*"[^"]*"/g,
+      `adminAddress: process.env.NEXT_PUBLIC_ADMIN_PUBLIC_KEY || "${adminAddress}"`
+    );
     fs.writeFileSync(stellarTsPath, stellarTsContent, "utf8");
     console.log("✅ Updated src/config/stellar.ts");
   }
@@ -116,16 +111,73 @@ NEXT_PUBLIC_ADMIN_PUBLIC_KEY=${adminAddress || "GCPUZLCKI4NONG3ZLNUWKMTBZS3CO6SX
   const readmePath = path.join(rootDir, "README.md");
   if (fs.existsSync(readmePath)) {
     let readmeContent = fs.readFileSync(readmePath, "utf8");
+
+    // Header Badges
     readmeContent = readmeContent.replace(
-      /\|\s*\*\*Campaign Registry\*\*\s*\|\s*Testnet\s*\|\s*`[^`]*`\s*\|\s*\[Inspect Registry Contract\]\(https:\/\/stellar\.expert\/explorer\/testnet\/contract\/[^)]*\)\s*\|/g,
-      `| **Campaign Registry** | Testnet | \`${registryId}\` | [Inspect Registry Contract](https://stellar.expert/explorer/testnet/contract/${registryId}) |`
+      /href="https:\/\/stellar\.expert\/explorer\/testnet\/contract\/[^"]*"><img src="[^"]*CampaignRegistry[^"]*"/g,
+      `href="https://stellar.expert/explorer/testnet/contract/${registryId}"><img src="https://img.shields.io/badge/CampaignRegistry-Testnet-blue?logo=stellar"`
     );
     readmeContent = readmeContent.replace(
-      /\|\s*\*\*Funding Escrow\*\*\s*\|\s*Testnet\s*\|\s*`[^`]*`\s*\|\s*\[Inspect Escrow Contract\]\(https:\/\/stellar\.expert\/explorer\/testnet\/contract\/[^)]*\)\s*\|/g,
-      `| **Funding Escrow** | Testnet | \`${escrowId}\` | [Inspect Escrow Contract](https://stellar.expert/explorer/testnet/contract/${escrowId}) |`
+      /href="https:\/\/stellar\.expert\/explorer\/testnet\/contract\/[^"]*"><img src="[^"]*FundingEscrow[^"]*"/g,
+      `href="https://stellar.expert/explorer/testnet/contract/${escrowId}"><img src="https://img.shields.io/badge/FundingEscrow-Testnet-blue?logo=stellar"`
     );
+
+    // Architecture diagram short hashes
+    readmeContent = readmeContent.replace(
+      /REGISTRY_CTR\["CampaignRegistry Contract\\n[A-Za-z0-9.]+"\]/g,
+      `REGISTRY_CTR["CampaignRegistry Contract\\n${registryId.substring(0, 16)}..."]`
+    );
+    readmeContent = readmeContent.replace(
+      /ESCROW_CTR\["FundingEscrow Contract\\n[A-Za-z0-9.]+"\]/g,
+      `ESCROW_CTR["FundingEscrow Contract\\n${escrowId.substring(0, 16)}..."]`
+    );
+
+    // Section 3.1 & 3.2 Addresses
+    readmeContent = readmeContent.replace(
+      /(### 3\.1 CampaignRegistry[\s\S]*?\*\*Address\*\*:\s*)\[`[^`]*`\]\(https:\/\/stellar\.expert\/explorer\/testnet\/contract\/[^)]*\)/,
+      `$1[\`${registryId}\`](https://stellar.expert/explorer/testnet/contract/${registryId})`
+    );
+    readmeContent = readmeContent.replace(
+      /(### 3\.2 FundingEscrow[\s\S]*?\*\*Address\*\*:\s*)\[`[^`]*`\]\(https:\/\/stellar\.expert\/explorer\/testnet\/contract\/[^)]*\)/,
+      `$1[\`${escrowId}\`](https://stellar.expert/explorer/testnet/contract/${escrowId})`
+    );
+
+    // Section 10 Table
+    readmeContent = readmeContent.replace(
+      /\|\s*\*\*Campaign Registry\*\*\s*\|\s*Stellar Testnet\s*\|\s*\[`[^`]*`\]\(https:\/\/stellar\.expert\/explorer\/testnet\/contract\/[^)]*\)\s*\|/g,
+      `| **Campaign Registry** | Stellar Testnet | [\`${registryId}\`](https://stellar.expert/explorer/testnet/contract/${registryId}) |`
+    );
+    readmeContent = readmeContent.replace(
+      /\|\s*\*\*Funding Escrow\*\*\s*\|\s*Stellar Testnet\s*\|\s*\[`[^`]*`\]\(https:\/\/stellar\.expert\/explorer\/testnet\/contract\/[^)]*\)\s*\|/g,
+      `| **Funding Escrow** | Stellar Testnet | [\`${escrowId}\`](https://stellar.expert/explorer/testnet/contract/${escrowId}) |`
+    );
+    readmeContent = readmeContent.replace(
+      /\|\s*\*\*Admin Authority\*\*\s*\|\s*Stellar Testnet\s*\|\s*\[`[^`]*`\]\(https:\/\/stellar\.expert\/explorer\/testnet\/account\/[^)]*\)\s*\|/g,
+      `| **Admin Authority** | Stellar Testnet | [\`${adminAddress}\`](https://stellar.expert/explorer/testnet/account/${adminAddress}) |`
+    );
+
     fs.writeFileSync(readmePath, readmeContent, "utf8");
     console.log("✅ Updated README.md");
+  }
+
+  // 6. Update .github/workflows/test.yml
+  const testWorkflowPath = path.join(rootDir, ".github", "workflows", "test.yml");
+  if (fs.existsSync(testWorkflowPath)) {
+    let wfContent = fs.readFileSync(testWorkflowPath, "utf8");
+    wfContent = wfContent.replace(
+      /NEXT_PUBLIC_REGISTRY_CONTRACT_ID:\s*[A-Z0-9]+/g,
+      `NEXT_PUBLIC_REGISTRY_CONTRACT_ID: ${registryId}`
+    );
+    wfContent = wfContent.replace(
+      /NEXT_PUBLIC_ESCROW_CONTRACT_ID:\s*[A-Z0-9]+/g,
+      `NEXT_PUBLIC_ESCROW_CONTRACT_ID: ${escrowId}`
+    );
+    wfContent = wfContent.replace(
+      /NEXT_PUBLIC_ADMIN_PUBLIC_KEY:\s*[A-Z0-9]+/g,
+      `NEXT_PUBLIC_ADMIN_PUBLIC_KEY: ${adminAddress}`
+    );
+    fs.writeFileSync(testWorkflowPath, wfContent, "utf8");
+    console.log("✅ Updated .github/workflows/test.yml");
   }
 
   console.log("---------------------------------------------------------");
