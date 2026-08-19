@@ -3,6 +3,7 @@ name: Production Release & Testnet Deployment
 on:
   push:
     branches: [main]
+  workflow_dispatch:
 
 concurrency:
   group: production-deployment
@@ -22,17 +23,14 @@ jobs:
         with:
           targets: wasm32-unknown-unknown
 
-      - name: Cache Rust
+      - name: Cache Rust Dependencies
         uses: Swatinem/rust-cache@v2
 
-      - name: Install Stellar CLI
-        run: cargo install --locked stellar-cli --features opt
+      - name: Run Soroban Contract Tests
+        run: cargo test --all --verbose
 
-      - name: Run Contract Tests
-        run: cargo test --all
-
-      - name: Build Soroban WASM Artifacts
-        run: stellar contract build
+      - name: Build Soroban WASM Binaries
+        run: cargo build --target wasm32-unknown-unknown --release
 
       - name: Setup Node.js 20
         uses: actions/setup-node@v4
@@ -43,17 +41,32 @@ jobs:
       - name: Install Frontend Dependencies
         run: npm ci --legacy-peer-deps
 
-      - name: Strict Typecheck & Test Suite
+      - name: Lint, Typecheck & Test Suite
         run: |
+          npm run lint
           npm run typecheck
           npm test
 
-      - name: Build Next.js Production App
+      - name: Build Next.js Production Bundle
         run: npm run build
         env:
-          NEXT_PUBLIC_STELLAR_NETWORK: testnet
-          NEXT_PUBLIC_STELLAR_RPC_URL: https://soroban-testnet.stellar.org
+          NEXT_PUBLIC_STELLAR_NETWORK: ${{ vars.NEXT_PUBLIC_STELLAR_NETWORK || 'testnet' }}
+          NEXT_PUBLIC_STELLAR_RPC_URL: ${{ vars.NEXT_PUBLIC_STELLAR_RPC_URL || 'https://soroban-testnet.stellar.org' }}
+          NEXT_PUBLIC_STELLAR_HORIZON_URL: ${{ vars.NEXT_PUBLIC_STELLAR_HORIZON_URL || 'https://horizon-testnet.stellar.org' }}
+          NEXT_PUBLIC_STELLAR_EXPLORER_URL: ${{ vars.NEXT_PUBLIC_STELLAR_EXPLORER_URL || 'https://stellar.expert/explorer/testnet' }}
+          NEXT_PUBLIC_STELLAR_NETWORK_PASSPHRASE: ${{ vars.NEXT_PUBLIC_STELLAR_NETWORK_PASSPHRASE || 'Test SDF Network ; September 2015' }}
+          NEXT_PUBLIC_REGISTRY_CONTRACT_ID: ${{ vars.NEXT_PUBLIC_REGISTRY_CONTRACT_ID || 'CD3YZE3WECUWNHW7QKDOYYUCH6PZ3VP2GIR4HJDVREQ3PFBZR7P2CXCJ' }}
+          NEXT_PUBLIC_ESCROW_CONTRACT_ID: ${{ vars.NEXT_PUBLIC_ESCROW_CONTRACT_ID || 'CB5B33DB3GI5XTD4H7YNAKSR4PTE4675SIDNYA3TOJNGE3RXZ26TRVOD' }}
+          NEXT_PUBLIC_NATIVE_ASSET_CONTRACT_ID: ${{ vars.NEXT_PUBLIC_NATIVE_ASSET_CONTRACT_ID || 'CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC' }}
+          NEXT_PUBLIC_ADMIN_PUBLIC_KEY: ${{ vars.NEXT_PUBLIC_ADMIN_PUBLIC_KEY || 'GCPUZLCKI4NONG3ZLNUWKMTBZS3CO6SXFMHR2H2PGQHMENR4HL7HNMFD' }}
 
-      - name: Verify Deployment Prerequisites
-        run: |
-          echo "✅ All contracts and frontend builds verified for deployment."
+      - name: Deploy to Vercel Production
+        if: env.VERCEL_TOKEN != ''
+        uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          vercel-args: '--prod'
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
