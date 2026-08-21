@@ -1,17 +1,12 @@
 #![cfg(test)]
 
 use super::*;
+use fundcircle_campaign_registry::{CampaignRegistry, CampaignRegistryClient, CampaignStatus};
 use soroban_sdk::{
     testutils::{Address as _, Ledger},
     token::{Client as TokenClient, StellarAssetClient},
     Address, Env, String,
 };
-
-mod campaign_registry {
-    soroban_sdk::contractimport!(
-        file = "../../target/wasm32v1-none/release/fundcircle_campaign_registry.wasm"
-    );
-}
 
 struct TestSetup<'a> {
     env: Env,
@@ -19,10 +14,8 @@ struct TestSetup<'a> {
     creator: Address,
     contributor1: Address,
     contributor2: Address,
-    token_admin: Address,
     token_address: Address,
     token_client: TokenClient<'a>,
-    token_asset_client: StellarAssetClient<'a>,
     registry_client: CampaignRegistryClient<'a>,
     escrow_client: FundingEscrowClient<'a>,
 }
@@ -39,7 +32,7 @@ fn setup_test() -> TestSetup<'static> {
     let token_admin = Address::generate(&env);
 
     // Register SAC token contract
-    let token_address = env.register_stellar_asset_contract_v2(token_admin.clone()).address();
+    let token_address = env.register_stellar_asset_contract_v2(token_admin).address();
     let token_client = TokenClient::new(&env, &token_address);
     let token_asset_client = StellarAssetClient::new(&env, &token_address);
 
@@ -47,8 +40,8 @@ fn setup_test() -> TestSetup<'static> {
     token_asset_client.mint(&contributor1, &50_000_0000000i128);
     token_asset_client.mint(&contributor2, &50_000_0000000i128);
 
-    // Register Campaign Registry contract (WASM)
-    let reg_contract_id = env.register_contract_wasm(None, campaign_registry::WASM);
+    // Register Campaign Registry contract directly without WASM dependency
+    let reg_contract_id = env.register(CampaignRegistry, ());
     let registry_client = CampaignRegistryClient::new(&env, &reg_contract_id);
     registry_client.initialize(&admin);
 
@@ -66,10 +59,8 @@ fn setup_test() -> TestSetup<'static> {
         creator,
         contributor1,
         contributor2,
-        token_admin,
         token_address,
         token_client,
-        token_asset_client,
         registry_client,
         escrow_client,
     }
@@ -81,7 +72,7 @@ fn create_active_campaign(setup: &TestSetup, target_amount: i128, deadline: u64)
     let category = String::from_str(&setup.env, "Education");
     let img = String::from_str(&setup.env, "https://fundcircle.org/code.png");
 
-    let cid = setup.registry_client.create_campaign(
+    setup.registry_client.create_campaign(
         &setup.creator,
         &title,
         &desc,
@@ -90,11 +81,7 @@ fn create_active_campaign(setup: &TestSetup, target_amount: i128, deadline: u64)
         &target_amount,
         &setup.token_address,
         &deadline,
-    );
-
-    setup.registry_client.submit_for_review(&cid);
-    setup.registry_client.approve_campaign(&cid);
-    cid
+    )
 }
 
 #[test]
@@ -157,10 +144,9 @@ fn test_contribute_to_inactive_or_expired_fails() {
     let goal = 5_000_0000000i128;
     let deadline = 2000;
 
-    // Create campaign but leave in Draft
     let cid = setup.registry_client.create_campaign(
         &setup.creator,
-        &String::from_str(&setup.env, "Draft Campaign"),
+        &String::from_str(&setup.env, "Campaign"),
         &String::from_str(&setup.env, "Desc"),
         &String::from_str(&setup.env, "Category"),
         &String::from_str(&setup.env, "img"),
@@ -169,13 +155,18 @@ fn test_contribute_to_inactive_or_expired_fails() {
         &deadline,
     );
 
-    // Attempt contribute to Draft
+    // Suspend campaign by admin
+    let reason = String::from_str(&setup.env, "Under audit");
+    setup.registry_client.suspend_campaign(&cid, &reason);
+    assert_eq!(setup.registry_client.get_campaign(&cid).status, CampaignStatus::Review);
+
+    // Attempt contribute to Suspended/Inactive campaign
     let res = setup.escrow_client.try_contribute(&cid, &setup.contributor1, &1_000_0000000i128);
     assert_eq!(res.unwrap_err(), Ok(EscrowError::CampaignNotActive));
 
-    // Submit and approve
-    setup.registry_client.submit_for_review(&cid);
-    setup.registry_client.approve_campaign(&cid);
+    // Resume campaign
+    setup.registry_client.resume_campaign(&cid);
+    assert_eq!(setup.registry_client.get_campaign(&cid).status, CampaignStatus::Active);
 
     // Fast forward ledger time past deadline
     setup.env.ledger().set_timestamp(2500);

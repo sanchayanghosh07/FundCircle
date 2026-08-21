@@ -382,7 +382,7 @@ bash scripts/deploy-testnet.sh
 
 ## 11. Resources & Links
 
-- **Live Application**: [https://fundcircle.vercel.app](https://fundcircle.vercel.app) <!-- Add live deployment URL here -->
+- **Live Application**: [https://fund-circle.vercel.app](https://fund-circle.vercel.app)
 - **Demo Video Walkthrough**: [Watch Video](https://youtube.com) <!-- Add demo video URL here -->
 - **Source Code Repository**: [https://github.com/sanchayanghosh07/FundCircle](https://github.com/sanchayanghosh07/FundCircle)
 - **Stellar Developer Documentation**: [https://developers.stellar.org](https://developers.stellar.org)
