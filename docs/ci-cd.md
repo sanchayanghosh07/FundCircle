@@ -29,16 +29,13 @@ graph TD
 
 ## 2. Workflows Implemented
 
-1. **Pull Request Quality Gate ([`.github/workflows/pr-validation.yml`](../.github/workflows/pr-validation.yml))**:
-   - Runs on every pull request against `main`.
-   - Compiles and tests Rust contracts (`cargo test --all`).
-   - Builds optimized WASM binaries (`stellar contract build`).
-   - Runs strict TypeScript validation (`npm run typecheck`).
-   - Runs all 37 Vitest component, store, and integration tests (`npm test`).
-   - Executes Next.js 15 production build.
+1. **Quality & Test Verification Pipeline ([`.github/workflows/test.yml`](../.github/workflows/test.yml))**:
+   - Runs on every push and pull request against `main`.
+   - **Soroban Contract Tests (Cargo)**: Compiles and tests Rust contracts (`cargo test --all`) and builds WASM binaries.
+   - **Frontend Unit & Integration Tests (Vitest)**: Strict TypeScript validation (`npm run typecheck`), linter (`npm run lint`), all Vitest component & store tests (`npm test`), and Next.js production build.
 2. **Production Release Pipeline ([`.github/workflows/deploy.yml`](../.github/workflows/deploy.yml))**:
    - Runs on merge to `main`.
-   - Verifies bytecode artifact hashes and builds release assets.
+   - Executes full verification matrix and deploys to Vercel production.
 
 ---
 

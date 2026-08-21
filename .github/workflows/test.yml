@@ -13,7 +13,7 @@ concurrency:
 
 jobs:
   smart-contract-tests:
-    name: 🦀 Soroban Smart Contracts (Rust)
+    name: 🦀 Soroban Contract Tests (Cargo)
     runs-on: ubuntu-latest
 
     steps:
@@ -35,7 +35,7 @@ jobs:
         run: cargo build --target wasm32-unknown-unknown --release
 
   frontend-tests:
-    name: ⚛️ Frontend & Integration (Next.js 15 + Vitest)
+    name: ⚛️ Frontend Unit & Integration Tests (Vitest)
     runs-on: ubuntu-latest
 
     steps:
