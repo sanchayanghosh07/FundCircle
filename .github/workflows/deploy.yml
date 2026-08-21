@@ -32,10 +32,10 @@ jobs:
       - name: Build Soroban WASM Binaries
         run: cargo build --target wasm32-unknown-unknown --release
 
-      - name: Setup Node.js 20
+      - name: Setup Node.js 22 (LTS)
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: "npm"
 
       - name: Install Frontend Dependencies
@@ -61,12 +61,11 @@ jobs:
           NEXT_PUBLIC_ADMIN_PUBLIC_KEY: ${{ vars.NEXT_PUBLIC_ADMIN_PUBLIC_KEY || 'GCPUZLCKI4NONG3ZLNUWKMTBZS3CO6SXFMHR2H2PGQHMENR4HL7HNMFD' }}
 
       - name: Deploy to Vercel Production
-        if: env.VERCEL_TOKEN != ''
-        uses: amondnet/vercel-action@v25
-        with:
-          vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          vercel-args: '--prod'
+        if: ${{ env.VERCEL_TOKEN != '' }}
+        run: |
+          echo "🚀 Deploying to Vercel Production via latest Vercel CLI..."
+          npx --yes vercel@latest deploy --prod --token="${{ secrets.VERCEL_TOKEN }}" --yes
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}

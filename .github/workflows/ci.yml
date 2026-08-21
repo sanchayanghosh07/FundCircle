@@ -26,10 +26,10 @@ jobs:
       - name: Run Soroban Smart Contract Tests
         run: cargo test --all
 
-      - name: Set up Node.js
+      - name: Set up Node.js 22 (LTS)
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: "npm"
 
       - name: Install Frontend Dependencies
