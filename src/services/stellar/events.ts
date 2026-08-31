@@ -96,7 +96,7 @@ export class EventIngestionService {
     // 1. Contribution: (symbol_short!("contrib"), campaign_id, contributor), amount
     if (topic0.includes("contrib")) {
       const campaignId = Number(topics[1] || 1);
-      const actor = topics[2] ? String(topics[2]) : "GBZCR2Z4UGP5J44N64C72BMSN657XQ4F4J4B7W4UGQO676S47M4UGW5M";
+      const actor = topics[2] ? String(topics[2]) : (topics[1] ? String(topics[1]) : "Contributor");
       const amountVal = rawVal !== undefined ? String(rawVal) : "0";
       const amountXlm = stroopsToXlm(amountVal);
 
@@ -115,7 +115,7 @@ export class EventIngestionService {
 
     // 2. Campaign Created: (symbol_short!("cmp_creat"), creator, count), target_amount
     if (topic0.includes("cmp_creat")) {
-      const actor = topics[1] ? String(topics[1]) : "GBZCR2Z4UGP5J44N64C72BMSN657XQ4F4J4B7W4UGQO676S47M4UGW5M";
+      const actor = topics[1] ? String(topics[1]) : "Creator";
       const campaignId = Number(topics[2] || 1);
       const targetVal = rawVal !== undefined ? String(rawVal) : "0";
       const amountXlm = targetVal !== "0" ? stroopsToXlm(targetVal) : undefined;
@@ -162,7 +162,7 @@ export class EventIngestionService {
     // 4. Funds Released: (symbol_short!("fund_rel"), campaign_id, creator), total_raised
     if (topic0.includes("fund_rel")) {
       const campaignId = Number(topics[1] || 1);
-      const actor = topics[2] ? String(topics[2]) : "GBZCR2Z4UGP5J44N64C72BMSN657XQ4F4J4B7W4UGQO676S47M4UGW5M";
+      const actor = topics[2] ? String(topics[2]) : "Creator";
       const amountVal = rawVal !== undefined ? String(rawVal) : undefined;
       const amountXlm = amountVal ? stroopsToXlm(amountVal) : undefined;
 
@@ -182,7 +182,7 @@ export class EventIngestionService {
     // 5. Refund Claimed: (symbol_short!("refund"), campaign_id, contributor), refund_amount
     if (topic0.includes("refund")) {
       const campaignId = Number(topics[1] || 1);
-      const actor = topics[2] ? String(topics[2]) : "GBZCR2Z4UGP5J44N64C72BMSN657XQ4F4J4B7W4UGQO676S47M4UGW5M";
+      const actor = topics[2] ? String(topics[2]) : "Contributor";
       const amountVal = rawVal !== undefined ? String(rawVal) : undefined;
       const amountXlm = amountVal ? stroopsToXlm(amountVal) : undefined;
 
