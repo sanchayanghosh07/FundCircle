@@ -11,8 +11,8 @@
   <a href="https://stellar.expert/explorer/testnet/contract/CD3YZE3WECUWNHW7QKDOYYUCH6PZ3VP2GIR4HJDVREQ3PFBZR7P2CXCJ"><img src="https://img.shields.io/badge/CampaignRegistry-Testnet-blue?logo=stellar" alt="CampaignRegistry Contract"/></a>
   <a href="https://stellar.expert/explorer/testnet/contract/CB5B33DB3GI5XTD4H7YNAKSR4PTE4675SIDNYA3TOJNGE3RXZ26TRVOD"><img src="https://img.shields.io/badge/FundingEscrow-Testnet-blue?logo=stellar" alt="FundingEscrow Contract"/></a>
   <a href="https://stellar.expert/explorer/testnet/contract/CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC"><img src="https://img.shields.io/badge/Native_SAC_(XLM)-Testnet-blue?logo=stellar" alt="Native XLM SAC"/></a>
-  <a href="https://github.com/sanchayanghosh07/FundCircle/actions/workflows/test.yml"><img src="https://img.shields.io/badge/tests-38%20passed-brightgreen" alt="Tests"/></a>
-  <a href="https://github.com/sanchayanghosh07/FundCircle/actions/workflows/test.yml"><img src="https://img.shields.io/badge/build-passing-brightgreen" alt="Build"/></a>
+  <a href="https://github.com/sanchayanghosh07/FundCircle/actions/workflows/test.yml"><img src="https://img.shields.io/badge/tests-42%20passed-brightgreen" alt="Tests"/></a>
+  <a href="https://drive.google.com/file/d/1yEn6M9sLxUjjXi6-imzwh9v3r84Nbpcp/view?usp=sharing"><img src="https://img.shields.io/badge/Demo_Video-Watch-blueviolet?logo=google-drive" alt="Demo Video"/></a>
 </p>
 
 ---
@@ -383,7 +383,7 @@ bash scripts/deploy-testnet.sh
 ## 11. Resources & Links
 
 - **Live Application**: [https://fundcircle-cmf.vercel.app](https://fundcircle-cmf.vercel.app)
-- **Demo Video Walkthrough**: [Watch Video](https://youtube.com) <!-- Add demo video URL here -->
+- **Demo Video Walkthrough**: [Watch Video on Google Drive](https://drive.google.com/file/d/1yEn6M9sLxUjjXi6-imzwh9v3r84Nbpcp/view?usp=sharing)
 - **Source Code Repository**: [https://github.com/sanchayanghosh07/FundCircle](https://github.com/sanchayanghosh07/FundCircle)
 - **Stellar Developer Documentation**: [https://developers.stellar.org](https://developers.stellar.org)
 
