@@ -13,6 +13,8 @@
   <a href="https://stellar.expert/explorer/testnet/contract/CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC"><img src="https://img.shields.io/badge/Native_SAC_(XLM)-Testnet-blue?logo=stellar" alt="Native XLM SAC"/></a>
   <a href="https://github.com/sanchayanghosh07/FundCircle/actions/workflows/test.yml"><img src="https://img.shields.io/badge/tests-42%20passed-brightgreen" alt="Tests"/></a>
   <a href="https://drive.google.com/file/d/1yEn6M9sLxUjjXi6-imzwh9v3r84Nbpcp/view?usp=sharing"><img src="https://img.shields.io/badge/Demo_Video-Watch-blueviolet?logo=google-drive" alt="Demo Video"/></a>
+  <a href="https://forms.gle/NUKMgguPe1YUcisZ9"><img src="https://img.shields.io/badge/Feedback-Form-orange?logo=google-forms" alt="Feedback Form"/></a>
+  <a href="https://docs.google.com/spreadsheets/d/1QRmf3CDBBAn6fsaM6yDUQw4jP64QhczRZuk1u8vXl9M/edit?usp=sharing"><img src="https://img.shields.io/badge/Feedback-Responses-success?logo=google-sheets" alt="Feedback Responses"/></a>
 </p>
 
 ---
@@ -42,6 +44,7 @@
   - [9.3 Test Suite & CI/CD Pipeline Verification](#93-test-suite--cicd-pipeline-verification)
 - [10. Contract Addresses & On-Chain Verification](#10-contract-addresses--on-chain-verification)
 - [11. Resources & Links](#11-resources--links)
+- [12. Feedback](#12-feedback)
 - [Contributing](#contributing)
 - [License](#license)
 
@@ -431,6 +434,15 @@ bash scripts/deploy-testnet.sh
 - **Demo Video Walkthrough**: [Watch Video on Google Drive](https://drive.google.com/file/d/1yEn6M9sLxUjjXi6-imzwh9v3r84Nbpcp/view?usp=sharing)
 - **Source Code Repository**: [https://github.com/sanchayanghosh07/FundCircle](https://github.com/sanchayanghosh07/FundCircle)
 - **Stellar Developer Documentation**: [https://developers.stellar.org](https://developers.stellar.org)
+
+---
+
+## 12. Feedback
+
+We actively seek and value feedback from community organizers, contributors, and the Stellar developer ecosystem:
+
+- **Community Feedback Form**: [Submit Feedback on Google Forms](https://forms.gle/NUKMgguPe1YUcisZ9)
+- **Live Survey Responses**: [View Live Feedback Sheet](https://docs.google.com/spreadsheets/d/1QRmf3CDBBAn6fsaM6yDUQw4jP64QhczRZuk1u8vXl9M/edit?usp=sharing)
 
 ---
 

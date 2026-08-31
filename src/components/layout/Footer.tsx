@@ -109,6 +109,35 @@ export function Footer() {
               <p className="text-pencil-light text-sm">
                 Connected to Stellar {ACTIVE_NETWORK.networkPassphrase.includes("Test") ? "Testnet" : "Mainnet"}.
               </p>
+              <div className="pt-3 border-t border-dashed border-pencil/20">
+                <span className="font-heading text-xs font-bold text-pencil uppercase tracking-wider block mb-2">
+                  Community Feedback
+                </span>
+                <ul className="space-y-1.5 font-body font-bold text-sm">
+                  <li>
+                    <a
+                      href="https://forms.gle/NUKMgguPe1YUcisZ9"
+                      target="_blank"
+                      rel="noreferrer"
+                      className="flex items-center gap-1 hover:text-marker-red hover:underline decoration-wavy transition-colors"
+                    >
+                      Feedback Form
+                      <ExternalLink className="h-3 w-3" />
+                    </a>
+                  </li>
+                  <li>
+                    <a
+                      href="https://docs.google.com/spreadsheets/d/1QRmf3CDBBAn6fsaM6yDUQw4jP64QhczRZuk1u8vXl9M/edit?usp=sharing"
+                      target="_blank"
+                      rel="noreferrer"
+                      className="flex items-center gap-1 hover:text-marker-red hover:underline decoration-wavy transition-colors"
+                    >
+                      Feedback Responses
+                      <ExternalLink className="h-3 w-3" />
+                    </a>
+                  </li>
+                </ul>
+              </div>
             </div>
           </div>
         </div>
