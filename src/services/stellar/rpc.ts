@@ -162,22 +162,59 @@ export class StellarRpcService {
     return scValToNative(simResponse.result.retval);
   }
 
+  public async getLatestLedgerSequence(): Promise<number> {
+    try {
+      const info = await this.rpcServer.getLatestLedger();
+      return info.sequence || 0;
+    } catch {
+      return 0;
+    }
+  }
+
   public async getEvents(startLedger?: number) {
     try {
+      let start = startLedger;
+
+      if (!start || start <= 0) {
+        try {
+          const latestSeq = await this.getLatestLedgerSequence();
+          if (latestSeq > 0) {
+            // Stay safely within Soroban RPC's ledger retention window (last ~5000 ledgers)
+            start = Math.max(1, latestSeq - 5000);
+          } else {
+            start = 1;
+          }
+        } catch {
+          start = 1;
+        }
+      }
+
+      const validContractIds = [
+        CONTRACT_CONFIG.registryContractId,
+        CONTRACT_CONFIG.escrowContractId,
+      ].filter((id) => Boolean(id && typeof id === "string" && id.startsWith("C") && id.length >= 50));
+
+      const filters: any[] = [];
+      if (validContractIds.length > 0) {
+        filters.push({
+          type: "contract",
+          contractIds: validContractIds,
+        });
+      } else {
+        filters.push({
+          type: "contract",
+        });
+      }
+
       const response = await this.rpcServer.getEvents({
-        startLedger: startLedger || 1,
-        filters: [
-          {
-            type: "contract",
-            contractIds: [
-              CONTRACT_CONFIG.registryContractId,
-              CONTRACT_CONFIG.escrowContractId,
-            ],
-          },
-        ],
+        startLedger: start,
+        filters,
+        limit: 100,
       });
+
       return response.events || [];
-    } catch {
+    } catch (err) {
+      console.warn("Could not fetch on-chain events from Soroban RPC:", err);
       return [];
     }
   }

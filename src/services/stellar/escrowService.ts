@@ -3,6 +3,7 @@ import { CONTRACT_CONFIG } from "@/config/stellar";
 import { stellarRpc } from "./rpc";
 import { walletKit } from "../wallet/stellarWalletKit";
 import { registryService } from "./registryService";
+import { useActivityStore } from "@/stores/activityStore";
 import { ContributionRecord } from "@/types/campaign";
 import { stroopsToXlm, xlmToStroops } from "@/lib/utils";
 
@@ -72,6 +73,19 @@ export class FundingEscrowService {
 
     registryService.updateCampaignRaised(campaignId, newTotal, contributorAddress);
 
+    const campaignTitle = campaign?.metadata.title || `Campaign #${campaignId}`;
+    useActivityStore.getState().addActivity({
+      id: `act_contrib_${campaignId}_${Date.now()}`,
+      type: "contributed",
+      campaignId,
+      campaignTitle,
+      actor: contributorAddress,
+      amountXlm,
+      timestamp: Date.now(),
+      txHash,
+      details: `Contributed ${amountXlm} XLM to "${campaignTitle}" via Soroban Escrow`,
+    });
+
     return {
       newTotalXlm: stroopsToXlm(newTotal),
       txHash,
@@ -119,8 +133,22 @@ export class FundingEscrowService {
 
     registryService.markCompleted(campaignId);
 
+    const campaignTitle = campaign?.metadata.title || `Campaign #${campaignId}`;
+    const releasedXlm = stroopsToXlm(releasedStroops);
+    useActivityStore.getState().addActivity({
+      id: `act_rel_${campaignId}_${Date.now()}`,
+      type: "funds_released",
+      campaignId,
+      campaignTitle,
+      actor: callerAddress,
+      amountXlm: releasedXlm,
+      timestamp: Date.now(),
+      txHash,
+      details: `Disbursed ${releasedXlm} XLM to creator for "${campaignTitle}"`,
+    });
+
     return {
-      releasedXlm: stroopsToXlm(releasedStroops),
+      releasedXlm,
       txHash,
     };
   }
@@ -168,8 +196,24 @@ export class FundingEscrowService {
       delete localContributions[campaignId][contributorAddress];
     }
 
+    const campaign = await registryService.getCampaignById(campaignId);
+    const campaignTitle = campaign?.metadata.title || `Campaign #${campaignId}`;
+    const refundedXlm = stroopsToXlm(refundedStroops);
+
+    useActivityStore.getState().addActivity({
+      id: `act_ref_${campaignId}_${Date.now()}`,
+      type: "refund_claimed",
+      campaignId,
+      campaignTitle,
+      actor: contributorAddress,
+      amountXlm: refundedXlm,
+      timestamp: Date.now(),
+      txHash,
+      details: `Claimed refund of ${refundedXlm} XLM from "${campaignTitle}"`,
+    });
+
     return {
-      refundedXlm: stroopsToXlm(refundedStroops),
+      refundedXlm,
       txHash,
     };
   }

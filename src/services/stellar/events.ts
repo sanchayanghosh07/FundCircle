@@ -1,9 +1,47 @@
+import { scValToNative, xdr } from "@stellar/stellar-sdk";
 import { stellarRpc } from "./rpc";
 import { ActivityItem, ActivityType } from "@/types/activity";
+import { useActivityStore } from "@/stores/activityStore";
 import { stroopsToXlm } from "@/lib/utils";
+
+export function parseScValOrNative(val: any): any {
+  if (val === null || val === undefined) return undefined;
+
+  if (typeof val === "number" || typeof val === "boolean" || typeof val === "bigint") {
+    return val;
+  }
+
+  if (typeof val === "string") {
+    try {
+      const decoded = xdr.ScVal.fromXDR(val, "base64");
+      return scValToNative(decoded);
+    } catch {
+      return val;
+    }
+  }
+
+  try {
+    return scValToNative(val);
+  } catch {
+    if (val && typeof val === "object") {
+      if (val.value !== undefined) {
+        try {
+          return scValToNative(val.value);
+        } catch {
+          return val.value;
+        }
+      }
+      if (val._value !== undefined) {
+        return val._value;
+      }
+    }
+    return val;
+  }
+}
 
 export class EventIngestionService {
   private seenEventIds = new Set<string>();
+  private pollingTimer: NodeJS.Timeout | null = null;
 
   public async fetchLatestEvents(): Promise<ActivityItem[]> {
     try {
@@ -15,96 +53,278 @@ export class EventIngestionService {
       for (const ev of rawEvents) {
         try {
           const item = this.parseRawEvent(ev);
-          if (item && !this.seenEventIds.has(item.id)) {
+          if (item) {
             this.seenEventIds.add(item.id);
             parsed.push(item);
           }
-        } catch {
-          // ignore unparseable events
+        } catch (err) {
+          console.warn("Error parsing individual Soroban event:", err);
         }
       }
 
+      if (parsed.length > 0) {
+        useActivityStore.getState().addActivities(parsed);
+      }
+
       return parsed.sort((a, b) => b.timestamp - a.timestamp);
-    } catch {
+    } catch (err) {
+      console.warn("Event ingestion failed:", err);
       return [];
     }
   }
 
   public parseRawEvent(ev: any): ActivityItem | null {
-    const topic = ev.topic?.[0] || "";
-    const id = `ev_${ev.id || Math.random().toString(36).substring(2, 7)}`;
-    const timestamp = ev.ledgerClosedAt ? new Date(ev.ledgerClosedAt).getTime() : Date.now();
+    if (!ev) return null;
 
-    if (topic.includes("contrib")) {
+    let rawTopics: any[] = [];
+    if (Array.isArray(ev.topic)) {
+      rawTopics = ev.topic;
+    } else if (ev.topic) {
+      rawTopics = [ev.topic];
+    }
+
+    const topics = rawTopics.map((t) => parseScValOrNative(t));
+    const rawVal = parseScValOrNative(ev.value);
+
+    const topic0 = (topics[0] !== undefined && topics[0] !== null ? String(topics[0]) : "").toLowerCase();
+    const id = `ev_${ev.id || ev.pagingToken || Math.random().toString(36).substring(2, 9)}`;
+    const timestamp = ev.ledgerClosedAt
+      ? new Date(ev.ledgerClosedAt).getTime()
+      : ev.timestamp || Date.now();
+    const txHash = ev.txHash || "";
+
+    // 1. Contribution: (symbol_short!("contrib"), campaign_id, contributor), amount
+    if (topic0.includes("contrib")) {
+      const campaignId = Number(topics[1] || 1);
+      const actor = topics[2] ? String(topics[2]) : "GBZCR2Z4UGP5J44N64C72BMSN657XQ4F4J4B7W4UGQO676S47M4UGW5M";
+      const amountVal = rawVal !== undefined ? String(rawVal) : "0";
+      const amountXlm = stroopsToXlm(amountVal);
+
       return {
         id,
         type: "contributed",
-        campaignId: Number(ev.topic?.[1] || 1),
-        campaignTitle: ev.campaignTitle || "Community Campaign",
-        actor: ev.topic?.[2] || "GBZCR2Z4UGP5J44N64C72BMSN657XQ4F4J4B7W4UGQO676S47M4UGW5M",
-        amountXlm: stroopsToXlm(ev.value || "0"),
+        campaignId,
+        campaignTitle: ev.campaignTitle || `Campaign #${campaignId}`,
+        actor,
+        amountXlm,
         timestamp,
-        txHash: ev.txHash,
-        details: "Contributed funds via Escrow",
+        txHash,
+        details: `Contributed ${amountXlm} XLM via Soroban Escrow`,
       };
     }
 
-    if (topic.includes("cmp_creat")) {
+    // 2. Campaign Created: (symbol_short!("cmp_creat"), creator, count), target_amount
+    if (topic0.includes("cmp_creat")) {
+      const actor = topics[1] ? String(topics[1]) : "GBZCR2Z4UGP5J44N64C72BMSN657XQ4F4J4B7W4UGQO676S47M4UGW5M";
+      const campaignId = Number(topics[2] || 1);
+      const targetVal = rawVal !== undefined ? String(rawVal) : "0";
+      const amountXlm = targetVal !== "0" ? stroopsToXlm(targetVal) : undefined;
+
       return {
         id,
         type: "campaign_created",
-        campaignId: Number(ev.topic?.[2] || 1),
-        campaignTitle: ev.campaignTitle || "New Community Campaign",
-        actor: ev.topic?.[1] || "GBZCR2Z4UGP5J44N64C72BMSN657XQ4F4J4B7W4UGQO676S47M4UGW5M",
+        campaignId,
+        campaignTitle: ev.campaignTitle || `Campaign #${campaignId}`,
+        actor,
+        amountXlm,
         timestamp,
-        txHash: ev.txHash,
-        details: "Campaign created on Stellar Registry",
+        txHash,
+        details: `Campaign #${campaignId} created on Stellar Registry${amountXlm ? ` (${amountXlm} XLM goal)` : ""}`,
       };
     }
 
-    if (topic.includes("cmp_appr")) {
+    // 3. Status Changed (Funded / Completed / Refund): (symbol_short!("cmp_stat"), campaign_id), symbol_short!("funded" | "completed" | "refund")
+    if (topic0.includes("cmp_stat")) {
+      const campaignId = Number(topics[1] || 1);
+      const statStr = (rawVal !== undefined && rawVal !== null ? String(rawVal) : "").toLowerCase();
+
+      let details = `Campaign #${campaignId} on-chain state updated to ${statStr || "active"}`;
+      if (statStr.includes("fund")) {
+        details = `Campaign #${campaignId} reached 100% funding goal! Status: Funded`;
+      } else if (statStr.includes("comp")) {
+        details = `Campaign #${campaignId} completed successfully on-chain`;
+      } else if (statStr.includes("ref")) {
+        details = `Campaign #${campaignId} transitioned to Refund state`;
+      }
+
       return {
         id,
-        type: "campaign_approved",
-        campaignId: Number(ev.topic?.[1] || 1),
-        campaignTitle: ev.campaignTitle || "Approved Campaign",
-        actor: ev.topic?.[2] || "GBZCR2Z4UGP5J44N64C72BMSN657XQ4F4J4B7W4UGQO676S47M4UGW5M",
+        type: "state_changed",
+        campaignId,
+        campaignTitle: ev.campaignTitle || `Campaign #${campaignId}`,
+        actor: topics[2] ? String(topics[2]) : "Soroban Protocol Escrow",
         timestamp,
-        txHash: ev.txHash,
-        details: "Campaign approved by reviewer and opened for funding",
+        txHash,
+        details,
       };
     }
 
-    if (topic.includes("fund_rel")) {
+    // 4. Funds Released: (symbol_short!("fund_rel"), campaign_id, creator), total_raised
+    if (topic0.includes("fund_rel")) {
+      const campaignId = Number(topics[1] || 1);
+      const actor = topics[2] ? String(topics[2]) : "GBZCR2Z4UGP5J44N64C72BMSN657XQ4F4J4B7W4UGQO676S47M4UGW5M";
+      const amountVal = rawVal !== undefined ? String(rawVal) : undefined;
+      const amountXlm = amountVal ? stroopsToXlm(amountVal) : undefined;
+
       return {
         id,
         type: "funds_released",
-        campaignId: Number(ev.topic?.[1] || 1),
-        campaignTitle: ev.campaignTitle || "Funded Campaign",
-        actor: ev.topic?.[2] || "GBZCR2Z4UGP5J44N64C72BMSN657XQ4F4J4B7W4UGQO676S47M4UGW5M",
-        amountXlm: ev.value ? stroopsToXlm(ev.value) : undefined,
+        campaignId,
+        campaignTitle: ev.campaignTitle || `Campaign #${campaignId}`,
+        actor,
+        amountXlm,
         timestamp,
-        txHash: ev.txHash,
-        details: "Funds disbursed to campaign creator",
+        txHash,
+        details: `Disbursed ${amountXlm ? amountXlm + " XLM" : "funds"} to campaign creator`,
       };
     }
 
-    if (topic.includes("refund")) {
+    // 5. Refund Claimed: (symbol_short!("refund"), campaign_id, contributor), refund_amount
+    if (topic0.includes("refund")) {
+      const campaignId = Number(topics[1] || 1);
+      const actor = topics[2] ? String(topics[2]) : "GBZCR2Z4UGP5J44N64C72BMSN657XQ4F4J4B7W4UGQO676S47M4UGW5M";
+      const amountVal = rawVal !== undefined ? String(rawVal) : undefined;
+      const amountXlm = amountVal ? stroopsToXlm(amountVal) : undefined;
+
       return {
         id,
         type: "refund_claimed",
-        campaignId: Number(ev.topic?.[1] || 1),
-        campaignTitle: ev.campaignTitle || "Campaign Refund",
-        actor: ev.topic?.[2] || "GBZCR2Z4UGP5J44N64C72BMSN657XQ4F4J4B7W4UGQO676S47M4UGW5M",
-        amountXlm: ev.value ? stroopsToXlm(ev.value) : undefined,
+        campaignId,
+        campaignTitle: ev.campaignTitle || `Campaign #${campaignId}`,
+        actor,
+        amountXlm,
         timestamp,
-        txHash: ev.txHash,
-        details: "Contributor claimed refund from Escrow",
+        txHash,
+        details: `Contributor claimed refund of ${amountXlm ? amountXlm + " XLM" : "pledged funds"} from Escrow`,
+      };
+    }
+
+    // 6. Campaign Approved / Resumed: (symbol_short!("cmp_resm" | "cmp_appr"), admin, campaign_id), status
+    if (topic0.includes("cmp_resm") || topic0.includes("cmp_appr")) {
+      const actor = topics[1] ? String(topics[1]) : "Protocol Administrator";
+      const campaignId = Number(topics[2] || 1);
+
+      return {
+        id,
+        type: "campaign_approved",
+        campaignId,
+        campaignTitle: ev.campaignTitle || `Campaign #${campaignId}`,
+        actor,
+        timestamp,
+        txHash,
+        details: `Campaign #${campaignId} approved and opened for funding`,
+      };
+    }
+
+    // 7. Campaign Suspended: (symbol_short!("cmp_susp"), admin, campaign_id), reason
+    if (topic0.includes("cmp_susp")) {
+      const actor = topics[1] ? String(topics[1]) : "Protocol Moderator";
+      const campaignId = Number(topics[2] || 1);
+      const reason = rawVal ? String(rawVal) : "Under community compliance review";
+
+      return {
+        id,
+        type: "campaign_rejected",
+        campaignId,
+        campaignTitle: ev.campaignTitle || `Campaign #${campaignId}`,
+        actor,
+        timestamp,
+        txHash,
+        details: `Campaign #${campaignId} suspended: ${reason}`,
+      };
+    }
+
+    // 8. Campaign Submitted: (symbol_short!("cmp_sub"), creator, campaign_id)
+    if (topic0.includes("cmp_sub")) {
+      const actor = topics[1] ? String(topics[1]) : "Campaign Creator";
+      const campaignId = Number(topics[2] || 1);
+
+      return {
+        id,
+        type: "campaign_submitted",
+        campaignId,
+        campaignTitle: ev.campaignTitle || `Campaign #${campaignId}`,
+        actor,
+        timestamp,
+        txHash,
+        details: `Campaign #${campaignId} submitted for review`,
+      };
+    }
+
+    // 9. Campaign Rejected: (symbol_short!("cmp_rej"), admin, campaign_id), reason
+    if (topic0.includes("cmp_rej")) {
+      const actor = topics[1] ? String(topics[1]) : "Protocol Moderator";
+      const campaignId = Number(topics[2] || 1);
+      const reason = rawVal ? String(rawVal) : "Draft revisions required";
+
+      return {
+        id,
+        type: "campaign_rejected",
+        campaignId,
+        campaignTitle: ev.campaignTitle || `Campaign #${campaignId}`,
+        actor,
+        timestamp,
+        txHash,
+        details: `Campaign #${campaignId} rejected: ${reason}`,
+      };
+    }
+
+    // 10. Campaign Cancelled: (symbol_short!("cmp_canc"), campaign_id)
+    if (topic0.includes("cmp_canc")) {
+      const campaignId = Number(topics[1] || 1);
+
+      return {
+        id,
+        type: "campaign_cancelled",
+        campaignId,
+        campaignTitle: ev.campaignTitle || `Campaign #${campaignId}`,
+        actor: topics[2] ? String(topics[2]) : "Campaign Authority",
+        timestamp,
+        txHash,
+        details: `Campaign #${campaignId} cancelled on-chain`,
+      };
+    }
+
+    // 11. Initializations
+    if (topic0.includes("reg_init") || topic0.includes("esc_init")) {
+      return {
+        id,
+        type: "state_changed",
+        campaignId: 1,
+        campaignTitle: "FundCircle Protocol Contracts",
+        actor: topics[1] ? String(topics[1]) : "Protocol Administrator",
+        timestamp,
+        txHash,
+        details: "Soroban Smart Contract initialized on ledger",
       };
     }
 
     return null;
   }
+
+  public startPolling(onEvents?: (events: ActivityItem[]) => void, intervalMs = 8000): () => void {
+    if (this.pollingTimer) {
+      clearInterval(this.pollingTimer);
+    }
+
+    const poll = async () => {
+      const events = await this.fetchLatestEvents();
+      if (events.length > 0 && onEvents) {
+        onEvents(events);
+      }
+    };
+
+    poll();
+    this.pollingTimer = setInterval(poll, intervalMs);
+
+    return () => {
+      if (this.pollingTimer) {
+        clearInterval(this.pollingTimer);
+        this.pollingTimer = null;
+      }
+    };
+  }
 }
 
 export const eventIngestion = new EventIngestionService();
+

@@ -2,6 +2,7 @@ import { Address, nativeToScVal, scValToNative, xdr } from "@stellar/stellar-sdk
 import { CONTRACT_CONFIG, getExplorerTxUrl } from "@/config/stellar";
 import { stellarRpc } from "./rpc";
 import { walletKit } from "../wallet/stellarWalletKit";
+import { useActivityStore } from "@/stores/activityStore";
 import {
   Campaign,
   CampaignMetadata,
@@ -348,6 +349,19 @@ export class CampaignRegistryService {
     };
 
     localCampaigns = [newCampaign, ...localCampaigns.filter((c) => c.id !== createdId)];
+
+    useActivityStore.getState().addActivity({
+      id: `act_create_${createdId}_${Date.now()}`,
+      type: "campaign_created",
+      campaignId: createdId,
+      campaignTitle: params.title,
+      actor: callerPublicKey,
+      amountXlm: params.targetAmountXlm,
+      timestamp: Date.now(),
+      txHash,
+      details: `Created campaign "${params.title}" with ${params.targetAmountXlm} XLM goal`,
+    });
+
     return { campaignId: createdId, txHash };
   }
 
@@ -396,6 +410,19 @@ export class CampaignRegistryService {
       campaign.status = "review"; // Suspended
       campaign.canContribute = false;
     }
+
+    const campaignTitle = campaign?.metadata.title || `Campaign #${campaignId}`;
+    useActivityStore.getState().addActivity({
+      id: `act_susp_${campaignId}_${Date.now()}`,
+      type: "campaign_rejected",
+      campaignId,
+      campaignTitle,
+      actor: adminPublicKey,
+      timestamp: Date.now(),
+      txHash,
+      details: `Campaign #${campaignId} suspended by admin: ${reason}`,
+    });
+
     return txHash;
   }
 
@@ -440,6 +467,19 @@ export class CampaignRegistryService {
       campaign.status = "active";
       campaign.canContribute = true;
     }
+
+    const campaignTitle = campaign?.metadata.title || `Campaign #${campaignId}`;
+    useActivityStore.getState().addActivity({
+      id: `act_resm_${campaignId}_${Date.now()}`,
+      type: "campaign_approved",
+      campaignId,
+      campaignTitle,
+      actor: adminPublicKey,
+      timestamp: Date.now(),
+      txHash,
+      details: `Campaign #${campaignId} approved and opened for funding`,
+    });
+
     return txHash;
   }
 
@@ -484,6 +524,19 @@ export class CampaignRegistryService {
       campaign.canContribute = false;
       campaign.canClaimRefund = Number(campaign.totalRaised) > 0;
     }
+
+    const campaignTitle = campaign?.metadata.title || `Campaign #${campaignId}`;
+    useActivityStore.getState().addActivity({
+      id: `act_canc_${campaignId}_${Date.now()}`,
+      type: "campaign_cancelled",
+      campaignId,
+      campaignTitle,
+      actor: callerPublicKey,
+      timestamp: Date.now(),
+      txHash,
+      details: `Campaign #${campaignId} cancelled on-chain`,
+    });
+
     return txHash;
   }
 
@@ -512,6 +565,17 @@ export class CampaignRegistryService {
       campaign.status = "funded";
       campaign.canDisburse = true;
       campaign.canContribute = false;
+
+      useActivityStore.getState().addActivity({
+        id: `act_funded_${campaignId}_${Date.now()}`,
+        type: "state_changed",
+        campaignId,
+        campaignTitle: campaign.metadata.title || `Campaign #${campaignId}`,
+        actor: contributorAddress,
+        amountXlm: stroopsToXlm(newTotalStroops),
+        timestamp: Date.now(),
+        details: `Campaign #${campaignId} reached 100% funding goal on-chain! Status: Funded`,
+      });
     }
   }
 
@@ -521,6 +585,16 @@ export class CampaignRegistryService {
       campaign.status = "completed";
       campaign.isFundsReleased = true;
       campaign.canDisburse = false;
+
+      useActivityStore.getState().addActivity({
+        id: `act_completed_${campaignId}_${Date.now()}`,
+        type: "state_changed",
+        campaignId,
+        campaignTitle: campaign.metadata.title || `Campaign #${campaignId}`,
+        actor: campaign.creator,
+        timestamp: Date.now(),
+        details: `Campaign #${campaignId} successfully completed and closed`,
+      });
     }
   }
 }
