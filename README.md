@@ -37,10 +37,9 @@
   - [7.3 Contract Deployment (Automated Scripts)](#73-contract-deployment-automated-scripts)
 - [8. Security Considerations](#8-security-considerations)
 - [9. Screenshots & Visual Previews](#9-screenshots--visual-previews)
-  - [9.1 Desktop](#91-desktop)
+  - [9.1 Desktop Web Application](#91-desktop-web-application)
   - [9.2 Mobile Experience](#92-mobile-experience)
-  - [9.3 Test Suite Execution](#93-test-suite-execution)
-  - [9.4 CI/CD Pipeline](#94-cicd-pipeline)
+  - [9.3 Test Suite & CI/CD Pipeline Verification](#93-test-suite--cicd-pipeline-verification)
 - [10. Contract Addresses & On-Chain Verification](#10-contract-addresses--on-chain-verification)
 - [11. Resources & Links](#11-resources--links)
 - [Contributing](#contributing)
@@ -350,22 +349,68 @@ bash scripts/deploy-testnet.sh
 
 ## 9. Screenshots & Visual Previews
 
-### 9.1 Desktop
-*Hand-Drawn Post-It & Notebook UI, interactive campaign discovery, dynamic pledge goal meters, and transaction stepper.*
+### 9.1 Desktop Web Application
 
-<p align="center">
-  <img src="public/logo.png" alt="FundCircle Preview" width="300" />
-</p>
+#### Landing Page & Protocol Overview
+| Hero & Value Proposition | Trust Architecture & Escrow Highlights |
+| :---: | :---: |
+| <img src="screenshots/fundcircle-desktop-1.png" alt="Desktop Hero & Value Proposition" width="100%"/> | <img src="screenshots/fundcircle-desktop-2.png" alt="Trust Architecture & Escrow Highlights" width="100%"/> |
+
+| Featured Community Campaigns | Explore Campaigns & Discovery Filters |
+| :---: | :---: |
+| <img src="screenshots/fundcircle-desktop-3.png" alt="Featured Community Campaigns" width="100%"/> | <img src="screenshots/fundcircle-desktop-4.png" alt="Explore Campaigns & Discovery Filters" width="100%"/> |
+
+#### Campaign Creation & Interactions
+| Launch Micro-Funding Campaign | Campaign Details & Soroban Escrow Contribution |
+| :---: | :---: |
+| <img src="screenshots/fundcircle-desktop-5.png" alt="Launch Campaign Form" width="100%"/> | <img src="screenshots/fundcircle-desktop-10.png" alt="Campaign Details & Contribute Modal" width="100%"/> |
+
+#### Protocol Transparency, Dashboards & Analytics
+| Real-Time Protocol Activity Feed | Creator Management Dashboard |
+| :---: | :---: |
+| <img src="screenshots/fundcircle-desktop-6.png" alt="Protocol Activity Feed" width="100%"/> | <img src="screenshots/fundcircle-desktop-7.png" alt="Creator Management Dashboard" width="100%"/> |
+
+| Ledger Transaction Receipts | On-Chain Protocol Analytics |
+| :---: | :---: |
+| <img src="screenshots/fundcircle-desktop-8.png" alt="Transaction Receipts" width="100%"/> | <img src="screenshots/fundcircle-desktop-9.png" alt="Protocol Analytics & Metrics" width="100%"/> |
+
+---
 
 ### 9.2 Mobile Experience
-*Fully responsive mobile navigation drawer, fluid grids, and touch-optimized contribute drawers.*
 
-### 9.3 Test Suite Execution
-- **Cargo Test (Rust)**: `18/18 tests passed` (Campaign Registry + Funding Escrow)
-- **Vitest (TypeScript)**: `42/42 tests passed` (Unit, Component, Store, and RPC Integration)
+#### Mobile Onboarding & Discovery
+| Mobile Landing Page | Fee Comparison & Efficiency |
+| :---: | :---: |
+| <img src="screenshots/fundcircle-mobile-1.png" alt="Mobile Hero" width="100%"/> | <img src="screenshots/fundcircle-mobile-2.png" alt="Fee Comparison" width="100%"/> |
 
-### 9.4 CI/CD Pipeline
-- **GitHub Actions**: Automated PR quality gate, Rust WASM verification, and Next.js production build check.
+| Escrow Architecture Highlights | Mobile Campaign Discovery Feed |
+| :---: | :---: |
+| <img src="screenshots/fundcircle-mobile-3.png" alt="Escrow Architecture" width="100%"/> | <img src="screenshots/fundcircle-mobile-4.png" alt="Mobile Campaign Discovery" width="100%"/> |
+
+| Connected Wallet Drawer (Freighter) | Mobile Campaign Creation |
+| :---: | :---: |
+| <img src="screenshots/fundcircle-mobile-5.png" alt="Connected Wallet Drawer" width="100%"/> | <img src="screenshots/fundcircle-mobile-6.png" alt="Mobile Campaign Creation" width="100%"/> |
+
+#### Mobile Management & Activity
+| Mobile Protocol Activity Feed | Mobile Creator Dashboard |
+| :---: | :---: |
+| <img src="screenshots/fundcircle-mobile-7.png" alt="Mobile Protocol Activity Feed" width="100%"/> | <img src="screenshots/fundcircle-mobile-8.png" alt="Mobile Creator Dashboard" width="100%"/> |
+
+| Mobile Transaction Receipts | Mobile Protocol Analytics |
+| :---: | :---: |
+| <img src="screenshots/fundcircle-mobile-9.png" alt="Mobile Transaction Receipts" width="100%"/> | <img src="screenshots/fundcircle-mobile-10.png" alt="Mobile Protocol Analytics" width="100%"/> |
+
+---
+
+### 9.3 Test Suite & CI/CD Pipeline Verification
+
+| Soroban Contract Unit Tests (`cargo test --lib`) | Frontend Unit & Integration Tests (`npm test`) |
+| :---: | :---: |
+| <img src="screenshots/cargo-test.png" alt="Cargo Test Execution" width="100%"/> | <img src="screenshots/vitest.png" alt="Vitest Test Suite" width="100%"/> |
+
+| Automated CI/CD Pipeline (GitHub Actions) |
+| :---: |
+| <img src="screenshots/ci-cd.png" alt="GitHub Actions CI/CD Pipeline" width="100%"/> |
 
 ---
 
