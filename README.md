@@ -362,7 +362,7 @@ bash scripts/deploy-testnet.sh
 
 ### 9.3 Test Suite Execution
 - **Cargo Test (Rust)**: `18/18 tests passed` (Campaign Registry + Funding Escrow)
-- **Vitest (TypeScript)**: `38/38 tests passed` (Unit, Component, Store, and RPC Integration)
+- **Vitest (TypeScript)**: `42/42 tests passed` (Unit, Component, Store, and RPC Integration)
 
 ### 9.4 CI/CD Pipeline
 - **GitHub Actions**: Automated PR quality gate, Rust WASM verification, and Next.js production build check.
@@ -395,7 +395,7 @@ Contributions are welcome! Please follow these steps:
 1. Fork the project repository.
 2. Create your feature branch (`git checkout -b feat/stellar-feature`).
 3. Commit your changes following [Conventional Commits](https://www.conventionalcommits.org) (`git commit -m "feat(escrow): add milestone release triggers"`).
-4. Run all contract and frontend tests (`cargo test --all && npm test`).
+4. Run all contract and frontend tests (`cargo test --lib && npm test`).
 5. Push to the branch and open a Pull Request.
 
 ---

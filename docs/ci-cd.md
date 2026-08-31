@@ -31,7 +31,7 @@ graph TD
 
 1. **Quality & Test Verification Pipeline ([`.github/workflows/test.yml`](../.github/workflows/test.yml))**:
    - Runs on every push and pull request against `main`.
-   - **Soroban Contract Tests (Cargo)**: Compiles and tests Rust contracts (`cargo test --all`) and builds WASM binaries.
+   - **Soroban Contract Tests (Cargo)**: Compiles and tests Rust contracts (`cargo test --lib`) and builds WASM binaries.
    - **Frontend Unit & Integration Tests (Vitest)**: Strict TypeScript validation (`npm run typecheck`), linter (`npm run lint`), all Vitest component & store tests (`npm test`), and Next.js production build.
 2. **Production Release Pipeline ([`.github/workflows/deploy.yml`](../.github/workflows/deploy.yml))**:
    - Runs on merge to `main`.

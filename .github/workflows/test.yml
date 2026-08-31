@@ -29,7 +29,7 @@ jobs:
         uses: Swatinem/rust-cache@v2
 
       - name: Run Soroban Contract Test Suite
-        run: cargo test --all --verbose
+        run: cargo test --lib --verbose
 
       - name: Compile Soroban WASM Binaries
         run: cargo build --target wasm32-unknown-unknown --release

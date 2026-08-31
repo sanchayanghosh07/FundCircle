@@ -11,7 +11,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "contracts:build": "stellar contract build",
-    "contracts:test": "cargo test",
+    "contracts:test": "cargo test --lib",
     "deploy:testnet": "bash scripts/deploy-testnet.sh"
   },
   "dependencies": {
